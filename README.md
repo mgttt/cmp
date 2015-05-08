@@ -1,5 +1,5 @@
 # What is CMP
-CMP = Class.Method(Param)
+CMP = Class.Method(Param)<br/>
 
 After years of programming, I'd like to share the idea to build the simple world.
 
