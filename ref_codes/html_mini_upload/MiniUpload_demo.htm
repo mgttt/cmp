@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<script src="../weblib/jquery.1.8.2.min.js" type="text/javascript"></script>
+<script src="../weblib/src.clsMiniUpload.js" type="text/javascript"></script>
+
+<form method="post" enctype="multipart/form-data" action="javascript:alert('Error: Submit Wrong');" onSubmit="return frmFileUpload_onSubmit(this);" _id="frmFileUpload">
+	File Upload: <input type="file" name="file" _class="btn_upload_file" onChange="frmFileUpload_onSubmit(this.form,this);" _onChange="(this.form.btn_submit.click());" />
+	<div id="upload_sts"></div>
+</form>
+<div id="file_sts"></div>
+
+<script>
+var mu=new clsMiniUpload({ url:"upload_test.php" });
+
+function _FileUploadCallback(raw_s){
+	filename=""+Math.random();
+	response=raw_s;
+
+	$("#file_sts").append( raw_s + "<br/>");
+	$("#upload_sts").text("");
+}
+function frmFileUpload_onSubmit(frm,btnFile){
+	var _upload_sts="Uploading...";
+	if(btnFile){
+		filename = (btnFile.value || "").replace(/.*(\/|\\)/, ""),
+						 _upload_sts ="Uploading "+ filename + " ...";
+	}
+	$("#upload_sts").text(_upload_sts);
+	return mu.doUpload(_FileUploadCallback,frm);
+}
+</script>
+</body>
+</html>
