@@ -1,3 +1,0 @@
-目标是可以把lib_core2014b接入这个CMP继续
-
-*** Notice the _LIB_CORE_ changes... to prevent error...

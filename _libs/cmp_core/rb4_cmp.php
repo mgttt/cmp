@@ -570,24 +570,33 @@ class RPDO implements Driver
 			$this->setEncoding();
 			$this->pdo->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, TRUE );
 
-			//wjc.hack..
-			$db_timezone=getConf("db_timezone");
-			if($db_timezone){
-				//$this->exec("set time_zone=?",array($db_timezone));
-				$this->pdo->exec("SET TIME_ZONE='$db_timezone'");
-			}
-			else{
-				//throw new Exception("db_timezone not config");
-			}
+			//wjc.hack{
+			$driver = $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME );
+			//$version = floatval( $this->pdo->getAttribute(\PDO::ATTR_SERVER_VERSION ) );
 
+			if ($driver === 'mysql') {
+				$db_timezone=getConf("db_timezone");
+				if($db_timezone){
+					//$this->exec("set time_zone=?",array($db_timezone));
+					$this->pdo->exec("SET TIME_ZONE='$db_timezone'");
+				}
+				else{
+					//throw new Exception("db_timezone not config");
+				}
+			}//TODO 其它 database 呢...
+			//wjc.hack}
+			
 			$this->isConnected = TRUE;
 		} catch (\PDOException $exception ) {
 			$matches = array();
 
-			$dbname  = ( preg_match( '/dbname=(\w+)/', $this->dsn, $matches ) ) ? $matches[1] : '?';
+			//$dbname  = ( preg_match( '/dbname=(\w+)/', $this->dsn, $matches ) ) ? $matches[1] : '?';
+			$dbname  = ( preg_match( '/dbname=(\w+)/', $this->dsn, $matches ) ) ? $matches[1] : $this->dsn;
 
 			//throw new\PDOException( 'Could not connect to database (' . $dbname . ').', $exception->getCode() );
-			throw new\PDOException( 'Fail Connection Database ' . $dbname, $exception->getCode() );
+			//print "code=".var_export($exception->getCode(),true);
+			//throw new\PDOException( 'Fail Connection Database ' . $dbname, $exception->getCode() );
+			throw new \Exception('PDOException ' . $exception->getMessage()." (".$exception->getCode().")");
 		}
 	}
 

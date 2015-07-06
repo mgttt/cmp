@@ -1,13 +1,14 @@
 <?php
 //@ref http://www.redbeanphp.com/crud
 //RedBeanPHP will build all the necessary structures to store your data. However custom indexes and constraints have to be added manually (after freezing your web application).
-require_once(_LIB_CORE_."/rb4.php");
-require_once(_LIB_CORE_."/rb4FacadeNonStatic.php");//mg hack for non static mode of facade of redbean
+//require_once(_LIB_CORE_."/rb4_cmp.php");
+require_once(_LIB_CORE_."/rb4.2.3_cmp.php");//Testing Since 2015-6-28
+require_once(_LIB_CORE_."/rb4FacadeNonStatic.php");//cmp hack for non static mode of facade of redbean
 
 //NOTES:
 //
-// This is a Bean-Wrapper
-//
+// This is a RedBeanPHP-Wrapper
+
 //sqlite mode:
 //$rb=new rbWrapper4("sqlite:"._APP_DIR_.DIRECTORY_SEPARATOR."../test_rb.db");
 
@@ -29,6 +30,7 @@ class rbWrapper4
 	}
 
 	//返回的是一个bean （注意，是未store保存的）....
+	//跟dispense 的不同主要是如果参数缺省，就拿 NAME_R
 	public function dispenseBean($t){
 		if($t && is_array($t)){
 			$t=$this->NAME_R;
@@ -74,7 +76,7 @@ class rbWrapper4
 				$this->freeze( FALSE );
 			}
 		}
-		//处于性能考虑，下面直接拉到 rb4里，违反了设计原则（尽量不影响别人的库代码）...
+		//出于性能考虑，下面直接拉到 rb4里，违反了设计原则（which is "尽量不影响别人的库代码"），所以是复制 rb{$rbVersion}_cmp.php
 		//$db_timezone=getConf("db_timezone");
 		//if(!$db_timezone) throw new Exception("db_timezone not config");
 		//$this->exec("set time_zone=?",array($db_timezone));
@@ -134,7 +136,11 @@ class rbWrapper4
 		return $rsa;
 	}
 
-	//getArr是指 array( bean->export() )这种arr..
+	/**
+	 * getArr, findAndExport, getAll的区别看 test/test_rb_findAndExport_getAll.php
+	 *
+	 * 但是我们代码里面尽量不用 findAndExport，要么用 getArr或者 getAll...
+	 */
 	public function getArr($q1,$q2,$q3){
 		if($q3===null)
 		{
@@ -163,20 +169,25 @@ class rbWrapper4
 
 	//NOTES:其实....exec返回的就已经是af了!!!
 	public function af(){
-		$af=$this->getDatabaseAdapter()->getAffectedRows();
+		//$af=$this->getDatabaseAdapter()->getAffectedRows();
+		$af=$this->Affected_Rows();
 		return $af;
 	}
 
+	//Usage:
 	//$af=$rb->exec($sql);
 	public function exec($sql,$binding=array()){
+		/**
+			在 【rb和我们框架】 里面，exec返回的是 af，不是返回 rsa的。如果要使用SELECT获得返回，统一使用 PageExecute 或者 getAll等
+		 */
 		$rt=parent::exec($sql,$binding);
 		if($rt===NULL){
 			throw new Exception("exec return null");
 		}elseif(is_numeric($rt)){
 			//OK
 		}else{
-			//tell the IT
-			quicklog_must("IT-CHECK","return ".my_json_encode($rt)." for $sql");
+			//tell RND
+			quicklog_must("IT-CHECK","sql ($sql) return ".my_json_encode($rt));
 			//TODO 要判断是不是select，如果是select应该是数组，如果不是SELECT就throw new Exception("SQL OR DB ERROR");
 		}
 		return $rt;

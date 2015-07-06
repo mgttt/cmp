@@ -36,6 +36,7 @@ class mg
 		}
 	}
 	
+	//第二参数是 第三参数模板的参数
 	public static function checkCond($flag,$msg_param, $msg_tpl="MSG_ParamIsRequired"){
 		if($flag){
 			throw new Exception( vsprintf(getLang($msg_tpl),$msg_param));

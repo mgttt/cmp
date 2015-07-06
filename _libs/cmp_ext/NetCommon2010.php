@@ -309,7 +309,6 @@ class NetCommon {
 	}
 	public function readCookie($key){
 		if($this->_flag_cache){
-			#$cookies=unserialize($this->loadSessionVar("COOKIE"));
 			$cookies=my_json_decode($this->loadSessionVar("COOKIE"));
 			if( !is_array($cookies) ) $cookies=array();
 			return $cookies[$key];
@@ -319,7 +318,6 @@ class NetCommon {
 	}
 	public function updateCookie($key,$val){
 		if($this->_flag_cache){
-			#$cookies=unserialize($this->loadSessionVar("COOKIE"));
 			$cookies=my_json_decode($this->loadSessionVar("COOKIE"));
 			if( !is_array($cookies) ) $cookies=array();
 			$cookies[$key]=$val;
@@ -327,7 +325,6 @@ class NetCommon {
 		}else if($this->cookiefile!=""){
 			#curl_setopt($ch, CURLOPT_COOKIEJAR, $this->cookiefile .'.txt');
 			#curl_setopt($ch, CURLOPT_COOKIEFILE,$this->cookiefile .'.txt');
-			//print "$key,$val";
 			//print file_get_contents($this->cookiefile.'.txt');
 			throw new Exception("TODO for CURLOPT_COOKIEFILE");
 		}

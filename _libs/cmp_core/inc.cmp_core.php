@@ -1,4 +1,8 @@
 <?php
+/**
+ ** 在引用位置使用.
+ if(!defined("_APP_DIR_")) define("_APP_DIR_",realpath(dirname(__FILE__)));
+ */
 //基本够用，如果不够，复制一份并放在目录微调一下就可以了.
 
 error_reporting(E_ERROR|E_COMPILE_ERROR|E_PARSE|E_CORE_ERROR|E_USER_ERROR);
