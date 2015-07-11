@@ -1,0 +1,39 @@
+ErrorDocument 404 /404b.php
+
+#open gzip for static files.
+<IfModule mod_deflate.c>
+#AddOutputFilter DEFLATE js html php shtml xml css
+AddOutputFilter DEFLATE js html php shtml xml css png
+#DeflateAlterETag NoChange ###since apache 2.5
+</IfModule>
+#FileETag None
+
+<IfModule mod_headers.c>
+#solution for <2.5
+RequestHeader  edit "If-None-Match" "^(.*)-gzip$" "$1"
+#Header  edit "ETag" "^(.*[^g][^z][^i][^p])$" "$1-gzip"
+Header  edit "ETag" "^\"(.*)(-gzip)\"$" "\"$1\""
+#Header unset X-Powered-By
+#Header unset Server
+</IfModule>
+
+RewriteEngine on 
+
+### NOTES shtml 需要不依赖 显式 _s 所以里面的代码需要自行拿 cookie 不用cookie而用显式 是因为怕多窗口串号
+#把绝对路径保存到 %1 :
+RewriteCond %{REQUEST_URI} (.*)/([^/]*).shtml$
+RewriteRule ([^/]*).shtml$ %1/shtml.php?_p=$1&%{QUERY_STRING}
+
+RewriteCond %{REQUEST_URI} (.*)/([^/]*).json$
+RewriteRule /([^/,]*),([^,]*),([^,]*),?([^,]*)(.*).json$ %1/index.php?_s=$1&_c=$2&_m=$3&_p=$4&_p2=$5&%{QUERY_STRING}
+
+RewriteCond %{REQUEST_URI} (.*)/([^/]*).jsonp$
+RewriteRule /([^/,]*),([^,]*),([^,]*),?([^,]*)(.*).jsonp$ %1/index.php?_s=$1&_c=$2&_m=$3&_p=$4&_p2=$5&%{QUERY_STRING}
+
+RewriteCond %{REQUEST_URI} (.*)/([^/]*).web$
+RewriteRule /([^/,]*),([^,]*),([^,]*),?(.*).web$ %1/index.php?_s=$1&_c=$2&_m=$3&_p=$4&%{QUERY_STRING}
+
+# CMP 终极标准 (兼容.json + .web)
+RewriteCond %{REQUEST_URI} (.*)/([^/]*).api$
+RewriteRule /([^.]*).([^.]*).api$ %1/index.php?_c=$1&_m=$2&%{QUERY_STRING}
+

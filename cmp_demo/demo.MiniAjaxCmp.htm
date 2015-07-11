@@ -1,8 +1,27 @@
 <body>
 	<h3>Mini Ajax =&gt; ApiXXX =&gt; LgcXXX =&gt; OrmXXX</h3>
 	<ul>
+		<li><a href="javascript:TestReview(ajax);">Review "mini-ajax"</a></li>
+		<li><a href="javascript:TestPingPong(ajax);">Test ApiCmpDemo.PingPong.api</a></li>
 		<li>Add TestNote</li>
 		<li>Update TestNote</li>
 		<li>List TestNote</li>
 	</ul>
+	Send<div id="divSend"></div>
+	Receive<div id="divReceive"></div>
+	Debug<div id="divDebug"></div>
+	<!--
+	<script src="../weblib/src.mg.miniajax2014.js"></script>
+	<script src="../weblib/src.wap.core.20150711.js"></script>
+	<script src="../weblib/src.mg_core.js"></script>
+	-->
+	<script src="../weblib/?jsa=mg.miniajax2014,wap.core.20150711,mg_core"></script>
+	<script>
+		function TestReview(o){
+			$("#divDebug").innerHTML=o2s(o);
+		}
+		function TestPingPong(){
+			alert("TODO TestPingPong");
+		}
+	</script>
 </body>
