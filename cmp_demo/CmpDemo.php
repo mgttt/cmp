@@ -1,11 +1,8 @@
 <?php
 class CmpDemo
+	extends ApiDemo
 {
 	public function DefaultIndex(){
-		$rt=array(
-			"STS"=>"KO",
-		);
-		$rt['errmsg']="DefaultIndex";
-		return $rt;
+		include($this->TPL("DefaultIndex","demo"));
 	}
 }

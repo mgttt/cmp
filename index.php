@@ -6,5 +6,6 @@ if(in_array($SERVER_NAME,array('test.cmptech.info','demo.cmptech.info',
 ))){
 	header("Location: cmp_demo/?rnd=".rand());
 }else{
-	print "{errmsg:'Wrong Entry'}";
+	header("Location: cmp_demo/?r=".rand());
+	//print "{errmsg:'Wrong Entry'}";
 }
