@@ -3,25 +3,135 @@
 	<ul>
 		<li><a href="javascript:TestReview(ajax);">Review "mini-ajax"</a></li>
 		<li><a href="javascript:TestPingPong(ajax);">Test ApiCmpDemo.PingPong.api</a></li>
-		<li>Add TestNote</li>
-		<li>Update TestNote</li>
-		<li>List TestNote</li>
+		<li><a href="javascript:AddTestNote();">Add TestNote</a></li>
+		<li><a href="javascript:ListTestNote();">Update TestNote</a></li>
+		<li><a href="javascript:ListTestNote();">List TestNote</a></li>
 	</ul>
+	<h3>Exceptional Test</h3>
+	<ul>
+		<li><a href="javascript:TestBlackHole1(ajax);">Test Black Hole 1</a></li>
+		<li><a href="javascript:TestBlackHole2(ajax);">Test Black Hole 2</a></li>
+	</ul>
+	<table id="NoteList">
+		<thead>
+			<tr><td>主键</td><td>备注</td><td>操作</td></tr>
+		</thead>
+		<tbody id="NoteBody">
+		</tbody>
+	</table>
+	<style>
+		div {background-color:gold}
+	</style>
+	Url<div id="divUrl"></div>
 	Send<div id="divSend"></div>
 	Receive<div id="divReceive"></div>
 	Debug<div id="divDebug"></div>
-	<!--
 	<script src="../weblib/src.mg.miniajax2014.js"></script>
 	<script src="../weblib/src.wap.core.20150711.js"></script>
 	<script src="../weblib/src.mg_core.js"></script>
+	<!--
+	<script src="../weblib/?jsa=mg.miniajax2014,wap.core.20150711,mg_core" comment="流量优化"></script>
 	-->
-	<script src="../weblib/?jsa=mg.miniajax2014,wap.core.20150711,mg_core"></script>
 	<script>
+		function TestBlackHole1(){
+			var url="ApiDemo.TestBlackHole1.api";
+			var _send=BuildQueryStr({});
+			ajax.post(url,function(s){
+				$("#divReceive").innerHTML=s;
+			},_send);
+		}
+		function TestBlackHole2(){
+			var url="ApiDemo.TestBlackHole2.api";
+			var _send=BuildQueryStr({});
+			ajax.post(url,function(s){
+				if(s){
+					$("#divReceive").innerHTML=s;
+				}
+				else{
+					$("#divReceive").innerHTML=("return nothing");
+				}
+			},_send);
+		}
 		function TestReview(o){
 			$("#divDebug").innerHTML=o2s(o);
 		}
 		function TestPingPong(){
-			alert("TODO TestPingPong");
+			var url="ApiDemo.PingPong.api?lang={$lang}";
+			var _send=BuildQueryStr({ping:(new Date()).getTime()/1000});
+			$("#divUrl").innerHTML=url;
+			$("#divSend").innerHTML=_send;
+			ajax.post(url,function(s){
+				$("#divReceive").innerHTML=s;
+			},_send);
 		}
+		function AddTestNote(){
+			var tr = document.createElement("tr");
+			tr.innerHTML = "<td><input type='text' id='note_key'></td><td><input type='text' id='note_remark'></td>\n\
+			<td><input type='button' value='Save' onclick='SaveTestNote(this)'/><input type='button' value='Cancel' onclick='Cancel(this);'/></td>";
+			$("#NoteBody").appendChild(tr);
+		}
+		function SaveTestNote(obj){
+			var _data = {"note_key":$("#note_key").value,"note_remark":$("#note_remark").value};
+			if(obj.parentNode.parentNode.getAttribute('id'))
+			_data["id"] = obj.parentNode.parentNode.getAttribute('id');
+			var url="ApiDemo.SaveTestNote.api?lang={$lang}";
+			var _send=BuildQueryStr(_data);
+			$("#divUrl").innerHTML=url;
+			$("#divSend").innerHTML=_send;
+			ajax.post(url,function(o){
+				$("#divReceive").innerHTML=o2s(o);
+			},_send);
+		}
+		function ListTestNote(){
+			var url="ApiDemo.ListTestNote.api?lang={$lang}";
+			var _send = {};
+			$("#divUrl").innerHTML=url;
+			$("#divSend").innerHTML=BuildQueryStr(_send);
+			ajax.post(url,function(s){
+				$("#divReceive").innerHTML=s;
+				var o = s2o(s);
+				var html = "";
+				for(var i in o.table_data){
+					var row = o.table_data[i];
+					html += "<tr id='"+row['id']+"'><td>"+row['note_key']+"</td><td>"+row['note_remark']+"</td><td><input type='button' value='修改' onclick='EditRow(this)'/><input type='button' value='删除' onclick='DeleteRow(this)'/></td></tr>";
+				}
+				$("#NoteBody").innerHTML=html;
+			},_send);
+		}
+		var OldTr = {};
+		function EditRow(obj){
+			var tr = obj.parentNode.parentNode;
+			var tds = tr.childNodes;
+			var name_a = ["note_key",'note_remark'];
+			OldTr[tr.getAttribute('id')] = tr.innerHTML;
+			for(var i in tds){
+				if(i == tds.length-1){
+					tds[i].innerHTML = "<input type='button' value='Save' onclick='SaveTestNote(this)'/><input type='button' value='Cancel' onclick='Cancel(this);'/>";continue;
+				}
+				var value = tds[i].innerHTML;
+				tds[i].innerHTML = "<input type='text' value='"+value+"' name='"+name_a[i]+" name='"+name_a[i]+"'/>";
+			}
+		}
+		function DeleteRow(obj){
+			var _data = {};
+			_data["id"] = obj.parentNode.parentNode.getAttribute('id');
+			var url="ApiDemo.DeleteTestNote.api?lang={$lang}";
+			var _send=BuildQueryStr(_data);
+			$("#divUrl").innerHTML=url;
+			$("#divSend").innerHTML=_send;
+			ajax.post(url,function(o){
+				$("#divReceive").innerHTML=o2s(o);
+				if(o.STS == "OK") ListTestNote();
+			},_send);
+		}
+
+		function Cancel(obj){
+			var tr = obj.parentNode.parentNode;
+			if(OldTr[tr.getAttribute('id')])
+			tr.innerHTML = OldTr[tr.getAttribute('id')];
+			else
+			tr.remove();
+		}
+		//////////////////////////////////////  Work With CMP Framework.
 	</script>
 </body>

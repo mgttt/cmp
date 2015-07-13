@@ -2,3 +2,9 @@
 *.tmp
 *.log
 *.cache
+/cmp_demo/_tmp/test.db
+/reference/code_standard.zh-cn.utf8.files/filelist.xml
+/reference/code_standard.zh-cn.utf8.files/image001.png
+/reference/code_standard.zh-cn.utf8.files/image002.jpg
+/reference/code_standard.zh-cn.utf8.htm
+/reference/gitignore.config.doc
