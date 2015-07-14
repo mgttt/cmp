@@ -56,15 +56,10 @@ class ApiDemo
 	}
 
 	public function DeleteTestNote($param){
-		//TODO 要check必要的输入
-
 		//访问orm层
 		$cls = new OrmDemo(LgcDemo::getDSN());
-		$info = $cls->deleteBean($param['id']);
-		if($info){
-			return array("STS"=>"OK","data"=>$info);
-		}
-		return array("STS"=>"KO");
+		$cls->deleteBean($param['id']);
+		return array("STS"=>"OK");
 	}
 	public function ListTestNote($param){
 		$cls = new LgcDemo();

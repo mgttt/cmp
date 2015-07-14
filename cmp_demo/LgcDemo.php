@@ -15,7 +15,7 @@ class LgcDemo
 
 		$rs=$rb->PageExecute(array(
 			"SELECT"=>"*",
-			"FROM"=>"test_node",  
+			"FROM"=>"tbl_note",  
 			"WHERE"=>$where,
 			"ORDER"=>"id DESC "
 		));
