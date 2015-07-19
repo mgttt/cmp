@@ -1,6 +1,5 @@
 <?php
 #============================================================================================ config
-//这个& 表示返回的是引用...好像已经过了时不需要这样表示.
 function &getConf($key,$path=array(),$mandate_flag=false,$setConf=0,$setValue=null){
 	#throw new Exception("getConf() to be rewritten as V5Conf::get()");
 	static $_conf_=null;

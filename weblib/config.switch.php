@@ -25,9 +25,12 @@ if($SAE){
 		}
 	}
 	 */
-	if(file_exists(__DIR__."/config.switch.override.tmp"))
-		require(__DIR__."/config.switch.override.tmp");//如果有错就会知道应该把example复制修改好!!
-	else{
-		print "404 config.switch.override.tmp";die;
-	}
+	/*
+		if(file_exists(__DIR__."/config.switch.override.tmp"))
+			require(__DIR__."/config.switch.override.tmp");//如果有错就会知道应该把example复制修改好!!
+		else{
+			print "404 config.switch.override.tmp";die;
+		}
+	 */
+	$_switch_conf="weblib";
 }

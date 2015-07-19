@@ -142,7 +142,11 @@ class RpcController2014c
 			$request_method_param=$json_obj['_p'];
 		}
 		if(!$request_method_param){
-			$request_method_param=$_REQUEST;//20150314 如果没有指定的param，就使用 _REQUEST
+			if($json_obj){
+				$request_method_param=array_merge($json_obj,$_REQUEST);//20150714 如果参数没有param或者_p，但是有json_ob就整个当作param
+			}else{
+				$request_method_param=$_REQUEST;//20150314 如果没有指定的param，就使用 _REQUEST
+			}
 		}
 
 		if(! $flag_console_mode){

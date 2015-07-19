@@ -145,4 +145,24 @@ class WebCore
 		return $sid;
 	}
 	
+	protected function checkLang(){
+		$lang=$_REQUEST['lang'];
+		if($lang){
+			session_start();
+			$_SESSION['lang']=$lang;
+			session_write_close();
+			return $lang;
+		}
+		$lang=$_SESSION['lang'];//尽量先拿session那个.
+		if(!$lang){
+			$sid_1=session_id();
+			$lang=calcLangFromBrowser();//quick func defined in 'inc.v5.lang.php'
+			session_start();
+			$sid_2=session_id();
+			$_SESSION['lang']=$lang;
+			session_write_close();
+		}
+		return $lang;
+	}
+	
 }

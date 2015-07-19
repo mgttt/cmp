@@ -1,8 +1,8 @@
 <?php
+//NOTES: deprecated, but kept as a history.
 /**
  * Wrapper for the database access
  * Version: V0.6alpha.20110323
- * Author: MGTTT
  */
 //for stupid windows
 //if (!extension_loaded('mysql')) {

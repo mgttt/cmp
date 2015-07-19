@@ -3,18 +3,17 @@
 //A MG TOOL
 class mg
 {
+	//判断是否关联型数组:
 	//https://gist.github.com/1965669
 	public static function is_assoc($array){
 		return (array_values($array) !== $array);
 	}
 
 	public static function o2s($o){
-		//return my_json_encode($o,true);
 		return json_encode($o);
 	}
 
 	public static function s2o($s){
-		//return my_json_decode($s,true);
 		return json_decode($s,true);
 	}
 
@@ -43,6 +42,7 @@ class mg
 		}
 	}
 	
+	//@deprecated, 建议用上面checkRequired
 	public static function checkMandatory($arr,$key_a){
 		foreach($key_a as $v){
 			$f=$arr[$v];

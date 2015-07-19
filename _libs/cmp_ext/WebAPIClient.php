@@ -1,4 +1,5 @@
 <?php
+//NOTES:  @deprecated, mostly for php-php link
 /*
  * Usage:
  $url_root="http://192.168.131.1/~admin/2010/web/";

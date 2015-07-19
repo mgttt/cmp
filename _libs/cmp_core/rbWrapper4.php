@@ -206,6 +206,7 @@ class rbWrapper4
 	//	'FROM'=>'test',
 	//	//'WHERE'=>'id=?',
 	//	'ORDER'=>'XXX asc/desc',
+	//	'LIMIT'=>6,//当pageNumber和pageSize不同时有但有它时，会生效....
 	//	'pageNumber'=>2,
 	//	'pageSize'=>3,
 	//	'binding'=>array($id)
@@ -256,7 +257,13 @@ class rbWrapper4
 				//约定如果第二参数为负数，跳过取总这一步.
 			}
 		}else{
-			$LIMIT_s =" LIMIT $max";
+			$limit=$p['LIMIT'];
+			if($limit>0){
+				$LIMIT_s =" LIMIT $limit";
+			}else{
+				//SafeNet
+				$LIMIT_s =" LIMIT $max";
+			}
 		}
 		$sql="$SELECT_s $FROM_s $WHERE_s $GROUPBY_s $ORDER_s $LIMIT_s";
 		$rt['sql']=$sql;
