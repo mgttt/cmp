@@ -1,8 +1,8 @@
 # What is CMP
-CMP = Class.Method(Param), <a href="http://cmptech.info/" target=_blank>Official website http://cmpTech.info</a>
+CMP = Class.Method(Param), Official website <a href="http://cmptech.info/" target=_blank>cmpTech.info</a>
 
 # Basic Demo Installation
-* Install any web server supports PHP >5.4
+* Install into any web server supports PHP >=5.3.X
 * Remame "config.switch.override.tmp.example.php" as "config.switch.override.tmp"
 
 # Target of this project
