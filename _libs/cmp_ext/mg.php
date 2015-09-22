@@ -3,7 +3,6 @@
 //A MG TOOL
 class mg
 {
-	//判断是否关联型数组:
 	//https://gist.github.com/1965669
 	public static function is_assoc($array){
 		return (array_values($array) !== $array);
@@ -34,14 +33,14 @@ class mg
 			}
 		}
 	}
-	
+
 	//第二参数是 第三参数模板的参数
 	public static function checkCond($flag,$msg_param, $msg_tpl="MSG_ParamIsRequired"){
 		if($flag){
 			throw new Exception( vsprintf(getLang($msg_tpl),$msg_param));
 		}
 	}
-	
+
 	//@deprecated, 建议用上面checkRequired
 	public static function checkMandatory($arr,$key_a){
 		foreach($key_a as $v){
@@ -56,9 +55,54 @@ class mg
 	//	}
 	//}
 
+
+	public static function get_env($k){
+		$rt=getenv($k);
+		if($rt && $rt!="") return $rt;
+		$rt=$_SERVER[$k];
+		if($rt && $rt!="") return $rt;
+		return null;
+	}
+	public static function get_ip(){
+		static $_ip="";
+		do{
+			if($_ip!="") return $_ip;
+
+			$LOCAL127="127.0.0.1";
+
+			$HTTP_X_REAL_IP=self::get_env("HTTP_X_REAL_IP");
+			if($HTTP_X_REAL_IP && $HTTP_X_REAL_IP!=$LOCAL127){
+				$_ip=$HTTP_X_REAL_IP;break;
+			}
+
+			$HTTP_CLIENT_IP=self::get_env("HTTP_CLIENT_IP");
+			if($HTTP_CLIENT_IP && $HTTP_CLIENT_IP!=$LOCAL127){
+				$_ip=$HTTP_CLIENT_IP;break;
+			}
+
+			$HTTP_X_FORWARDED_FOR=self::get_env("HTTP_X_FORWARDED_FOR");
+			if($HTTP_X_FORWARDED_FOR)
+				list($HTTP_X_FORWARDED_FOR)= explode(",",$HTTP_X_FORWARDED_FOR);
+			if($HTTP_X_FORWARDED_FOR && $HTTP_X_FORWARDED_FOR!=$LOCAL127){
+				$_ip=$HTTP_X_FORWARDED_FOR;break;
+			}
+
+			$REMOTE_ADDR=self::get_env("REMOTE_ADDR");
+			//		if($REMOTE_ADDR && $REMOTE_ADDR!=$LOCAL127){
+			//			$_ip=$REMOTE_ADDR;break;
+			//		}
+			$_ip=$REMOTE_ADDR;
+		}while(false);
+		return($_ip);
+	}
+	//public static function check_ip(){
+	//	if(@$_SESSION['_ip']!=_get_ip_()){
+	//		throw new Exception("IP Changed, Please login again.",4444);
+	//	}
+	//}
+
 	public static function __callStatic($__function__, $param_a){
 		//TODO 查找相关的函数和函数...
 		throw new Exception("TODO FUNC $__function__");
 	}
-
 }

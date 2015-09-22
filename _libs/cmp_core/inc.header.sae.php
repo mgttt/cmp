@@ -7,28 +7,18 @@ if(!defined("_TMP_"))
 throw new Exception("_TMP_ is not config");
 if(!defined("_LIB_"))
 	define("_LIB_", realpath(_APP_DIR_ .'/_libs/'));
-//if(!is_dir(_LOG_)){
-//	throw new Exception("_LOG_ is config but not exists, please create domain e.g. logs in SAE!!!");
-//}
-//if(!is_dir(_TMP_)){
-//throw new Exception("_TMP_ is config but not exists, please create domain e.g. tmp in SAE!!!");
-//}
-//if(!is_dir(_TMP_.'/session/')){
-//	throw new Exception("_TMP_/session/ is not config, please run install.php. "._TMP_);
-//}
 
 if(!is_dir(_LIB_)){
 	throw new Exception("_LIB_ is not config, please run install.php");
 }
 
-//TODO
-//more other php setting for session for this app
-########################################################################
+ini_set("session.use_cookies",0);//Default not using Cookie
 ini_set("session.name","_s");
-ini_set("session.use_cookies",0);
+
+//SAE Special...but seems not working at all
 if(ini_get("session.name")!='_s'){
-	unset($_COOKIE['PHPSESSID']);
 	setcookie('PHPSESSID',"",-1,'/');//http://stackoverflow.com/questions/686155/remove-a-cookie
+	unset($_COOKIE['PHPSESSID']);
 }
 
 //session_set_cookie_params(2 * 3600);//cookie time 2hr

@@ -28,13 +28,17 @@ if(!function_exists("my_json_encode")){
 	function my_json_encode($o,$wellformat=false){
 		if($wellformat){
 			if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-				$s=json_encode($o,JSON_PRETTY_PRINT);
+				$s=json_encode($o,JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 			}else{
 				$s=json_encode($o);//will have {"a":"b"} instead of {a:"b"}, but encode speed might slightly inproved
 				$s=preg_replace('/","/',"\",\n\"",$s);//dirty work for tmp...
 			}
 		}else{
-			$s=json_encode($o);//will have {"a":"b"} instead of {a:"b"}, but encode speed might slightly inproved
+			if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
+				$s=json_encode($o,JSON_UNESCAPED_UNICODE);
+			}else{
+				$s=json_encode($o);//NOTES: official json_encode will have {"a":"b"} instead of {a:"b"}, but encode speed might slightly inproved
+			}
 		}
 		return $s;
 	}
@@ -102,11 +106,13 @@ function getServerTimeZone(){
 	return $GMT_TIMEZONE[$server_timezone];
 }
 
-function adjust_timezone(){
-	$SERVER_TIMEZONE=getConf('SERVER_TIMEZONE');
+function adjust_timezone($SERVER_TIMEZONE){
+	if(!$SERVER_TIMEZONE)
+		$SERVER_TIMEZONE=getConf('SERVER_TIMEZONE');
 	if($SERVER_TIMEZONE==''){
-		throw new Exception("FTL00002_SERVER_TIMEZONE_must_be_config");
+		throw new Exception("SERVER_TIMEZONE_must_be_config");
 	}else{
+		//override the one in init.  NOTES.  u might need to make a tester for this.
 		$ini_get_date_timezone=ini_get("date.timezone");
 		if($SERVER_TIMEZONE!=ini_get("date.timezone")){
 			ini_set("date.timezone",$SERVER_TIMEZONE);
@@ -207,5 +213,17 @@ function my_isoDateTime($s){
 	}else{
 		return date_create()->format('Y-m-d H:i:s');
 	}
+}
+
+//since 2015-8-6
+function cmp_exit($p){
+	//TODO 判断 swoole环境下的话要用 swoole_process->exit();
+	if($p) exit($p);
+	else exit();
+}
+function cmp_die($p){
+	//TODO 判断 swoole环境下的话要用 swoole_process->close();
+	if($p) die($p);
+	else die();
 }
 

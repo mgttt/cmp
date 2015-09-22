@@ -1,21 +1,33 @@
 <?php
 /**
+ * If the Class is not good for you usage, please clone and overwrite, but not alter unless u r invited to.
  * 如果这个类不合适你的使用，请自己复制修改写一份，未经授权不要修改这个文件
- *
  */
 class WebCore
-	extends AppCommon
 {
-	//不封闭，所以模板可以用到前面的变量
+	//public function GetTpl($t,$suffix="htm"){
+	//	if(!$t)$t=$_REQUEST['_t'];
+	//	$page_tpl_file_name="$t.$suffix";
+	//	require_once _LIB_CORE_ ."/inc.microtemplate.php";
+	//	include(TPL($page_tpl_file_name));
+	//}
+	
+	//模板可以用到前置的变量
 	//代码使用： include($this->TPL($t));
-	public function TPL($t,$prefix="tpl"){
-		$page_tpl_file_name="$prefix.$t.htm";
+	protected function TPL($t,$prefix="tpl",$suffix="htm"){
+		$page_tpl_file_name="$prefix.$t";
+		if($suffix){
+			$page_tpl_file_name.=".$suffix";
+		}
 		require_once _LIB_CORE_ ."/inc.microtemplate.php";
 		return(TPL($page_tpl_file_name));
 	}
-	//对变量封闭，有时有用....
-	public function TPL2($t,$prefix="tpl"){
-		$page_tpl_file_name="$prefix.$t.htm";
+	//对变量封闭，特殊情况下有用....
+	protected function TPL2($t,$prefix="tpl",$suffix="htm"){
+		$page_tpl_file_name="$prefix.$t";
+		if($suffix){
+			$page_tpl_file_name.=".$suffix";
+		}
 		require_once _LIB_CORE_ ."/inc.microtemplate.php";
 		include(TPL($page_tpl_file_name));
 	}
@@ -40,9 +52,9 @@ class WebCore
 			$session['lang']=$lang;//这个有机会会被用户重新重置
 		}
 
-		require_once('../_xxtea/bigint.php');
+		require_once(_LIB_.'/_xxtea/bigint.php');
 		$keylen=256;//TODO
-		require_once('../_xxtea/dhparams.php');
+		require_once(_LIB_.'/_xxtea/dhparams.php');
 		$DHParams = new DHParams($keylen);
 		$keylen = $DHParams->getL();
 		$encrypt = $DHParams->getDHParams();
@@ -70,8 +82,8 @@ class WebCore
 		session_start();
 		$session=& $_SESSION;
 
-		require_once('../_xxtea/bigint.php');
-		require_once('../_xxtea/dhparams.php');
+		require_once(_LIB_.'/_xxtea/bigint.php');
+		require_once(_LIB_.'/_xxtea/dhparams.php');
 
 		$y = bigint_dec2num($enc);
 		$sess_x=$session['x'];
@@ -92,7 +104,7 @@ class WebCore
 
 		session_write_close();
 
-		require_once('../_xxtea/xxtea.php');
+		require_once(_LIB_.'/_xxtea/xxtea.php');
 		$rt_o['enc']=base64_encode(xxtea_encrypt(json_encode("okok"),$auth_key));
 		$rt_o['keylen']=$keylen;
 		return $rt_o;
@@ -107,7 +119,7 @@ class WebCore
 		$auth_key=$session['auth_key'];
 		session_write_close();
 
-		require_once('../_xxtea/xxtea.php');
+		require_once(_LIB_.'/_xxtea/xxtea.php');
 		$enc=$param['enc'];
 
 		$d0=$enc;
@@ -121,6 +133,7 @@ class WebCore
 		return $rt_o;
 	}
 
+	//TODO deprecated.
 	public static function CheckAndStartSession(){
 		$sid=session_id();
 		$_s_cookie=$_COOKIE['_s'];
@@ -144,7 +157,8 @@ class WebCore
 		session_write_close();//之后要的话就再呼叫session_start()...
 		return $sid;
 	}
-	
+
+	//如果模块不需要语言是不需要的，(不过一般的项目都是要的)
 	protected function checkLang(){
 		$lang=$_REQUEST['lang'];
 		if($lang){
@@ -157,6 +171,13 @@ class WebCore
 		if(!$lang){
 			$sid_1=session_id();
 			$lang=calcLangFromBrowser();//quick func defined in 'inc.v5.lang.php'
+			/*
+				if (in_array($lang, array('en','zh-cn','zh-tw','vn','kh'))){
+					//OK
+				}else{
+					$lang='en';
+				}
+			 */
 			session_start();
 			$sid_2=session_id();
 			$_SESSION['lang']=$lang;
@@ -164,5 +185,33 @@ class WebCore
 		}
 		return $lang;
 	}
-	
+
+	public function logout($param){
+		$url=$_REQUEST['url'];
+		if(!$url){
+			$url=$param['url'];
+		}
+		$_s_cookie=$_COOKIE['_s'];
+
+		//clean default
+		session_start();
+		$_old_sid=session_id();
+		$_SESSION['auth_id']="";
+		unset($_SESSION['auth_id']);
+		session_destroy();
+
+		//clean this one in cookie also
+		if($_s_cookie && $_s_cookie!=$_old_sid){
+			session_id($_s_cookie);
+			session_start();
+			$_SESSION['auth_id']="";
+			unset($_SESSION['auth_id']);
+			session_destroy();
+		}
+		if(!$url){
+			$url="./?trace=logout,$_old_sid,$_s_cookie";
+		}
+		header("Location:$url");
+	}
+
 }

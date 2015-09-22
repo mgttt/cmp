@@ -1,27 +1,27 @@
 <?php
+//TODO 要写一个logger viewer
 function logger($log_filename,$log_content,$prefix="",$gzf){
 	$rt="";
 	if(!defined('_LOG_')){ throw new Exception("//_LOG_ not defined to call logger"); }
 	if($prefix=="DEFAULT") $prefix="--".date('ymd_His')."";
+
 	//$suffix="\r\n";//for windows
 	$suffix="\n";//for all
+
 	$rt=_LOG_ .'/'.$log_filename;
 	//file_put_contents($rt, $prefix.$log_content.$suffix, FILE_APPEND);
 	//http://sae4java.sinaapp.com/doc/com/sina/sae/storage/SaeStorage.html
 	/*
-Storage服务适合用来存储用户上传的文件，比如头像、附件等。不适合存储代码类文件，比如页面内调用的JS、
-CSS等，尤其不适合存储追加写的日志。使用Storage服务来保存JS、CSS或者日志，会严重影响页面响应速度。建议JS、
-CSS直接保存到代码目录，日志使用sae_debug()方法记录。
+	 * Q: 什么不用 Sae Storage?
+	 * A: Storage服务适合用来存储用户上传的文件，比如头像、附件等。不适合存储代码类文件，比如页面内调用的JS、 CSS等，尤其不适合存储追加写的日志。使用Storage服务来保存JS、CSS或者日志，会严重影响页面响应速度。建议JS、 CSS直接保存到代码目录，日志使用sae_debug()方法记录。
 	 */
-	//sae 不支持追加！所以用 sql log
 	$mysql = new SaeMysql();
-	//小心sae大小写敏感..
+	//注：小心sae大小写敏感..
 	//$sql = "INSERT INTO tbl_log_sys (name,value,time) values(".qstr($log_filename).",".qstr($prefix.$log_content.$suffix).",NOW())";
 	$sql = "INSERT INTO tbl_log_sys (name,value,time) values(".qstr($log_filename).",'".$mysql->escape(substr($prefix.$log_content.$suffix,0,1024))."',NOW())";
 	$mysql->runSql( $sql );
 	if( $mysql->errno() != 0 ) {
 		$errmsg="failed ($sql) ".$mysql->errmsg();
-		//var_dump(getConf("db_test",array("db_conf")));die;
 			/*
 CREATE TABLE `tbl_log_sys` (
 	`name` varchar(255) DEFAULT NULL,
@@ -43,10 +43,11 @@ KEY `idx_name` (`name`),
 KEY `idx_time` (`time`)
 )
 EOSQL;
-			$mysql->runSql( $sql );
-		}catch(Exception $ex){}
-		file_put_contents(_LOG_ .'/'."SYS-FAILED-$prefix2.log", $prefix.$log_content.$suffix."###".$errmsg); //DIRECTORY_SEPARATOR
-		throw new Exception($errmsg);
+			$mysql->runSql( $sql );//写LOG
+		}catch(Exception $ex){
+			throw new Exception("ADMIN: Log table not found, you need to init a 'share database' in your app for the first time, if you don't know please check the document in the taskmgr system.");
+		}
+		//file_put_contents(_LOG_ .'/'."SYS-FAILED-$prefix2.log", $prefix.$log_content.$suffix."###".$errmsg); //DIRECTORY_SEPARATOR
 	}else{
 		$mysql->closeDb();
 	}

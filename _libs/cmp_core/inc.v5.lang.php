@@ -148,9 +148,9 @@ function getXlsArr2File($nameXls){
 
 function getLang_a($lang){
 	static $lang_a=null;
+	if($lang_a) return $lang_a[$lang];//静态有的话就用静态的.
 	if(!$lang)$lang=$_SESSION['lang'];
 	if(!$lang)$lang=getConf("default_lang");
-	if($lang_a) return $lang_a[$lang];//静态有的话就用静态的.
 
 	$lang_pack_conf=getConf("lang_pack_conf");//注意是相对目录
 	$lang_a=$a=getXlsArr($lang_pack_conf);
@@ -171,10 +171,10 @@ function getLang($k,$lang=null){
 	if(!$lang){
 		if($lang_static) $lang=$lang_static;//静态已经有，直接用静态的.
 		else{
+			if(!$lang)$lang=$_REQUEST['lang'];
 			if(!$lang)$lang=$_SESSION['lang'];
 			if(!$lang)$lang=$_COOKIE['lang'];
-			if(!$lang)$lang=calcLangFromBrowser();
-			if(!$lang)$lang="en";//实在不行才用en做为超级保底...
+			if(!$lang)$lang="en";//实在不行才用en做为保底...
 			$lang_static=$lang;//保存到静态给下一个用.
 		}
 	}

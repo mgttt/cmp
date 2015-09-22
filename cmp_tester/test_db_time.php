@@ -1,8 +1,5 @@
 <?php
-require_once "../inc.app.php";
-
-//加载远程拿回来的配置其中最重要应该是数据库链接和Root帐号..
-#Tenant_Tool::MergeSaasConf();
+require_once "../cmp_demo/inc.app.php";
 
 #$APP_NAME="test";
 
@@ -12,8 +9,9 @@ print "db_time<pre>";
 
 #println(microtime(true)."<hr/>");
 
-##$orm=new ORM_Base;//现在会报错，因为要求显式
-$orm=new ORM_Base(ORM_Base::$DSN);
+##$orm=new OrmTest;//会报错，因为现在ORM要求显式定义DSN入口
+$dsn="db_local";//配置在../cmp_demo/_conf.cmp_demo/
+$orm=new OrmTest($dsn);
 
 println(microtime(true)."<hr/>");
 $db_time=$orm->getDbTimeStamp();

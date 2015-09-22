@@ -3571,6 +3571,17 @@ abstract class AQueryWriter { //bracket must be here - otherwise coverage softwa
 		}
 	}
 
+	//wjc: regards "+..." as TEXT instead of NUMERIC
+	protected function startsWithPlus( $value )
+	{
+		$value = strval( $value );
+		if ( strlen( $value ) > 1 && strpos( $value, '+' ) === 0 ) {
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+	}
+	
 	/**
 	 * Inserts a record into the database using a series of insert columns
 	 * and corresponding insertvalues. Returns the insert id.
@@ -4020,7 +4031,8 @@ abstract class AQueryWriter { //bracket must be here - otherwise coverage softwa
 	{
 		$table = $this->esc( $type );
 
-		$this->adapter->exec( "TRUNCATE $table " );
+		$rt = $this->adapter->exec( "TRUNCATE $table " );
+		return $rt;
 	}
 
 	/**
@@ -4518,6 +4530,8 @@ class SQLiteT extends AQueryWriter implements QueryWriter
 	const C_DATATYPE_INTEGER   = 0;
 	const C_DATATYPE_NUMERIC   = 1;
 	const C_DATATYPE_TEXT      = 2;
+	const C_DATATYPE_SPECIAL_DATE     = 80;//patch from wjc
+	const C_DATATYPE_SPECIAL_DATETIME = 81;//patch from wjc
 	const C_DATATYPE_SPECIFIED = 99;
 
 	/**
@@ -4718,6 +4732,8 @@ class SQLiteT extends AQueryWriter implements QueryWriter
 			SQLiteT::C_DATATYPE_INTEGER => 'INTEGER',
 			SQLiteT::C_DATATYPE_NUMERIC => 'NUMERIC',
 			SQLiteT::C_DATATYPE_TEXT    => 'TEXT',
+			SQLiteT::C_DATATYPE_SPECIAL_DATE => 'DATE',//wjc
+			SQLiteT::C_DATATYPE_SPECIAL_DATETIME => 'DATETIME',//wjc
 		);
 
 		$this->sqltype_typeno = array();
@@ -4747,21 +4763,33 @@ class SQLiteT extends AQueryWriter implements QueryWriter
 	{
 		$this->svalue = $value;
 
-		if ( $value === FALSE ) return self::C_DATATYPE_INTEGER;
-
 		if ( $value === NULL ) return self::C_DATATYPE_INTEGER;
+		if ( $value === INF ) return self::C_DATATYPE_TEXT;
 
 		if ( $this->startsWithZeros( $value ) ) return self::C_DATATYPE_TEXT;
+		if ( $this->startsWithPlus( $value ) ) return self::C_DATATYPE_TEXT;//patch from wjc
 
-		if ( is_numeric( $value ) && ( intval( $value ) == $value ) && $value < 2147483648 ) return self::C_DATATYPE_INTEGER;
+		if ( $value === TRUE || $value === FALSE )  return self::C_DATATYPE_INTEGER;
+		
+		if ( is_numeric( $value ) && ( intval( $value ) == $value ) && $value < 2147483648 && $value > -2147483648 ) return self::C_DATATYPE_INTEGER;
 
-		if ( ( is_numeric( $value ) && $value < 2147483648 )
-			|| preg_match( '/\d{4}\-\d\d\-\d\d/', $value )
-			|| preg_match( '/\d{4}\-\d\d\-\d\d\s\d\d:\d\d:\d\d/', $value )
-		) {
-			return self::C_DATATYPE_NUMERIC;
+		//patch from wjc{
+		if ( preg_match( '/^\d{4}\-\d\d-\d\d$/', $value ) ) {
+			return self::C_DATATYPE_SPECIAL_DATE;
 		}
 
+		if ( preg_match( '/^\d{4}\-\d\d-\d\d\s\d\d:\d\d:\d\d(\.\d{1,6})?$/', $value ) ) {
+			return self::C_DATATYPE_SPECIAL_DATETIME;
+		}
+		//patch from wjc}
+
+		if ( ( is_numeric( $value ) && $value < 2147483648 && $value > -2147483648)
+			//|| preg_match( '/\d{4}\-\d\d\-\d\d/', $value )
+			//|| preg_match( '/\d{4}\-\d\d\-\d\d\s\d\d:\d\d:\d\d/', $value )
+		){
+			//NOTES: 为什么 sqlite 的 NUMERIC在21亿? TODO 超过 21亿是 BIG NUMERIC，如何调整?
+			return self::C_DATATYPE_NUMERIC;
+		}
 		return self::C_DATATYPE_TEXT;
 	}
 
@@ -4897,7 +4925,8 @@ class SQLiteT extends AQueryWriter implements QueryWriter
 	{
 		$table = $this->esc( $type );
 		
-		$this->adapter->exec( "DELETE FROM $table " );
+		$rt = $this->adapter->exec( "DELETE FROM $table " );
+		return $rt;//cmp
 	}
 
 	/**
@@ -6478,9 +6507,10 @@ class OODB extends Observable
 	public function wipe( $type )
 	{
 		try {
-			$this->writer->wipe( $type );
+			$rt = $this->writer->wipe( $type );
+			return $rt;//cmp fix
 
-			return TRUE;
+			//return TRUE;
 		} catch ( SQL $exception ) {
 			if ( !$this->writer->sqlStateIn( $exception->getSQLState(), array( QueryWriter::C_SQLSTATE_NO_SUCH_TABLE ) ) ) {
 				throw $exception;
@@ -8416,7 +8446,7 @@ class Facade
 		
 		if
 			//( !preg_match( '/^[a-z0-9]+$/', $type ) )//original
-			( !preg_match( '/^[a-zA-Z0-9_]+$/', $type ) )//patch
+			( !preg_match( '/^[a-zA-Z0-9_]+$/', $type ) )//patch wjc
 		{
 			throw new RedException( 'Invalid type: ' . $type );
 		}
@@ -9797,12 +9827,11 @@ namespace {
 //make some classes available for backward compatibility
 class RedBean_SimpleModel extends \RedBeanPHP\SimpleModel {};
 
+//cmp:
 //Don't use short R static anymore...
 //if (!class_exists('R')) {
 //	class R extends \RedBeanPHP\Facade{};
 //}
-
-
 
 /**
  * Support functions for RedBeanPHP.

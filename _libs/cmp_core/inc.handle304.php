@@ -6,16 +6,16 @@ $page_mtime=filemtime(__FILE__);//注：可以用其它来判断的.
 handle304($page_mtime);
 
 Example2:
-handle304($file_last_cache_time, 60);//用分钟控制客户频繁的值.这个可以用在 static.php
+handle304($file_last_cache_time, "", 60);//用分钟控制客户频繁的值.这个可以用在 static.php
 
  */
-function handle304($lmt, $client_cache_time=3600){
-	$md5 = md5($lmt);
+function handle304($lmt, $tag, $client_cache_time=3600){
+	$md5 = md5($lmt.$tag);
 	$etag = '"' . $md5 . '"';
 
 	header('Cache-Control: public, max-age='.$client_cache_time);
 
-	//TODO BUG 这里用php时间好像是不对的...
+	//NOTES: 这里用php时间不是特别，但是用db时间又有消耗!
 	header('Expires: '.gmdate('D, d M Y H:i:s',time() + $client_cache_time).' GMT');//设置页面缓存时间
 
 	header('Pragma: public');

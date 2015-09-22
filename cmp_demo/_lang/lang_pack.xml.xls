@@ -11,7 +11,7 @@
   <LastAuthor>wj</LastAuthor>
   <Created>2014-10-05T15:04:33Z</Created>
   <LastSaved>2015-07-15T09:12:57Z</LastSaved>
-  <Version>11.6568</Version>
+  <Version>11.9999</Version>
  </DocumentProperties>
  <CustomDocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
   <KSOProductBuildVer dt:dt="string">2052-9.1.0.5133</KSOProductBuildVer>
@@ -109,7 +109,7 @@
    <NamedRange ss:Name="_FilterDatabase" ss:RefersTo="=DataDict!R1C1:R4C12"
     ss:Hidden="1"/>
   </Names>
-  <Table ss:ExpandedColumnCount="11" ss:ExpandedRowCount="4" x:FullColumns="1"
+  <Table ss:ExpandedColumnCount="11" ss:ExpandedRowCount="5" x:FullColumns="1"
    x:FullRows="1" ss:StyleID="s21" ss:DefaultColumnWidth="54"
    ss:DefaultRowHeight="21">
    <Column ss:StyleID="s22" ss:AutoFitWidth="0" ss:Width="173.25"/>
@@ -187,6 +187,12 @@
     <Cell><Data ss:Type="String">ប៉ារ៉ាម៉ែត្រ​មិន​ត្រឹមត្រូវ</Data><NamedCell
       ss:Name="_FilterDatabase"/></Cell>
    </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">LMT</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">Last Modified Time</Data></Cell>
+    <Cell><Data ss:Type="String">上次更新时间</Data></Cell>
+    <Cell ss:StyleID="s23"><Data ss:Type="String">上次更新时间</Data></Cell>
+   </Row>
   </Table>
   <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
    <PageSetup>
@@ -222,8 +228,8 @@
     </Pane>
     <Pane>
      <Number>0</Number>
-     <ActiveRow>12</ActiveRow>
-     <ActiveCol>0</ActiveCol>
+     <ActiveRow>4</ActiveRow>
+     <ActiveCol>6</ActiveCol>
     </Pane>
    </Panes>
    <ProtectObjects>False</ProtectObjects>

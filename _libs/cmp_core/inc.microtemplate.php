@@ -42,13 +42,18 @@ function fetchCache($fn){
 	return $Viewer->fetchCache($fn);
 }
 
+//NOTES: 用 模板引擎 编译 $fn 对应的 模板文件，并把编译后的文件的文件名(含路径)返回
 //Usage: include(TPL($fn));
 function TPL($fn){
+	//检查模板文件是否存在:
 	if(!file_exists($fn))
 		throw new Exception("404 FILE ".basename($fn,'.htm'));
 	if(!defined("_TMP_")){
 		throw new Exception("_TMP_ is not defined");
 	}
+
+	//引入模板引擎.
+	//注：模板引擎的位置有过变换，历史原因.简单兼容一下.
 	if(defined("_LIB_CORE_")){
 		$_clsFile=_LIB_CORE_ ."/DzTemplate.php";
 	}else{
@@ -61,6 +66,10 @@ function TPL($fn){
 	chdir(dirname($fn));//跳去模板文件所在的目录..
 	$fn=basename($fn);
 
-	return(fetchCache($fn));
+	//模板引擎编译（自带缓冲算法）:
+	$compiled_file_path=fetchCache($fn);
+
+	//返回编译后的文件的文件名（含路径）:
+	return $compiled_file_path;
 }
 

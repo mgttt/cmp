@@ -1,11 +1,8 @@
 <?php
 /**
  * 如果这个类不合适你的使用，请自己复制修改写一份，不要直接修改这个文件..
- *
- * RpcController2014c 主要比 RpcController2014b 多了:
- * 处理 returnFormat（空的话就跟 RpcController2014b一样）..暂时支持shtml
  */
-class RpcController2014c
+class cmp2015
 {
 	static $_preSetData=array();
 	static $_last_json_obj=array();//FOR DEBUG
@@ -14,9 +11,10 @@ class RpcController2014c
 		self::$_preSetData=$_data;
 	}
 
+	//NOTES: 
+	//Q: Why need handleWeb() since already a Run() ?
+	//A: Run() now focus on Run, but handleWeb has more feature for caller
 	public static function Run($_json_string){
-		$_php_start_time=microtime(true);
-		//---------------------------------------------------------------------------------------
 		global $argv;
 		$json_string="";
 
@@ -74,7 +72,7 @@ class RpcController2014c
 			quicklog_must("IT-CHECK","_REQUEST---------".var_export($_REQUEST,true));
 
 			if($_POST)
-			quicklog_must("IT-CHECK","_POST---------".var_export($_POST,true));
+				quicklog_must("IT-CHECK","_POST---------".var_export($_POST,true));
 
 			quicklog_must("IT-CHECK","json_string---------".$json_string);
 			quicklog_must("IT-CHECK","predata------------".var_export(self::$_preSetData,true));
@@ -153,42 +151,26 @@ class RpcController2014c
 			@ob_start();
 		}
 
-		//---------------------------------------------------------------------------------------
-		try{
-			//------------------------------------------------- session id handling
-			if($_s){
-				session_id($_s);
-				session_start();
-			}else{
-				//NOTES: 如果没有，要代码自行处理，参见WebCore::CheckAndStartSession
-				//原因？为了让代码更宽松一点，不一定要生成session，把生成session的权利还给应用代码（毕竟盲目建立session会有一定的损耗）
-			}
-
-			if(! $request_class) throw new Exception("request_class not found");
-			if(! $request_method) throw new Exception("request_method not found");
-
-			session_write_close();//NOTES!! close first, if u need to write, need to manually do ur session_start...
-
-			AppAuth::checkApiAccess($request_class,$request_method,$request_method_param);
-
-			$obj=new $request_class;
-			$rt=$obj->$request_method($request_method_param, $json_obj);
-			$response_obj=($rt);
-		}catch(Exception $ex){
-			$response_obj=(global_error_handler($ex->getFile(),$ex->getLine(),$ex->getMessage(),$ex->getTraceAsString(),$ex->getCode()));
-			$trace_s=$ex->getTraceAsString();
-			$trace_s=substr($trace_s,0,4096);
-			$response_obj['trace_s']=$trace_s;
+		//------------------------------------------------- session id handling
+		if($_s){
+			session_id($_s);
+			session_start();
+		}else{
+			//NOTES: 如果没有，要代码自行处理，参见WebCore::CheckAndStartSession
+			//原因？为了让代码更宽松一点，不一定要生成session，把生成session的权利还给应用代码（毕竟盲目建立session会有一定的损耗）
 		}
 
-		//---------------------------------------------------------------------------------------
-		$_php_end_time=microtime(true);
-		$_php_exec_time=$_php_end_time-$_php_start_time;
-		$_max_exec_time_then_log=($flag_console_mode)?60:5;//超时的要做日志...
-		if($_php_exec_time>$_max_exec_time_then_log){
-			//TODO 这里要补大全LOG，分析为什么执行慢?
-			quicklog_must("php_time", "$json_string,\$_php_exec_time=".$_php_exec_time);
-		}
+		if(! $request_class) throw new Exception("request_class not found");
+		if(! $request_method) throw new Exception("request_method not found");
+
+		session_write_close();//NOTES!! close first, if u need to write, need to manually do ur session_start...
+
+		AppAuth::checkApiAccess($request_class,$request_method,$request_method_param);
+
+		$obj=new $request_class;
+		$rt=$obj->$request_method($request_method_param, $json_obj);
+		$response_obj=($rt);
+
 		return $response_obj;
 	}
 
@@ -246,7 +228,7 @@ class RpcController2014c
 			));
 		}
 	}
-	
+
 	//public static function get_env($k){
 	//	$rt=getenv($k);
 	//	if($rt && $rt!="") return $rt;
@@ -254,9 +236,13 @@ class RpcController2014c
 	//	if($rt && $rt!="") return $rt;
 	//	return null;
 	//}
-	
+
 	//return JSON/PLAIN depends the running result === null
 	static function handleWeb($_p){
+
+		$_php_start_time=microtime(true);
+		//---------------------------------------------------------------------------------------
+
 		$returnFormat=$_p['returnFormat'];
 		if($returnFormat=='shtml'){
 			// $p0,$p1,.shtml
@@ -265,7 +251,7 @@ class RpcController2014c
 			self::_shtml();
 			die;
 		}
-		
+
 		$defaultClass=$_p['defaultClass'];
 		$defaultMethod=$_p['defaultMethod'];
 		$APP_NAME=$_p['APP_NAME'];
@@ -299,26 +285,37 @@ class RpcController2014c
 			@ob_start();
 			$rt=self::Run(true);
 		}catch(Exception $ex){
-			$rt_err=global_error_handler($ex->getFile(),$ex->getLine(),$ex->getMessage(),"",$ex->getCode()//,$ex->getTraceAsString()
+			$rt_err=global_error_handler($ex->getFile(),$ex->getLine(),$ex->getMessage(),""/*$ex->getTraceAsString()*/,$ex->getCode()
 			);
 			$rt=array_merge($rt,$rt_err);
 			$trace_s=$ex->getTraceAsString();
 			$trace_s=substr($trace_s,0,4096);
 			if($trace_s)
-			$rt['trace_s']=$rt['trace_s'].$trace_s;
+				$rt['trace_s']=$rt['trace_s'].$trace_s;
 		}
 
 		if(is_array($rt) && isset($rt['errmsg'])){
+			$errmsg=$rt['errmsg'];
+
+			if(my_json_encode($errmsg)=="null")//20150819: Ugly bug for some PDO Exception
+			{
+				//$errmsg=iconv("ISO-8859-1","UTF-8",$rt['errmsg']);
+				$errmsg=iconv("GBK","UTF-8",$errmsg);
+				//if(my_json_encode($errmsg)=="null"){
+				//}else{
+				$rt['errmsg']=$errmsg;
+				//}
+			}
+			
 			$logid=_getbarcode(6,"ABCDEFGHJKLMNPQRSTUVWXYZ12356789");//for easier to trace ...
 			if(isset($rt['trace'])){
-				unset($rt['trace']);//有trace_s就可以了
+				unset($rt['trace']);//这个trace没必要写LOG了，有trace_s了.
 			}
 			if($rt['errno']==0){
 				unset($rt['errno']);
 			}
-			//$trace_s=$rt['trace_s'];
 			$logfile=quicklog_must($APP_NAME,$logid."\n".var_export($rt,true));
-			require_once(_LIB_CORE_ .'/inc.v5.secure.php');
+			require_once(_LIB_CORE_ .'/inc.v5.secure.php');//要拿IP地址..
 			quicklog_must($APP_NAME, $logid
 				//."\n$trace_s"
 				//."\nHTTP_X_FORWARDED_FOR=".self::get_env('HTTP_X_FORWARDED_FOR')
@@ -335,7 +332,7 @@ class RpcController2014c
 			$rt['file']=basename($rt['file'],".php");
 			$rt['log_id']=$logid;
 			$rt['log_file']=basename($logfile);
-			$rt['nav_helper']="<a href='javascript:top.location.reload();'>Refresh";
+			$rt['nav_helper']="<a href='javascript:top.location.reload();'>Refresh";//有时方便客户刷新。兼容旧的代码而已，已经没有太大作用了.
 		}
 
 		//如果结果是 === null，就是没有返回object，就是用PLAIN模式返回，否则就是用JSON_S返回:
@@ -351,7 +348,9 @@ class RpcController2014c
 				$response_txt=my_json_encode($rt);
 				$response_txt="$callback($response_txt);";
 			}else{
-				$response_txt=my_json_encode($rt);
+				$response_txt=my_json_encode($rt, ($rt['errmsg'])?true:false);//NOTES: 如果是有错误信息，可以格式化得好看点的.
+				//$response_txt=my_json_encode($rt);//NOTES: 如果是有错误信息，可以格式化得好看点的.
+				//TODO 如果API参数有 wellform的话，也可以格式化的，不过目前没这个需求!
 			}
 			$_g=$_REQUEST['_g'];//if 1 force try gzip...
 			if($_g==1){
@@ -370,6 +369,15 @@ class RpcController2014c
 			_gzip_output($output);
 			ob_end_flush();
 		}
+
+		//---------------------------------------------------------------------------------------
+		$_php_end_time=microtime(true);
+		$_php_exec_time=$_php_end_time-$_php_start_time;
+		$_max_exec_time_then_log=($flag_console_mode)?60:7;//超时的要做日志，提醒要分析.
+		if($_php_exec_time>$_max_exec_time_then_log){
+			quicklog_must($APP_NAME, "$json_string,\$_php_exec_time=".$_php_exec_time);
+		}
+
 		return $rt;
 	}//handleWeb()
 }

@@ -23,7 +23,8 @@ if($SAE){
 	if(file_exists(__DIR__."/config.switch.override.tmp"))
 		require(__DIR__."/config.switch.override.tmp");
 	else{
-		print "404 config.switch.override.tmp";die;
+		//print "404 config.switch.override.tmp";die;//正常的项目是用这句来提醒部署者要用这个做“开关”文件.
+		$_switch_conf="cmp_demo";//demo先跳过.tmp
 	}
 }
 

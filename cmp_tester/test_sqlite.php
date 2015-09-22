@@ -12,7 +12,7 @@ $dsn="sqlite:"._TMP_."/test_sqlite.db";
 //$dsn="sqlite:memory:;cache=shared";//好像OK
 
 //$rb=new rbWrapper4($dsn);//Passed
-$rb=new OrmBase($dsn);
+$rb=new OrmTest($dsn);
 
 $book = $rb->dispense( 'book' );
 //$book2=$rb->load(1);
@@ -29,13 +29,13 @@ $book2=$rb->load('book',$id);
 println("book2=".var_export($book2->export(),true));
 
 ##example 3
-class ORM_book
-	extends OrmBase
+class OrmBook
+	extends OrmTest
 {
 	var $NAME_R="book";
 }
 
-$book_cls=new ORM_book($dsn);
+$book_cls=new OrmBook($dsn);
 $book3_a=$book_cls->loadBeanArr($id);
 println("book3_a=".var_export($book3_a,true));
 

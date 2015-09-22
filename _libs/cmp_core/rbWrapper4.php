@@ -2,8 +2,8 @@
 //@ref http://www.redbeanphp.com/crud
 //RedBeanPHP will build all the necessary structures to store your data. However custom indexes and constraints have to be added manually (after freezing your web application).
 //require_once(_LIB_CORE_."/rb4_cmp.php");
-require_once(_LIB_CORE_."/rb4.2.3_cmp.php");//Testing Since 2015-6-28
-require_once(_LIB_CORE_."/rb4FacadeNonStatic.php");//cmp hack for non static mode of facade of redbean
+require_once(_LIB_CORE_."/rb4.2.5_cmp.php");
+require_once(_LIB_CORE_."/FacadeNonStatic.php");//cmp hack for non static mode of facade of redbean
 
 //NOTES:
 //
@@ -13,7 +13,7 @@ require_once(_LIB_CORE_."/rb4FacadeNonStatic.php");//cmp hack for non static mod
 //$rb=new rbWrapper4("sqlite:"._APP_DIR_.DIRECTORY_SEPARATOR."../test_rb.db");
 
 class rbWrapper4
-	extends \RedBeanPHP\rb4FacadeNonStatic
+	extends \RedBeanPHP\FacadeNonStatic
 {
 	public static $DSN='db_app';//默认
 
@@ -108,7 +108,7 @@ class rbWrapper4
 		}
 	}
 
-	//返回的是 beans array 的随意一个...
+	//返回的是 beans array 的随意(天然顺序)一个...
 	public function findBeanOne($sql_piece,$binding=array()){
 		if(!is_string($sql_piece)) throw new Exception("findBeanOne need correct param");
 		$rt=parent::find($this->NAME_R,$sql_piece.' LIMIT 1',$binding);
@@ -118,6 +118,7 @@ class rbWrapper4
 			return null;
 		}
 	}
+	//注意并不是 UPSERT...所以不严谨。如果需要ACID，需要另外写..
 	public function findOneBeanOrDispense($q1,$q2,$q3){
 		if($q3===null)
 		{
@@ -162,7 +163,8 @@ class rbWrapper4
 	public function hasTable($bean_type){
 		if(!$bean_type) $bean_type=$this->NAME_R;
 		if(!$bean_type) throw new Exception(getLang('KO-hasTable'));
-		$rt=$this->getCell("SHOW TABLES LIKE ?",array($bean_type));
+		//$rt=$this->getCell("SHOW TABLES LIKE ?",array($bean_type));//只支持 mysql
+		$rt=$this->getWriter()->tableExists($bean_type);//RB通用.
 		if(!$rt) return false;
 		return $rt;
 	}
@@ -211,6 +213,7 @@ class rbWrapper4
 	//	'pageSize'=>3,
 	//	'binding'=>array($id)
 	//));
+	//NOTES: 第二参数还有个作用，就是如果 有 pageNumber和pageSize时，max非正数的话还会跳过计算记录总数，这样能让翻页计算快很多（和少了一个 sql）.
 	public function PageExecute($p, $max=999){
 		$SELECT=$p['SELECT'];
 		if($SELECT){
@@ -228,13 +231,13 @@ class rbWrapper4
 		}else{
 			$WHERE_s="WHERE 1=1";
 		}
-		$ORDER=$p['ORDER'];
+		$ORDER=$p['ORDERBY']?$p['ORDERBY']:$p['ORDER'];
 		if($ORDER){
 			$ORDER_s="ORDER BY $ORDER";
 		}else{
 			$ORDER_s="";
 		}
-		$GROUPBY=$p['GROUPBY'];
+		$GROUPBY=$p['GROUPBY']?$p['GROUPBY']:$p['GROUP'];
 		if($GROUPBY){
 			$GROUPBY_s="GROUP BY $GROUPBY";
 		}else{
@@ -251,6 +254,7 @@ class rbWrapper4
 
 			if($max>0){
 				$total=$this->getCell("SELECT COUNT(*) $FROM_s $WHERE_s",$binding);
+				if($total=="")$total=0;
 				$rt['maxRowCount']=$total;
 				$rt['total']=$total;
 			}else{
@@ -262,7 +266,7 @@ class rbWrapper4
 				$LIMIT_s =" LIMIT $limit";
 			}else{
 				//SafeNet
-				$LIMIT_s =" LIMIT $max";
+			$LIMIT_s =" LIMIT $max";
 			}
 		}
 		$sql="$SELECT_s $FROM_s $WHERE_s $GROUPBY_s $ORDER_s $LIMIT_s";

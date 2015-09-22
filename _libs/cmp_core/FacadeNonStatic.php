@@ -1,8 +1,6 @@
 <?php
 //NOTES:
-//从Redbean (v4) 的Facade抄过来，做了修改变成非静态类（便于一个Facade对应一个db），
-//主要是把 self::$ 改为 $this-> （但注意 ->$method的就不能乱换）
-//还有一些 :: 的微处理
+//Copied from the Redbean\Facade and adjust a little for NonStatic needed.
 namespace RedBeanPHP {
 
 	use RedBeanPHP\ToolBox as ToolBox;
@@ -27,7 +25,7 @@ namespace RedBeanPHP {
 	use RedBeanPHP\BeanHelper\SimpleFacadeBeanHelper as SimpleFacadeBeanHelper;
 	use RedBeanPHP\Driver\RPDO as RPDO;
 
-	class rb4FacadeNonStatic
+	class FacadeNonStatic
 	{
 		/**
 		 * RedBeanPHP version constant.
@@ -1459,22 +1457,4 @@ namespace RedBeanPHP {
 	}
 
 }
-
-//之前一些参考代码。。。放着供参考..
-//magic one
-//public function __call($name, $arguments){
-//	//$db=$this->db;
-//	////$rt=call_user_func(array($db,$name),$arguments,$a2,$a3,$a4,$a5,$a6);
-//	//$rt=call_user_func_array(array($db,$name),$arguments);//TODO why seems a little bug since 5.3.3???
-//	////$rt=$db->name($arguments,$a2,$a3,$a4,$a5,$a6);
-//	////println("$name called");
-//	//>5.3.0
-//	$rt=forward_static_call_array(array('R',$name),$arguments);
-//	return $rt;
-//}
-//public function __callStatic($name, $arguments){
-//	$rt=forward_static_call_array(array('R',$name),$arguments);
-//	return $rt;
-//		return call_user_func_array( self::$plugins[$pluginName], $params );
-//}
 

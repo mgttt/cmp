@@ -1,16 +1,13 @@
 <?php
-require_once "../inc.app.php";
+require_once "../cmp_demo/inc.app.php";
 
 $APP_NAME="test";
-
-//加载远程拿回来的配置其中最重要应该是数据库链接和Root帐号..
-Tenant_Tool::MergeSaasConf();
 
 print "db_time<pre>";
 
 println(microtime(true)."<hr/>");
 
-$orm=new ORM_Base("db_app");
+$orm=new OrmTest("db_local");
 
 $rsa=$orm->getAll("SHOW VARIABLES WHERE variable_name LIKE ?",array('%zone%'));
 println("rsa=");

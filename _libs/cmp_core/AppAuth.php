@@ -2,7 +2,6 @@
 //NOTES: Can be overrided.
 //注释：如果逻辑不够用，可以被过载，参考着重写checkApiAccess即可.
 class AppAuth
-	extends AppCommon
 {
 	public static function checkApiAccess($request_class,$request_method,$request_method_param){
 

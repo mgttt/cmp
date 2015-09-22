@@ -1,6 +1,5 @@
 <?php
 //简单的 get/post 函数.
-//如果需要复杂的函数，请参看 WebClient和NetCommon类!
 function web_request($url,$postdata,$timeout=7){
 	//$postdata_s=null;
 	if(is_array($postdata)){
