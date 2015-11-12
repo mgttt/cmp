@@ -118,5 +118,8 @@ abstract class OrmBase
 	public function RealDeleteAll($param){
 		throw new Exception("DENY RealDeleteAll");
 	}
+	public function SearchList($param){
+		throw new Exception("SearchList Need Override");
+	}
 }
 

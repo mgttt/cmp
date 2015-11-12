@@ -1,27 +1,18 @@
 <?php
-//MG-NOTE: 我们从大概2008年开始引入这个 DzTemplate 类
+//CMP-NOTE: 我们从大概2008年开始引入这个 DzTemplate 类
 /**
  * Note that DIRECTORY_SEPARATOR is still useful for things like exploding a path that the system gave you.
  * The proper way to write it in Windows would be "\" while in Unix it would be "/".
- *
  */
 if(!defined('DIR_SEP')) {
 	define('DIR_SEP', DIRECTORY_SEPARATOR);
 }
 
+//Func for Callback
 require_once('DzTemplate.func.php');
 
-/**
- * DzTemplate
- *
- * @package
- * @version 1.0.0
- * @copyright 2007-2008 http://www.tblog.com.cn
- * @author Akon(番茄红了) <aultoale@gmail.com>
- * @author LiJia(飞鱼poss) <zsulijia@gmail.com>
- * @license PHP Version 3.0 {@link http://www.php.net/license/3_0.txt}
- */
 class DzTemplate {
+	private static $flagSincePHP7= false;//20150926.wjc
 	/**
 	 * the instance of DzTemplate Class
 	 *
@@ -46,6 +37,7 @@ class DzTemplate {
 	 * @return void
 	 */
 	private function __construct() {
+		self::$flagSincePHP7=(version_compare(PHP_VERSION,"6")>0);//20150926.wjc
 		$this->_options = array(
 			'template_dir' => 'templates'.DIR_SEP,  // The name of the directory where templates are located
 			'cache_dir' => 'cache'.DIR_SEP,         // The name of the directory for cache files
@@ -237,10 +229,10 @@ class DzTemplate {
 			###quicklog_must("TPL","checkCache saveCache $tpl");
 			$this->saveCache($tpl);
 		}else
-		if($this->_options['cache_lifetime'] != 0 && (time() - $expire_time >= $this->_options['cache_lifetime'])) {
-			###quicklog_must("TPL","2 checkCache saveCache $tpl");
-			$this->saveCache($tpl);
-		}
+			if($this->_options['cache_lifetime'] != 0 && (time() - $expire_time >= $this->_options['cache_lifetime'])) {
+				###quicklog_must("TPL","2 checkCache saveCache $tpl");
+				$this->saveCache($tpl);
+			}
 	}
 
 	/**
@@ -265,7 +257,13 @@ class DzTemplate {
 		$template = preg_replace("/<\?xml\s+[^\>]*>/is","",$template);//patch for xml template...
 
 		//delete the comments first...
-		$template = preg_replace("/\{\*.*?\*\}/ies", "", $template);//TMP should do super parentheses matching?
+		if(self::$flagSincePHP7){
+			$template = preg_replace_callback("/\{\*.*?\*\}/is", function($m){
+				return "";
+			}, $template);
+		}else{
+			$template = preg_replace("/\{\*.*?\*\}/ies", "", $template);//TMP should do super parentheses matching?
+		}
 
 		$template = preg_replace(
 			"/".$this->_options['left_delimiter']."(.+?)".$this->_options['right_delimiter']."/s",
@@ -274,12 +272,24 @@ class DzTemplate {
 		);
 
 		//$template = preg_replace("/\{lang\s+(.+?)\}/ies", "languagevar('\\1')", $template);
-		$template = preg_replace("/\{filetime\s+(.+?)\}/ies", "_dz_function_filetime('\\1')", $template);
-		$template = preg_replace("/\{url\s+(.+?)\}/ies", "_dz_function_url('\\1')", $template);
+		if(self::$flagSincePHP7){
+			$template = preg_replace_callback("/\{filetime\s+(.+?)\}/is", function($m){
+				return _dz_function_filetime($m[1]);
+			}, $template);
+		}else{
+			$template = preg_replace("/\{filetime\s+(.+?)\}/ies", "_dz_function_filetime('\\1')", $template);
+		}
+		if(self::$flagSincePHP7){
+			$template = preg_replace_callback("/\{url\s+(.+?)\}/is", function($m){
+				return _dz_function_url($m[1]);
+			}, $template);
+		}else{
+			$template = preg_replace("/\{url\s+(.+?)\}/ies", "_dz_function_url('\\1')", $template);
+		}
 		$template = str_replace("{LF}", "<?=\"\\n\"?".">", $template);
 
 		$var_regexp = "((\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)"."(\[[a-zA-Z0-9_\-\.\"\'\[\]\$\x7f-\xff]+\])*)";
-		$template = preg_replace("/\{(\\\$[a-zA-Z0-9_\[\]\'\"\$\.\x7f-\xff]+)\}/s", "<?=\\1?".">", $template);
+		$template = preg_replace("/\{(\\\$[a-zA-Z0-9_\[\]\'\"\$\.\x7f-\xff]+)\}/s", "<?php echo \\1; ?".">", $template);
 		//$template = preg_replace("/$var_regexp/es", "addquote('<?=\\1?".">')", $template);
 		//$template = preg_replace("/\<\?\=\<\?\=$var_regexp\?\>\?\>/es", "addquote('<?=\\1?".">')", $template);
 
@@ -288,32 +298,64 @@ class DzTemplate {
 		//	"\r\n<? include(DzTemplate::getInstance()->fetchCache('\\1')); ?".">\r\n",
 		//	$template
 		//);
-		$template = preg_replace(
-			"/[\n\r\t]*\{inc2\s+(.+?)\}[\n\r\t]*/ies",
-			"stripvtags('<?php include(DzTemplate::getInstance()-".">fetchCache(\\1)); ?".">','')",
-			$template
-		);
+		if(self::$flagSincePHP7){
+			$template = preg_replace_callback(
+				"/[\n\r\t]*\{inc2\s+(.+?)\}[\n\r\t]*/is",
+				function($m){
+					return stripvtags('<?php include(DzTemplate::getInstance()->fetchCache('.$m[1].')); ?'.'>');
+				}, $template);
+		}else{
+			$template = preg_replace(
+				"/[\n\r\t]*\{inc2\s+(.+?)\}[\n\r\t]*/ies",
+				"stripvtags('<?php include(DzTemplate::getInstance()-".">fetchCache(\\1)); ?".">','')",
+				$template
+			);
+		}
 		$template = preg_replace(
 			"/[\n\r\t]*\{inc\s+(.+?)\}[\n\r\t]*/is",
 			"<?php include(DzTemplate::getInstance()->fetchCache(\"\\1\")); ?".">",
 			$template
 		);
 
-		$template = preg_replace(
-			"/[\n\r\t]*\{eval\s+(.+?)\}[\n\r\t]*/ies",
-			"stripvtags('<?php \\1 ?".">','')",
-			$template
-		);
-		$template = preg_replace(
-			"/[\n\r\t]*\{echo\s+(.+?)\}[\n\r\t]*/ies",
-			"stripvtags('<?php echo \\1; ?".">','')",
-			$template
-		);
-		$template = preg_replace(
-			"/([\n\r\t]*)\{elseif\s+(.+?)\}([\n\r\t]*)/ies",
-			"stripvtags('\\1<?php } elseif(\\2) { ?".">\\3','')",
-			$template
-		);
+		if(self::$flagSincePHP7){
+			$template = preg_replace_callback(
+				"/[\n\r\t]*\{eval\s+(.+?)\}[\n\r\t]*/is",
+				function($m){
+					return stripvtags('<?php '.$m[1].' ?'.'>');
+				}, $template);
+		}else{
+			$template = preg_replace(
+				"/[\n\r\t]*\{eval\s+(.+?)\}[\n\r\t]*/ies",
+				"stripvtags('<?php \\1 ?".">','')",
+				$template
+			);
+		}
+		if(self::$flagSincePHP7){
+			$template = preg_replace_callback(
+				"/[\n\r\t]*\{echo\s+(.+?)\}[\n\r\t]*/is",
+				function($m){
+					return stripvtags('<?php echo '.$m[1].'; ?'.'>');
+				}, $template);
+		}else{
+			$template = preg_replace(
+				"/[\n\r\t]*\{echo\s+(.+?)\}[\n\r\t]*/ies",
+				"stripvtags('<?php echo \\1; ?".">','')",
+				$template
+			);
+		}
+		if(self::$flagSincePHP7){
+			$template = preg_replace_callback(
+				"/([\n\r\t]*)\{elseif\s+(.+?)\}([\n\r\t]*)/is",
+				function($m){
+					return stripvtags($m[1].'<?php } elseif('.$m[2].') { ?'.'>'.$m[3]);
+				}, $template);
+		}else{
+			$template = preg_replace(
+				"/([\n\r\t]*)\{elseif\s+(.+?)\}([\n\r\t]*)/ies",
+				"stripvtags('\\1<?php } elseif(\\2) { ?".">\\3','')",
+				$template
+			);
+		}
 		$template = preg_replace(
 			"/([\n\r\t]*)\{else\}([\n\r\t]*)/is",
 			"\\1<?php } else { ?".">\\2",
@@ -322,21 +364,45 @@ class DzTemplate {
 
 		$nest = 5;
 		for ($i = 0; $i < $nest; $i++) {
-			$template = preg_replace(
-				"/[\n\r\t]*\{loop\s+(\S+)\s+(\S+)\}[\n\r]*(.+?)[\n\r]*\{\/loop\}[\n\r\t]*/ies",
-				"stripvtags('<?php if(is_array(\\1)) { foreach(\\1 as \\2) { ?".">','\\3<?php } } ?".">')",
-				$template
-			);
-			$template = preg_replace(
-				"/[\n\r\t]*\{loop\s+(\S+)\s+(\S+)\s+(\S+)\}[\n\r\t]*(.+?)[\n\r\t]*\{\/loop\}[\n\r\t]*/ies",
-				"stripvtags('<?php if(is_array(\\1)) { foreach(\\1 as \\2 => \\3) { ?".">','\\4<?php } } ?".">')",
-				$template
-			);
-			$template = preg_replace(
-				"/([\n\r\t]*)\{if\s+(.+?)\}([\n\r]*)(.+?)([\n\r]*)\{\/if\}([\n\r\t]*)/ies",
-				"stripvtags('\\1<?php if(\\2) { ?".">\\3','\\4\\5<?php } ?".">\\6')",
-				$template
-			);
+			if(self::$flagSincePHP7){
+				$template = preg_replace_callback(
+					"/[\n\r\t]*\{loop\s+(\S+)\s+(\S+)\}[\n\r]*(.+?)[\n\r]*\{\/loop\}[\n\r\t]*/is",
+					function($m){
+						return stripvtags('<?php if(is_array('.$m[1].')) { foreach('.$m[1].' as '.$m[2].') { ?'.'>'.$m[3].'<?php } } ?'.'>');
+					}, $template);
+			}else{
+				$template = preg_replace(
+					"/[\n\r\t]*\{loop\s+(\S+)\s+(\S+)\}[\n\r]*(.+?)[\n\r]*\{\/loop\}[\n\r\t]*/ies",
+					"stripvtags('<?php if(is_array(\\1)) { foreach(\\1 as \\2) { ?".">','\\3<?php } } ?".">')",
+					$template
+				);
+			}
+			if(self::$flagSincePHP7){
+				$template = preg_replace_callback(
+					"/[\n\r\t]*\{loop\s+(\S+)\s+(\S+)\s+(\S+)\}[\n\r\t]*(.+?)[\n\r\t]*\{\/loop\}[\n\r\t]*/is",
+					function($m){
+						return stripvtags('<?php if(is_array('.$m[1].')) { foreach('.$m[1].' as '.$m[2].' => '.$m[3].') { ?'.'>'.$m[4].'<?php } } ?'.'>');
+					}, $template);
+			}else{
+				$template = preg_replace(
+					"/[\n\r\t]*\{loop\s+(\S+)\s+(\S+)\s+(\S+)\}[\n\r\t]*(.+?)[\n\r\t]*\{\/loop\}[\n\r\t]*/ies",
+					"stripvtags('<?php if(is_array(\\1)) { foreach(\\1 as \\2 => \\3) { ?".">','\\4<?php } } ?".">')",
+					$template
+				);
+			}
+			if(self::$flagSincePHP7){
+				$template = preg_replace_callback(
+					"/([\n\r\t]*)\{if\s+(.+?)\}([\n\r]*)(.+?)([\n\r]*)\{\/if\}([\n\r\t]*)/is",
+					function($m){
+						return stripvtags($m[1].'<?php if('.$m[2].') { ?'.'>'.$m[3].$m[4].$m[5].'<?php } ?'.'>'.$m[6]);
+					}, $template);
+			}else{
+				$template = preg_replace(
+					"/([\n\r\t]*)\{if\s+(.+?)\}([\n\r]*)(.+?)([\n\r]*)\{\/if\}([\n\r\t]*)/ies",
+					"stripvtags('\\1<?php if(\\2) { ?".">\\3','\\4\\5<?php } ?".">\\6')",
+					$template
+				);
+			}
 		}
 
 		$template = preg_replace(
@@ -353,21 +419,45 @@ class DzTemplate {
 
 		$template = preg_replace("/ \?\>[\n\r]*\<\? /s", " ", $template);
 
+		if(self::$flagSincePHP7){
+			$template = preg_replace_callback(
+					"/\"(http)?[\w\.\/:]+\?[^\"]+?&[^\"]+?\"/",
+					function($m){
+					return transamp($m[0]);
+					}, $template);
+		}else{
 		$template = preg_replace(
 			"/\"(http)?[\w\.\/:]+\?[^\"]+?&[^\"]+?\"/e",
 			"transamp('\\0')",
 			$template
 		);
+		}
+		if(self::$flagSincePHP7){
+			$template = preg_replace_callback(
+					"/\<script[^\>]*?src=\"(.+?)\".*?\>\s*\<\/script\>/is",
+					function($m){
+					return stripscriptamp($m[1]);
+					}, $template);
+		}else{
 		$template = preg_replace(
 			"/\<script[^\>]*?src=\"(.+?)\".*?\>\s*\<\/script\>/ise",
 			"stripscriptamp('\\1')",
 			$template
 		);
-		$template = preg_replace(
-			"/[\n\r\t]*\{block\s+([a-zA-Z0-9_]+)\}(.+?)\{\/block\}/ies",
-			"stripblock('\\1', '\\2')",
-			$template
-		);
+		}
+		if(self::$flagSincePHP7){
+			$template = preg_replace_callback(
+				"/[\n\r\t]*\{block\s+([a-zA-Z0-9_]+)\}(.+?)\{\/block\}/is",
+				function($m){
+					return stripblock($m[1], $m[2]);
+				}, $template);
+		}else{
+			$template = preg_replace(
+				"/[\n\r\t]*\{block\s+([a-zA-Z0-9_]+)\}(.+?)\{\/block\}/ies",
+				"stripblock('\\1', '\\2')",
+				$template
+			);
+		}
 
 		//$chk_tag = md5_file($tpl_path);//效率有点低...
 		$chk_tag=filemtime($tpl_path);//用这个吧...

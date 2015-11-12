@@ -3,7 +3,8 @@
 //RedBeanPHP will build all the necessary structures to store your data. However custom indexes and constraints have to be added manually (after freezing your web application).
 //require_once(_LIB_CORE_."/rb4_cmp.php");
 require_once(_LIB_CORE_."/rb4.2.5_cmp.php");
-require_once(_LIB_CORE_."/FacadeNonStatic.php");//cmp hack for non static mode of facade of redbean
+//require_once(_LIB_CORE_."/FacadeNonStatic.php");//cmp hack for non static mode of facade of redbean
+require_once(_LIB_CORE_."/FacadeNonStaticCmp425.php");//cmp hack for non static mode of facade of redbean
 
 //NOTES:
 //
@@ -13,10 +14,9 @@ require_once(_LIB_CORE_."/FacadeNonStatic.php");//cmp hack for non static mode o
 //$rb=new rbWrapper4("sqlite:"._APP_DIR_.DIRECTORY_SEPARATOR."../test_rb.db");
 
 class rbWrapper4
-	extends \RedBeanPHP\FacadeNonStatic
+	//extends \RedBeanPHP\FacadeNonStatic
+	extends \RedBeanPHP\FacadeNonStaticCmp425
 {
-	public static $DSN='db_app';//默认
-
 	//对应的表名...
 	public $NAME_R=null;
 	//数据库连接配置
@@ -289,6 +289,8 @@ class rbWrapper4
 	public function __construct($dsn,$freeze){
 		$this->DB_DSN=$dsn;
 		$this->R_setup($dsn,$freeze);
+
+		$this->useWriterCache(false);//20151019 no cache for default...
 	}
 
 	public function db_uuid(){
@@ -312,8 +314,6 @@ class rbWrapper4
 	
 	protected $_cache_php_time;
 	protected $_cache_db_time;
-
-	static protected $rbWrapper4;
 
 	///////////////////////////////////////////////////////
 	//NOTES: 这个db_time是跟数据库的时区的，并不是你本地的时区，请用isoDate和isoDateTime
@@ -376,15 +376,6 @@ class rbWrapper4
 	}
 	public function getDbTimeStamp(){
 		return $this->db_time();
-	}
-	public static function getDefaultDbTimeStamp($db_dsn, & $flag_cache, $cache_time=7){
-		if(! self::$rbWrapper4){
-			//默认拿主配置的时间.但是这样是不是很建议的，以后再想有没有其它solution:
-			if(!$db_dsn) $db_dsn=self::$DSN;
-			self::$rbWrapper4=new rbWrapper4($db_dsn);
-		}
-		$o=self::$rbWrapper4;
-		return $o->db_time($cache_time,$flag_cache);
 	}
 	public static function set_cache($key,$val,$lifetime=3600){
 		return Cache_Disk::save("cache_$key",$val,$lifetime);

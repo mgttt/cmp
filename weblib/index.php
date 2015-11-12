@@ -3,10 +3,13 @@
  * Eg.
  * http://..../weblib/?jsa=json4ie,jstorage
  * http://..../weblib/?js=jstorage
+ *
+ *
+ //TODO 未做针对 js和jsa参数所生产的制作缓存....所以还不能大量使用
+ //TODO 还需要做一个静态处理，比如  weblib/static.{$jsa}.js =>映射 weblib/?jsa=$jsa.js
+ * TODO URL REWRITE /weblib/build.{$jsa}.js
+ * e.g. /weblib/build.wap.core.20150802,mg_core,mg.aj.2014.js
  */
-
-//TODO 未做针对 js和jsa参数所生产的制作缓存....所以还不能大量使用
-//TODO 还需要做一个静态处理，比如  weblib/static.{$jsa}.js =>映射 weblib/?jsa=$jsa.js
 
 error_reporting(E_ERROR|E_COMPILE_ERROR|E_PARSE|E_CORE_ERROR|E_USER_ERROR);
 if(!defined("_APP_DIR_")) define("_APP_DIR_",realpath(dirname(__FILE__)));
@@ -21,9 +24,6 @@ if(!defined("_APP_DIR_")) define("_APP_DIR_",realpath(dirname(__FILE__)));
 
 require "../_libs/cmp_core/inc.cmp_core.php";
 require_once _LIB_CORE_ ."/func.js_enc_txt.php";
-
-
-//初步想法是算出需要的文件的 MD5 ？
 
 $js=$_REQUEST['js'];
 $jsa=$_REQUEST['jsa'];

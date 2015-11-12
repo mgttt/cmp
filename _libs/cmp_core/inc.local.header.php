@@ -32,8 +32,6 @@ if(!is_dir(_LIB_)){
 ini_set("session.use_cookies",0);//no cookie for session...ï¼ˆå› ä¸ºå®æˆ˜ä¸­å¤ªå¤šåº”ç”¨å¦‚æœç”¨cookieæ¥åšsessionä¼šè¢«è¿‡åº¦ç¼“å­˜å‡ºç°é—®é¢˜ã€‚æ‰€ä»¥éœ€è¦æ˜¾å¼session idï¼‰
 //session_set_cookie_params(2 * 3600);//cookie time 2hr
 ////ini_set('session.cookie_domain', '.openfares.com');//well...
-//ini_set("session.name","_s");//dirty-work solution for phprpc....failed...ºÃÏñ²âÊÔ»¹Ã»Í¨¹ı¡£¡£¡£Ã»°ì·¨¡£¡£¡£...
-###PHPSESSID
 
 ini_set("session.name","_s");
 
@@ -46,6 +44,6 @@ ini_set("session.name","_s");
 //ini_set("session.gc_maxlifetime","7200");
 //ini_set("session.cookie_lifetime","7200");
 
-//file handler
-session_save_path(_TMP_ ."/session/");
+//file handler move to switch .tmp
+#session_save_path(_TMP_ ."/session/");
 

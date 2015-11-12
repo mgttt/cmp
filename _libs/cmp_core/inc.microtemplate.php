@@ -1,10 +1,10 @@
 <?php
 //url生成函数（用在 template.class.php里面）
 function _dz_function_url($params_str, &$smarty){
-	$pa=split(' ',$params_str);
+	$pa=explode(' ',$params_str);
 	$p=array();
 	foreach($pa as $pal){
-		list($k,$v)=split('=',$pal);
+		list($k,$v)=explode('=',$pal);
 		$p[$k]=$v;
 	}
 	return "<?=url(my_json_decode(\"".str_replace("\"","\\\"",my_json_encode($p))."\"))?".">";

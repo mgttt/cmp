@@ -48,6 +48,29 @@ function getQueryStr(){
 	var _search2=_search.replace(reg,"");
 	return _search2;
 }
+/* 
+* url 目标url,默认为当前链接 
+* arg 需要替换的参数名称 
+* arg_val 替换后的参数的值 
+* return url 参数替换后的url 
+*/ 
+function changeQueryVar(arg,arg_val,url){ 
+	var pattern=arg+'=([^&]*)'; 
+	var replaceText=arg+'='+arg_val; 
+	var url = url?url:window.location.href;
+	if(url.match(pattern)){
+		var tmp='/('+ arg+'=)([^&]*)/gi'; 
+		tmp=url.replace(eval(tmp),replaceText); 
+		return tmp; 
+	}else{ 
+		if(url.match('[\?]')){ 
+			return url+'&'+replaceText; 
+		}else{ 
+			return url+'?'+replaceText; 
+		} 
+	} 
+	return url; 
+}
 //Session ID
 function getSID(){
 	if(window['_s']) return window['_s'];
@@ -110,7 +133,11 @@ function getI18N(k){
 function shtml_load_page_data(shtml_module,callback){
 	var _s=getSID();if(!_s)_s='';//don't use null....
 	var _l=getQueryVar('lang');
-	ajax.post(_s+",,PageData,"+shtml_module+".json"+(_l?("?lang="+_l):""),function(s){
+	ajax.post(
+		//_s+",,PageData,"+shtml_module+".json"+(_l?("?lang="+_l):"") 
+		".PageData.api?_p="+shtml_module+"&"+"_s="+_s+(_l?("&lang="+_l):"")
+		//".PageData.api?_p="+shtml_module+(_l?("&lang="+_l):"")
+		,function(s){
 		try{
 			//因为这时o2s极有可能还未加载完，所以先用这个迷你函数!
 			if(!window['page_data'])window['page_data']={};

@@ -1,3 +1,14 @@
+/* grid部分参数详解
+ *	targetDivId   目标操作区,即列表出现的父容器
+ *	fMultiAction  是否需要checkbox来执行多行操作.值 boolean
+ *	iActionWidth  action列的宽度
+ *	actionFormatter		设置action按钮，参数 function(cellValue,row,index)  cellValue没什么用
+ *	pageSize			列表每页的数据量,不设置则显示所有数据
+ *	data_opt			列表的数据源
+ *	filterPanelId	列表的filter对应的操作区
+ *	
+ */
+
 if('undefined'==typeof SaasTool) throw new Error("mgSimpleGrid depends SaasTool");
 var my_msg=SaasTool.my_msg;
 var my_warn=SaasTool.my_warn;

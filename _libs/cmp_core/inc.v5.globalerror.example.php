@@ -52,8 +52,6 @@ function _shutdown_function_nojson(){
 	_shutdown_function(false);
 }
 
-## 下面的考虑准备升级去 inc.v5.globalerror.example.php 【还要观察一段时间】
-
 //除了FatalError以外的可以正常处理的UnexpectedError,(主要是留给非 RpcController模式 的代码所用!)
 function exception_handler($ex){
 	global $APP_NAME;

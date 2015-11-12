@@ -79,6 +79,7 @@ function getXlsArrFile($nameXls){
 		}
 		$_full_a['KEYS']=$key_a;
 		$full_s=var_export($_full_a,true);
+		$full_s=str_replace("&#38;","&",$full_s);
 		file_put_contents($target_cache_file,"<"."?php\n\$getXlsArrFile_rt=$full_s;");
 		$cache_file_mtime=filemtime($target_cache_file);
 		if(!$cache_file_mtime) throw new Exception("KO FOR COMPILE pack");
@@ -86,15 +87,15 @@ function getXlsArrFile($nameXls){
 	return $target_cache_file;
 }
 
-//返回以行 为数组的结果
+//变体：返回以行 为数组的结果, 暂时使用到的地方有 AceTool、ApiTopup
 function getXlsArr2($nameXls){
-	$file=getXlsArr2File($nameXls);
+	$file=getXlsArrFile2($nameXls);
 	require($file);
 	$rt=$getXlsArrFile_rt;//约定.
 	return $rt;
 }
 
-function getXlsArr2File($nameXls){
+function getXlsArrFile2($nameXls){
 	if(!$nameXls) throw new Exception("KO-404-param-nameXls");
 
 	$xls_file=_APP_DIR_.DIRECTORY_SEPARATOR.$nameXls;
@@ -130,6 +131,7 @@ function getXlsArr2File($nameXls){
 
 		$csv_a_1st=array_shift($csv_a);
 		array_shift($csv_a);//第二行忽略...（约定）.
+		//这个函数最大的修改是下面的逻辑：
 		$_full_a=array();
 		foreach($csv_a as $k=>$v){
 			$_singleRow = array();
@@ -139,6 +141,7 @@ function getXlsArr2File($nameXls){
 			$_full_a[] = $_singleRow;
 		}
 		$full_s=var_export($_full_a,true);
+		$full_s=str_replace("&#38;","&",$full_s);
 		file_put_contents($target_cache_file,"<"."?php\n\$getXlsArrFile_rt=$full_s;");
 		$cache_file_mtime=filemtime($target_cache_file);
 		if(!$cache_file_mtime) throw new Exception("KO FOR COMPILE pack");

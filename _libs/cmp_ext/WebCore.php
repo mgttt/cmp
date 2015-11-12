@@ -133,55 +133,67 @@ class WebCore
 		return $rt_o;
 	}
 
-	//TODO deprecated.
+	//TMP USING at .PageData.api
 	public static function CheckAndStartSession(){
 		$sid=session_id();
 		$_s_cookie=$_COOKIE['_s'];
-		if($_SESSION && $sid){
-			//OK
+		if($_SESSION && $sid!=""){
+			//OK if have a session
 		}else{
-			if($_s_cookie) session_id($_s_cookie);
+			if($_s_cookie!="") session_id($_s_cookie);
 			session_start();
 			$sid=session_id();
 		}
-		if($sid!=$_s_cookie){
-			if($_s_cookie){
-				quicklog_must('KO-CHECK-SESSION-2',$_SESSION);
-				session_start($_s_cookie);
-				quicklog_must('KO-CHECK-SESSION-2',$_SESSION);
-				throw new Exception('KO-SESS');
-			}
-		}else{
-			//skip same
+		if($sid==""){
+			session_id(_getbarcode(13));
+			session_start();
+			$sid=session_id();
+			if($sid=="") throw new Exception("fail start session");
 		}
-		session_write_close();//之后要的话就再呼叫session_start()...
+		if($sid!=$_s_cookie && $_s_cookie!=""){
+			quicklog_must('KO-CHECK-SESSION-2',$_SESSION);
+			session_start($_s_cookie);
+			quicklog_must('KO-CHECK-SESSION-2',$_SESSION);
+			throw new Exception('KO-SESS');
+		}
+		session_write_close();//注意：之后要写的话就再呼叫session_start()或者使用 updateSession()
 		return $sid;
 	}
 
-	//如果模块不需要语言是不需要的，(不过一般的项目都是要的)
+	public static function updateSession($to_update_a){
+		session_start();
+		foreach($to_update_a as $k=>$v){
+			$_SESSION[$k]=$v;
+		}
+		session_write_close();
+		return true;
+	}
+	private function _start_session_and_write_lang($lang){
+		session_start();
+		if(""==session_id()){
+			//faint bug since php5.6
+			session_id(_getbarcode(13));
+			session_start();
+			if(""==session_id()){
+				throw new Exception("session_id empty after session_start, please check system env");
+			}
+		}
+		$_SESSION['lang']=$lang;
+		session_write_close();
+	}
+	//get the lang from request or session, and start the session BTW.
 	protected function checkLang(){
 		$lang=$_REQUEST['lang'];
 		if($lang){
-			session_start();
-			$_SESSION['lang']=$lang;
-			session_write_close();
+			$this->_start_session_and_write_lang($lang);
 			return $lang;
 		}
-		$lang=$_SESSION['lang'];//尽量先拿session那个.
+		$lang=$_SESSION['lang'];//试看看session有没有.
 		if(!$lang){
-			$sid_1=session_id();
-			$lang=calcLangFromBrowser();//quick func defined in 'inc.v5.lang.php'
-			/*
-				if (in_array($lang, array('en','zh-cn','zh-tw','vn','kh'))){
-					//OK
-				}else{
-					$lang='en';
-				}
-			 */
-			session_start();
-			$sid_2=session_id();
-			$_SESSION['lang']=$lang;
-			session_write_close();
+			//如果没有就根据浏览器提交的header算一个.
+			//$sid_1=session_id();
+			$lang=calcLangFromBrowser();//quick func defined in 'inc.v5.lang.php', TODO move to class cmp
+			$this->_start_session_and_write_lang($lang);
 		}
 		return $lang;
 	}

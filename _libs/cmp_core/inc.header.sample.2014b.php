@@ -1,7 +1,7 @@
 <?php
 /* vim: set tabstop=2 shiftwidth=2 softtabstop=2: */
 /*
- *   注意：这是个exsample，可用，如果有特别修改，请不要直接修改，请复制到自己的目录然后再做修改 （提醒：要定义好 _LIB_CORE_）
+ *   注意：这是个example，可用，如果有特别修改，请不要直接修改，请复制到自己的目录然后再做修改 （提醒：要定义好 _LIB_CORE_）
  */
 error_reporting(E_ERROR|E_COMPILE_ERROR|E_PARSE|E_CORE_ERROR|E_USER_ERROR);
 
