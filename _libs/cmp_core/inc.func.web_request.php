@@ -1,11 +1,18 @@
 <?php
-//简单的 get/post 函数.
+//简单的 get/post 函数 用 curl包.
+//NOTES:
+//如果要复杂的curl用法，请看 NetCommon 类、WebAPIClient类等
+//如果没有或者不想用curl，看 inc.func.http_post.php 中的 http_post和http_get 就OK.
+//Usage
+//HTTP POST: web_request($url, array("xx"=>"yy")); or  web_request($url, my_json_encode($obj)):
+//HTTP GET: web_request($url):
 function web_request($url,$postdata,$timeout=7){
-	//$postdata_s=null;
 	if(is_array($postdata)){
 		$postdata_s=http_build_query($postdata);
 	}elseif(is_string($postdata)){
 		$postdata_s=$postdata;
+	}else{
+		//throw new Exception("unknown param");
 	}
 	$url_a=parse_url($url);
 	$curl = curl_init();

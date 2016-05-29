@@ -4,7 +4,7 @@
 //usage: eval(arr2var_all("param"));
 function arr2var_all($name_of_arr){
 	return <<<EOS
-(arr2var("$name_of_arr",array_keys(\$$name_of_arr)));
+eval(arr2var("$name_of_arr",array_keys(\$$name_of_arr)));
 EOS
 	;
 }

@@ -32,6 +32,11 @@ function quicklog_must($log_type=false,$log_content,$gz=false){
 	//}
 	return logger($log_type."-".date('Ymd').".log",$log_content,"DEFAULT",$gz);
 }
+
+//Usage:
+//quicklog(false);//get current function debug or not
+//quicklog($logtype, $logtxt, $gz=true );//write $logtxt to _LOG_/$logtype-Ymd.log
+//quicklog($logtype, $logtxt, $gz=false, $write_stack=true);// write the $logtxt and whole process steps
 function quicklog($log_type=false,$log_content,$gz=false,$write_stack=false){
 	$trace = debug_backtrace(false);
 	$caller = $trace[1];
@@ -53,7 +58,7 @@ function quicklog($log_type=false,$log_content,$gz=false,$write_stack=false){
 			$debug=$debug0;
 		}
 	}
-	if($log_type===false) return $debug;//if call for get debug leve only
+	if($log_type===false) return $debug;//if call for get debug level only
 	if($write_stack){
 		unset($trace[0]);
 		$_s="";

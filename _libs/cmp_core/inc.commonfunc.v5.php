@@ -2,6 +2,8 @@
 
 ###  some VERY COMMON FUNC to the platform...
 
+//mostly moved to mg class.   short functions for function-base programming only..
+
 if(!function_exists('mg_autoload_function')){
 	throw new Exception("mg_autoload_function is not defined");
 }
@@ -15,7 +17,7 @@ if(!function_exists('__autoload')){
 	}
 } else {
 	if(function_exists('spl_autoload_register')) {
-		spl_autoload_register('__autoload');//why?...
+		spl_autoload_register('__autoload');
 		spl_autoload_register('mg_autoload_function');
 	} else {
 		throw new Exception("spl_autoload_register func not exists");
@@ -56,6 +58,7 @@ function println($s,$wellformat=false){
 	print $s ."\n";//.PHP_EOL;
 }
 
+//use by cmp... to more to it?
 function _gzip_output($buffer){
 	$len = strlen($buffer);
 	if(substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')){
@@ -73,6 +76,7 @@ function _gzip_output($buffer){
 	return;
 }
 
+//unicode(UCS-2 to ?)
 function unicode2any($str,$target_encoding="UTF-8"){
 	$str = rawurldecode($str);
 	//print $str."\n\n";
@@ -169,17 +173,47 @@ function _getbarcode($defaultLen=23,$seed='0123456789ABCDEF'){
 	return $code;
 }
 
-/////////////////////
-//for 32bit-2038 bug
-function my_strtotime($s){//for DateTime to timestamp
+/////////////////////////////////////////////////
+//@deprecated, useing mg::getTimeStamp($s);
+//get timestamp of now or specified iso format
+//replace time() for 32bit-2038 bug
+function my_strtotime($s){
 	if(strlen($s)>10){
+		//handle YYYY-MM-DD HH:ii:ss, @ref http://php.net/manual/en/datetime.createfromformat.php
 		$o=date_create_from_format('Y-m-d H:i:s',$s,new DateTimeZone('UTC'));//DateTimeZone::UTC
-	}else{
+	}elseif(strlen($s)>9){
+		//handle YYYY-MM-DD
 		$o=date_create_from_format('Y-m-d H:i:s',$s.' 00:00:00',new DateTimeZone('UTC'));
+	}elseif(strlen($s)>0){
+		throw new Exception("Unsupport $s for my_strtotime()");
+	}else{
+		$o=date_create("now",new DateTimeZone('UTC'));
 	}
 	if(!$o) return null;
 	return $o->format('U');
 }
+
+/////////////////////////////////////////////////
+//@deprecated, useing mg::getYmdHis($s);
+//convert unixtimestamp to format of YmdHis.
+function my_YmdHis($timestamp,$timezone){
+	if($s){
+		$o=date_create("@$timestamp");
+	}else{
+		$o=date_create("now",new DateTimeZone('UTC'));
+	}
+	if(!$o) {throw new Exception("date_create() failed for $timestamp/$timezone");};
+	if($timezone!=''){
+		date_timezone_set( $o, new DateTimeZone($timezone) );
+	}else{
+		//if not specifitied, using SERVER_TIMEZONE from getConf
+		date_timezone_set( $o, new DateTimeZone(getConf("SERVER_TIMEZONE")) );
+	}
+	return $o->format('YmdHis');
+}
+
+/////////////////////////////////////////////////
+//@deprecated, useing mg::isoDate($s);
 function my_isoDate($s){
 	if($s){
 		$o=date_create_from_format('U',$s);
@@ -197,6 +231,8 @@ function my_isoDate($s){
 		return date_create()->format('Y-m-d');
 	}
 }
+/////////////////////////////////////////////////
+//@deprecated, useing mg::isoDateTime($s);
 function my_isoDateTime($s){
 	if($s){
 		$o=date_create_from_format('U',$s);

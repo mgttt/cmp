@@ -1,6 +1,6 @@
 <?php
 class cmp
-	extends cmp2015
+	extends cmp2016
 {
 }
 

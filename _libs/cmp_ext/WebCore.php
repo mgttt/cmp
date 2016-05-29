@@ -31,14 +31,17 @@ class WebCore
 		require_once _LIB_CORE_ ."/inc.microtemplate.php";
 		include(TPL($page_tpl_file_name));
 	}
-	//保守的直接用法:
-	public function TPL3($t){
-		if(!$t)$t=$_REQUEST['_t'];
-		$page_tpl_file_name="$t.htm";
-		require_once _LIB_CORE_ ."/inc.microtemplate.php";
-		include(TPL($page_tpl_file_name));
-	}
 
+	//已经过时、旧式保守的用法:
+	//public function TPL3($t){
+	//	if(!$t)$t=$_REQUEST['_t'];
+	//	$page_tpl_file_name="$t.htm";
+	//	require_once _LIB_CORE_ ."/inc.microtemplate.php";
+	//	include(TPL($page_tpl_file_name));
+	//}
+
+	//WARNING... Deprecated!!!
+	//TODO keyex1/keyex2/keyex3 是旧的密码交换用法，即将移到 Service中.
 	public function keyex1($param){
 		$rt_o=array();
 		$keylen=$param['keylen'];
@@ -133,7 +136,7 @@ class WebCore
 		return $rt_o;
 	}
 
-	//TMP USING at .PageData.api
+	//WARNING... Deprecated!!!
 	public static function CheckAndStartSession(){
 		$sid=session_id();
 		$_s_cookie=$_COOKIE['_s'];
@@ -182,7 +185,7 @@ class WebCore
 		session_write_close();
 	}
 	//get the lang from request or session, and start the session BTW.
-	protected function checkLang(){
+	protected function checkLang( $defaultLang=array('en','zh-cn','zh-tw','vn','kh') ){
 		$lang=$_REQUEST['lang'];
 		if($lang){
 			$this->_start_session_and_write_lang($lang);
@@ -190,12 +193,23 @@ class WebCore
 		}
 		$lang=$_SESSION['lang'];//试看看session有没有.
 		if(!$lang){
-			//如果没有就根据浏览器提交的header算一个.
-			//$sid_1=session_id();
-			$lang=calcLangFromBrowser();//quick func defined in 'inc.v5.lang.php', TODO move to class cmp
+			$lang=calcLangFromBrowser();//@ref quick func defined in 'inc.v5.lang.php'
+			if ( in_array($lang, $defaultLang) ) {
+				//OK
+			}else{
+				$lang='en';
+			}
 			$this->_start_session_and_write_lang($lang);
 		}
 		return $lang;
+	}
+
+	//convenient tool
+	//Usage:  list($lang,$_s)=$this->checkLangAndSessionId();
+	protected function checkLangAndSessionId(){
+		$lang=$this->checkLang();
+		$sid=session_id();
+		return array($lang,$sid);
 	}
 
 	public function logout($param){

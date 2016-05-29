@@ -52,7 +52,7 @@ function handle304($lmt, $tag, $client_cache_time=3600){
 	if($flag_check && $flag_time && $flag_etag)
 	{
 		header("HTTP/1.1 304 Not Modified");
-		exit(0);
+		exit(0);//Important.
 	}
 }
 

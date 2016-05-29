@@ -836,7 +836,7 @@ class RPDO implements Driver
 				else{
 					//throw new Exception("db_timezone not config");
 				}
-			}//TODO 其它 database ...
+			}//TODO other database ...
 			//wjc.hack}
 			
 			$this->isConnected = TRUE;
@@ -6029,7 +6029,7 @@ class SQLiteT extends AQueryWriter implements QueryWriter
 			//|| preg_match( '/\d{4}\-\d\d\-\d\d/', $value )
 			//|| preg_match( '/\d{4}\-\d\d\-\d\d\s\d\d:\d\d:\d\d/', $value )
 		) {
-			//NOTES: 为什么 sqlite 的 NUMERIC在21亿? TODO 超过 21亿是 BIG NUMERIC，如何调整?
+			//NOTES: wjc: 为什么 sqlite 的 NUMERIC在21亿? TODO 超过 21亿是 BIG NUMERIC，如何调整?
 			return self::C_DATATYPE_NUMERIC;
 		}
 
