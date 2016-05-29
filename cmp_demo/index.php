@@ -1,5 +1,4 @@
 <?php
-#require_once "inc.app.php";
 require_once "../cmp_demo/inc.app.php";
 
 $rt=cmp2015::handleWeb(array(
