@@ -1,0 +1,16 @@
+<h1>cmp demo 1.3</h1>
+<input type='button' value='Test o2s ( ajax ) ' onclick='btnTest();'/>
+<script>
+	{eval require_once _LIB_CORE_ ."/func.js_enc_txt.php"}
+	{eval
+		print jsa_enc_txt(array(
+		'../weblib/src.cmp.json.js',
+		'../weblib/src.cmp.miniajax.js',
+		));
+	}
+</script>
+<script>
+	function btnTest(){
+		alert(o2s(ajax));
+	}
+</script>
