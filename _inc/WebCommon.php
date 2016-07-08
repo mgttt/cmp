@@ -2,7 +2,7 @@
 class WebCommon
 	extends WebCore
 {
-	//saas_da和 saas_app都有机会用到，检查登录时间?
+	//saas_da和 saas_app 都有机会用到，检查登录时间?
 	//NOTES: 不合适用可以子类覆盖.
 	protected function _check_sess(){
 		if(!$_SESSION['auth_login_time']
@@ -34,7 +34,7 @@ location.href="./?rnd="+Math.random();
 		}
 	}
 	
-	//暂时只用在诸如 SystemInstall这样的入口.
+	//暂时只用在诸如 SystemInstall这样的入口...
 	protected function _tmpCheckAuth(){
 		$strAuthUser= $_SERVER['PHP_AUTH_USER'];
 		$strAuthPass= $_SERVER['PHP_AUTH_PW'];

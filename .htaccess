@@ -1,9 +1,51 @@
+#NOTES
+
+#TODO 暂时用反向，还未试出怎么样做 alias...
+#wjc
+#ProxyPass /weblib http://112.124.38.194/weblib
+#ProxyPassReverse /weblib http://112.124.38.194/weblib
+#wjc 在DEV环境中配置这个（根据自己环境机配置），因为upload入口要强迫性的!!
+#ProxyPass /devace/1/upload http://localhost/devace/1/ace_upload
+#ProxyPassReverse /devace/1/upload http://localhost/devace/1/ace_upload
+#在其它LIVE环境用这个做反向...
+#ProxyPass /upload http://112.124.38.194/upload
+#ProxyPassReverse /upload http://112.124.38.194/upload
+
+#下面是测试的，但好像无效，因为 <Directory>要放在 vhost那边定义
+#Alias /upload "E:/???/ace_upload"
+#Alias /devace/1/upload "E:/xampp_w32_182_6_vc9/xampp/htdoc/devace/1/ace_upload"
+#<Directory E:/xampp_w32_182_6_vc9/xampp/htdoc/devace/1/ace_upload/>
+#Order allow,deny
+#Allow from all
+#</Directory>
+
+#下面是理论上要加的.也要放在vhost那边才生效.
+#拒绝 src.*的文件
+#<Files ~ "src.*">
+#Order allow,deny
+#Deny from all
+#</Files>
+#<Files ~ "*.tmp$">
+#Order allow,deny
+#Deny from all
+#</Files>
+
+###############################################################################
+#Apache override
+### 注意：如果不生效，是apache配置问题，就要移去 apache配置中...
+
 ErrorDocument 404 /404b.php
+
+#奇怪，下面这句在htaccess不生效，要放到apache配置
+#关闭服务器错误时的信息.
+ServerSignature off
+#ServerTokens ProductOnly
+#ServerTokens Prod
 
 #open gzip for static files.
 <IfModule mod_deflate.c>
 #AddOutputFilter DEFLATE js html php shtml xml css
-AddOutputFilter DEFLATE js html php shtml xml css png
+AddOutputFilter DEFLATE js html php shtml xml css png static api shtml json web
 #DeflateAlterETag NoChange ###since apache 2.5
 </IfModule>
 #FileETag None
@@ -19,6 +61,40 @@ Header  edit "ETag" "^\"(.*)(-gzip)\"$" "\"$1\""
 
 RewriteEngine on 
 
+#RewriteCond %{HTTP_HOST} ^(localhost|127.0.0.1)$ [NC] 
+#把 upload目录映射ace_upload （为附件和图片上传)
+#注：有可能被WEB的反向代理所override !
+
+#有BUG！！！
+# Q: apache试过不知道为什么不生效
+# A: 要复制去 httpd-vhosts.conf 才生效！！好奇怪！！！
+#把绝对路径保存到 %1 :
+#RewriteCond %{REQUEST_URI} (.*)/upload/([^/]*)$
+#RewriteRule ([^/]*)$ %1/ace_upload/$1?%{QUERY_STRING}
+
+
+# 又发现一个新奇怪的问题，就是apache/kangle/nginx，只要在windows下是用 service启动的，不要用系统SYSTEM帐户，要用普通登录用户，否则跑久了异常不稳定（可能SYSTEM帐号某些配置溢出）。。。所以一定要记下来。。。2015-11-13
+
+# 笔记：全面 抛弃 不稳定的apache，如果LINUX下用 nginx+php-fpm，windows下用kangle整合版本.
+
+
+
+
+#make forbidden access as 404
+RewriteCond %{REQUEST_URI} .*/_logs/.*$
+RewriteRule .*/_logs/.*$	/404b.php
+RewriteCond %{REQUEST_URI} .*/_tmp/.*$
+RewriteRule .*/_tmp/.*$	/404b.php
+RewriteCond %{REQUEST_URI} .*/_docs/.*$
+RewriteRule .*/_docs/.*$	/404b.php
+#RewriteCond %{REQUEST_URI} .*/shtml.*.htm$
+#RewriteRule .*/shtml.*.htm$	/404b.php
+
+#下面这行 kangle不支持
+#RewriteRule .*/_logs/.*$ - [R=404]
+#RewriteRule .*/_tmp/.*$ - [R=404]
+
+# deprecated before cmp 2015 {
 ### NOTES shtml 需要不依赖 显式 _s 所以里面的代码需要自行拿 cookie 不用cookie而用显式 是因为怕多窗口串号
 #把绝对路径保存到 %1 :
 RewriteCond %{REQUEST_URI} (.*)/([^/]*).shtml$
@@ -33,7 +109,39 @@ RewriteRule /([^/,]*),([^,]*),([^,]*),?([^,]*)(.*).jsonp$ %1/index.php?_s=$1&_c=
 RewriteCond %{REQUEST_URI} (.*)/([^/]*).web$
 RewriteRule /([^/,]*),([^,]*),([^,]*),?(.*).web$ %1/index.php?_s=$1&_c=$2&_m=$3&_p=$4&%{QUERY_STRING}
 
-# CMP 终极标准 (兼容.json + .web)
+# deprecated before cmp 2015 }
+
+# CMP 2015 standard {
 RewriteCond %{REQUEST_URI} (.*)/([^/]*).api$
-RewriteRule /([^.]*).([^.]*).api$ %1/index.php?_c=$1&_m=$2&%{QUERY_STRING}
+RewriteRule ([^/]*)\.([^\.]*)\.api$ %1/index.php?_c=$1&_m=$2&%{QUERY_STRING}
+#if _m.api then assume ._m.api
+RewriteCond %{REQUEST_URI} (.*)/([^/]*).api$
+RewriteRule ([^/]*)\.api$ %1/index.php?_c=&_m=$1&%{QUERY_STRING}
+
+RewriteCond %{REQUEST_URI} (.*)/([^/]*).bpm$
+RewriteRule ([^/\.]*)(\.)?([^/\.]*)\.bpm$ %1/bpm.php?_c=$1&_m=$3&%{QUERY_STRING}
+
+RewriteCond %{REQUEST_URI} (.*)/([^/]*).static$
+RewriteRule ([^/]*)\.([^\.]*)\.static$ %1/static.php?_c=$1&_m=$2&%{QUERY_STRING}
+
+RewriteCond %{REQUEST_URI} (.*)/([^/]*).static$
+RewriteRule ([^/]*)\.static$ %1/static.php?_c=&_m=$1&%{QUERY_STRING}
+# CMP 2015 standard }
+
+# deprecated 
+####下面这个是给HHVM接上apache用的:
+###<IfModule mod_proxy.c>
+###ProxyPassMatch ^/(.*.php(/.*)?)$ fcgi://127.0.0.1:9000/home/htdocs/$1
+###</IfModule>
+
+#下面改为在 web配置那里做 alias.
+#RewriteCond %{REQUEST_URI} (.*)/saas/([^/]*)$
+#RewriteRule /([^/]*)$ %1/saas_da/$1?%{QUERY_STRING}
+
+#RewriteCond %{REQUEST_URI} (.*)/saas/([^/]*).phtml$
+#RewriteRule ([^/]*).phtml$ %1/saas_da/phtml,$1.php?%{QUERY_STRING}
+
+#RewriteCond %{REQUEST_URI} (.*)/upload/([^/]*)$
+#RewriteRule ([^/]*)$ %1/ace_upload/$1?%{QUERY_STRING}
+
 

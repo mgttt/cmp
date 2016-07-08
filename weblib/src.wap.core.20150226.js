@@ -62,8 +62,8 @@ window.$ = function(selector, context, undefined){
 	// now pass the selector without the key/first character
 	var el = (((context === undefined) ? document: context)[matches](selector.slice(1)));
 
-	// if there is one element than return the 0 element
-	return ((el.length < 2) ? el[0]: el);
+	// if there is one element than return the element
+	return ((el && el.length ==1) ? el[0]: el);
 };
 
 //}
@@ -207,18 +207,51 @@ _AttachEvent('load', window, function(){
 	_AttachEvent('click', document, _doc_ontouch);
 });
 
-function my_alert(s,funcOK){
-	var tm_00 = (new Date()).getTime();
-	alert(s);
-	var tm_01 = (new Date()).getTime();
-	if(tm_01-tm_00 < 0.02){
-		//assume blocked, so try using another method
-		zdialog_alert(s);
-	}else{
-		if(funcOK){
-			funcOK();
-		}
+var topWindow = function(topW) {
+	var parentWin = window;
+	while (topW && parentWin != parentWin.parent) {
+		if (parentWin.parent.document.getElementsByTagName("FRAMESET").length > 0)
+			break;
+		parentWin = parentWin.parent
 	}
+	return parentWin
+};
+var topWin = topWindow();
+var topDoc = topWin.document;
+
+function my_alert(s,funcOK){
+	var div_mask = topDoc.createElement("div");
+	div_mask.id = "div_mask";
+	topDoc.getElementsByTagName("BODY")[0].appendChild(div_mask);
+	var div_msg = topDoc.createElement("div");
+	div_msg.id = "div_msg";
+	div_msg.innerHTML = '<table><tr><td>'+s+'</td></tr></table><div id="div1"></div>';
+	topDoc.getElementsByTagName("BODY")[0].appendChild(div_msg);
+	var button_ok = document.createElement("input"); 
+  button_ok.type = "button";                                    
+  button_ok.value = "OK"; 
+  button_ok.onclick= function(){close_my_alert(funcOK)};               
+  $("#div1").appendChild(button_ok); 
+	button_ok.focus();
+	
+//	var tm_00 = (new Date()).getTime();
+//	alert(s);
+//	var tm_01 = (new Date()).getTime();
+//	if(tm_01-tm_00 < 0.02){
+//		//assume blocked, so try using another method
+//		zdialog_alert(s);
+//	}else{
+//		if(funcOK){
+//			funcOK();
+//		}
+//	}
+}
+function close_my_alert(funcOK){
+	topDoc.getElementsByTagName("BODY")[0].removeChild($("#div_mask"));
+	topDoc.getElementsByTagName("BODY")[0].removeChild($("#div_msg"));
+	if(funcOK){
+		funcOK();
+	}	
 }
 function my_confirm(s,funcOK,funcKO){
 	var tm_00 = (new Date()).getTime();
@@ -226,7 +259,8 @@ function my_confirm(s,funcOK,funcKO){
 	var tm_01 = (new Date()).getTime();
 	if(tm_01-tm_00 < 0.02){
 		//assume blocked, so try using another method
-		zdialog_confirm(s,funcOK,funcKO);
+		//zdialog_confirm(s,funcOK,funcKO);
+		funcOK();
 	}else{
 		if(rs){
 			if(funcOK){

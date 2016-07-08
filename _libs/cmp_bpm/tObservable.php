@@ -1,4 +1,5 @@
 <?php
+//trait is for >=PHP5.4 ...
 trait tObservable {
 	private $observers = array();
 

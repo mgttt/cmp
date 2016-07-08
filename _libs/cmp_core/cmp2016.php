@@ -358,7 +358,7 @@ class cmp2016
 			$rt['file']=basename($rt['file'],".php");
 			$rt['log_id']=$logid;
 			$rt['log_file']=basename($logfile);
-			$rt['nav_helper']="<a href='javascript:top.location.reload();'>Refresh";//有时方便客户刷新。兼容旧的代码而已，已经没有太大作用了.
+			//$rt['nav_helper']="<a href='javascript:top.location.reload();'>Refresh";//有时方便客户刷新。兼容旧的代码而已，已经没有太大作用了.
 		}
 
 		//如果结果是 === null，就是没有返回object，就是用PLAIN模式返回，否则就是用JSON_S返回:
@@ -485,14 +485,8 @@ class cmp2016
 		}
 
 		$_preSetData = self::$_preSetData;
-		$bpmn_entry_channel= $_preSetData['bpmn_entry_channel'];
 
 		$json_obj=array_merge((array) $_preSetData,(array)$json_obj);
-
-		//Once Preset, the channel is locked incase be hacked.
-		if($bpmn_entry_channel){
-			$json_obj['bpmn_entry_channel']=$bpmn_entry_channel;
-		}
 
 		self::$_last_json_obj=$json_obj;//FOR NEXT DEBUG IF CALL TWICE...
 
@@ -578,7 +572,7 @@ class cmp2016
 				$_PreSetData['_c']= $_REQUEST['_c'];
 			}
 
-			$_PreSetData['bpmn_entry_channel']= "WEB";//Telling that from Web
+			$_p['bpmn_entry_channel']='WEB';//IMPORTANT to tell engine run in WEB channel...
 
 			self::PreSetData($_PreSetData);
 

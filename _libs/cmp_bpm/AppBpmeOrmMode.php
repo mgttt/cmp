@@ -3,7 +3,7 @@ class AppBpmeOrmMode
 	extends Observable //get notify() and addEventListener()//if use tObservable then comment this.
 	implements iObserver //for onEvent
 {
-	$debug=true;
+	protected $debug=true;
 	//use tObservable;//trait from 5.4... seems for our framework still need to support 5.3.X...
 
 	public $Q;//Queue
@@ -193,7 +193,7 @@ class AppBpmeOrmMode
 		}
 		$bpmn_class = 'Bp'.$_c;//safer if not to use $_c directly
 
-		$bpo = new $bpmn_class;
+		$bpo = new $bpmn_class( $bpmn_class );
 
 		//$env=$fo['env'];
 		//if(!$env){
@@ -206,7 +206,8 @@ class AppBpmeOrmMode
 		//	}
 		//}
 		//$bpo->_setEnv($env);
-		$bpo->_setBPME($this);
+
+		$bpo->_setBPME($this, $fo);
 
 		$next_fo_a = null;
 		try{

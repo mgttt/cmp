@@ -354,7 +354,7 @@ class cmp2015
 			$rt['file']=basename($rt['file'],".php");
 			$rt['log_id']=$logid;
 			$rt['log_file']=basename($logfile);
-			$rt['nav_helper']="<a href='javascript:top.location.reload();'>Refresh";//有时方便客户刷新。兼容旧的代码而已，已经没有太大作用了.
+			//$rt['nav_helper']="<a href='javascript:top.location.reload();'>Refresh";//有时方便客户刷新。兼容旧的代码而已，已经没有太大作用了.
 		}
 
 		//如果结果是 === null，就是没有返回object，就是用PLAIN模式返回，否则就是用JSON_S返回:

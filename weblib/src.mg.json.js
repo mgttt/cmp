@@ -3,9 +3,13 @@ function s2o(strJson){
 	try{
 	var myjson=null;
 	//try{myjson=JSON;}catch(e){};
-	if( (typeof JSON)!="undefined" ) myjson=JSON;
-	if(myjson) return myjson.parse(strJson);
+	//注释了，不要用浏览器自带那个JSON，不知道哪里有奇怪的BUG.
+	//比如 UTF8的 BOM不能自适应...
+	//if( (typeof JSON)!="undefined" ) myjson=JSON;
+	//if(myjson) return myjson.parse(strJson);
+	//以前是用eval
 	//return eval( "(" + strJson + ")");
+	//根据网上介绍，这样return new Function的方法是耗时最少的.
 	return (new Function('return '+strJson))();
 	}catch(ex){}
 }
@@ -17,7 +21,6 @@ function o2s(object){
 	//操，官方浏览器的JSON.stringify都有问题，说好的人与人的信任呢?!
 
 	//还是自己来..
-
 
 	if(null==object)return "null";
 

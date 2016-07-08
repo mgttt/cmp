@@ -70,7 +70,7 @@ function exception_handler($ex){
 	$trace_s=substr($trace_s,0,4096);
 
 	$rt=global_error_handler2($ex);
-	$rt['nav_helper']="<a href='javascript:history.back();'>Go Back";
+	//$rt['nav_helper']="<a href='javascript:history.back();'>Go Back";
 
 	$logid=_getbarcode(8);//for easier to trace ...
 	$logfile=quicklog_must("app-$APP_NAME",$logid." ( inc.app.php exception_handler )\n".var_export($rt,true)."\n".$trace_s);

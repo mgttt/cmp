@@ -8,7 +8,6 @@
  *	filterPanelId	列表的filter对应的操作区
  *	
  */
-
 if('undefined'==typeof SaasTool) throw new Error("mgSimpleGrid depends SaasTool");
 var my_msg=SaasTool.my_msg;
 var my_warn=SaasTool.my_warn;
@@ -127,12 +126,6 @@ var clsSimpleGrid=function(params){
 			var _onDataLoaded=me.params.onDataLoaded;
 			if(_onDataLoaded){
 				_onDataLoaded();
-			}
-		});
-		$(me).off('BeforeDataLoaded').on('BeforeDataLoaded',function(evt, o){
-			var _onBeforeDataLoaded=me.params.onBeforeDataLoaded;
-			if(_onBeforeDataLoaded){
-				_onBeforeDataLoaded();
 			}
 		});
 		var _ToolBar = me.params.ToolBar;

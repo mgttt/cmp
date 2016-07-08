@@ -1,7 +1,7 @@
 <?php
 //Since 2015-1-4
 //some useful static functions from mg
-//will move to CmpTool
+//will copy to CmpTool
 class mg
 {
 	function println($s,$wellformat=false){

@@ -48,29 +48,6 @@ function getQueryStr(){
 	var _search2=_search.replace(reg,"");
 	return _search2;
 }
-/* 
-* url 目标url,默认为当前链接 
-* arg 需要替换的参数名称 
-* arg_val 替换后的参数的值 
-* return url 参数替换后的url 
-*/ 
-function changeQueryVar(arg,arg_val,url){ 
-	var pattern=arg+'=([^&]*)'; 
-	var replaceText=arg+'='+arg_val; 
-	var url = url?url:window.location.href;
-	if(url.match(pattern)){
-		var tmp='/('+ arg+'=)([^&]*)/gi'; 
-		tmp=url.replace(eval(tmp),replaceText); 
-		return tmp; 
-	}else{ 
-		if(url.match('[\?]')){ 
-			return url+'&'+replaceText; 
-		}else{ 
-			return url+'?'+replaceText; 
-		} 
-	} 
-	return url; 
-}
 //Session ID
 function getSID(){
 	if(window['_s']) return window['_s'];
@@ -111,24 +88,22 @@ function CheckAndCallBack(func_check,timeout,max_timeout,callback,sum_timeout){
 	}
 };
 
-function arr2arr(a1,a2){
-	if(a1 && a2){
-		for (k in a2){
-			a1[k]=a2[k];
-		}
-	}
-}
 function getI18Na(){
 	var pd=getPageData();
-	var lang_a = ( pd.lang_a || {} );
-	//lang_a = arr2arr(window['page_lang_a']);//这样不好.
-	return lang_a;
+	return ( pd.lang_a || {} );
 }
 function getI18N(k){
 	var lang_a=getI18Na();//TODO TODO_WJC 这里要有缓冲，否则会被多次调用影响性能....
 	var rt=lang_a[k];
 	if(!rt) rt='I18N_'+k;
 	return rt;
+}
+function arr2arr(a1,a2){
+	if(a1 && a2){
+		for (k in a2){
+			a1[k]=a2[k];
+		}
+	}
 }
 function shtml_load_page_data(shtml_module,callback){
 	var _s=getSID();if(!_s)_s='';//don't use null....
@@ -155,10 +130,13 @@ function shtml_load_page_data(shtml_module,callback){
 					//alert('Cookie Disabled ?');
 					//}
 			}
+			try{
 			if(callback) callback(_pd);
+			}catch(ex){}
 		}
 		catch(ex){
-			alert("page_data_"+shtml_module+".ex="+ex);setTimeout(function(){location.href="./?rnd"+Math.random();},3000);
+			alert(ex);
+			//alert("page_data_"+shtml_module+".ex="+ex);setTimeout(function(){location.href="./login.shtml?rnd"+Math.random();},3000);
 		}
 	}//,"rnd="+Math.random()//干脆POST空,以后可能是 post 其它信息? 方便做日志...
 	);

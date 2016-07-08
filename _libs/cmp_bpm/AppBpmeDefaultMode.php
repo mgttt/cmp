@@ -17,16 +17,20 @@
 //@ref LgcBPME::BPM_MODE_DEFAULT
 //fo/FO/FlowObject: @ref http://share.cmptech.info/reference/BPM.zh-cn.utf8.htm?20160413b
 class AppBpmeDefaultMode
-	extends Observable //get notify() and addEventListener()//if use tObservable then comment this.
-	implements iObserver //for onEvent
+	implements iObservable,iObserver //for onEvent
 {
-	$debug=true;
+	protected $_debug=3;
 	//use tObservable;//trait from 5.4... seems for our framework still need to support 5.3.X...
 
 	public $Q;//Queue
 	public $H;//Hashtable
 
 	public function __construct(){
+		$this->_debug=quicklog(false);//the debug level
+
+		//quicklog_must('BPM-DEBUG', '_debug='.$this->_debug);
+		//quicklog_must('BPM-DEBUG', '_debug='.var_export(getConf('debug_a'),true));
+		
 		$this->addEventListener( "taskEnqueueed", $this );
 
 		if(!$this->Q) $this->Q=new SplQueue;
@@ -34,6 +38,14 @@ class AppBpmeDefaultMode
 	}
 
 	public function onEvent( $eventName, $info ){
+		if($this->_debug>2){
+			quicklog_must('BPM-DEBUG', 'onEvent{'.$eventName);
+			if($info){
+				quicklog_must('BPM-DEBUG', 'info=');
+				quicklog_must('BPM-DEBUG', $info);
+			}
+			quicklog_must('BPM-DEBUG', 'onEvent}');
+		}
 		if( $eventName!="taskEnqueueed" ) throw new Exception(__CLASS__ .".onEvent not support $eventName ");
 
 		do{
@@ -52,7 +64,7 @@ class AppBpmeDefaultMode
 	}
 
 	//build fo_id, may be improved future.
-	public function buildFlowObjectID(){
+	protected function buildFlowObjectID(){
 		list($sec,$seq)=mg::getTimeSequence();
 		return "$sec.$seq";
 	}
@@ -212,44 +224,57 @@ class AppBpmeDefaultMode
 
 		$bpo = new $bpmn_class( $bpmn_class );
 
-		//$env=$fo['env'];
-		//if(!$env){
-		//	//要取第一个的env...
-		//	//$H0=array_slice($this->H,0,1,false);
-		//	$H0=current($this->H);
-		//	$env=$H0['env'];
-		//	if(!$_p){
-		//		$_p=$H0['_p'];
-		//	}
-		//}
-		//$bpo->_setEnv($env);
-
 		$bpo->_setBPME($this, $fo);
 
 		$next_fo_a = null;
 		try{
 			do{
 				if ( LgcBPME::DefaultHandleFatalError == $_m ) {
+					if($this->_debug>2){
+						quicklog_must('BPM-DEBUG', "$_m(");
+						quicklog_must('BPM-DEBUG', $_p);
+						quicklog_must('BPM-DEBUG', ")=");
+					}
+					
 					$fo_result = $bpo->$_m( $_p );
+					if($this->_debug>2){
+						quicklog_must('BPM-DEBUG', $fo_result);
+					}
 
 					if(is_array($fo_result)){
+						//将结果中的STS切成数组.
 						$STS_a = self::_parseStsName($fo_result['STS']);
 					}elseif(is_string($fo_result)){
+						//假设是UI...
 						$STS_a = array('UI');
 					}else{
 						throw new Exception("DefaultHandleFatalError Unsupported ".var_export($fo_result,true));
 					}
+					if($this->_debug>2){
+						quicklog_must('BPM-DEBUG', 'STS_a=');
+						quicklog_must('BPM-DEBUG', $STS_a);
+					}
+					
 					break;//break do-while
-				}
+				}//DefaultHandleFatalError
 
 				$bpm_a=$bpo->bpm_a;
 				if(!$bpm_a){ throw new Exception('DESIGN_ERROR bpm_a empty'); }
 
 				//$STS_a=array();
 				if(method_exists($bpo,$_m)){
+					if($this->_debug>2){
+						quicklog_must('BPM-DEBUG', "$_m(");
+						quicklog_must('BPM-DEBUG', $_p);
+						quicklog_must('BPM-DEBUG', ")=");
+					}
 					//TODO 如果template, the return is void/null, should get from buffer...what then?
 					$s_before_exec_m = ob_get_clean();
 					if($s_before_exec_m){
+						if($this->_debug>2){
+							quicklog_must('BPM-DEBUG', "s_before_exec_m=[$s_before_exec_m]");
+						}
+						
 						$tmpcode = mg::getBarCode( 8 );
 						quicklog_must("IT-CHECK-BPM", "$tmpcode s_before_exec_m{");
 						quicklog_must("IT-CHECK-BPM", $s_before_exec_m);
@@ -258,10 +283,16 @@ class AppBpmeDefaultMode
 						quicklog_must("IT-CHECK-BPM", "$tmpcode s_before_exec_m}");
 						throw new Exception(__CLASS__.'.'.__METHOD__.'(): Unpected Error. Please check IT-CHECK log ('.$tmpcode.')');
 					}
+
 					@ob_start();
 					$fo_result = $bpo->$_m( $_p );
+					if($this->_debug>2){
+						quicklog_must('BPM-DEBUG', $fo_result);
+					}
+					
 					$s_after_exec_m = ob_get_clean();
 					if($s_after_exec_m){
+						//如果有输出，用输出来覆盖为结果.
 						$fo_result=$s_after_exec_m;
 					}
 					if(is_array($fo_result)){
@@ -271,25 +302,34 @@ class AppBpmeDefaultMode
 					}else{
 						throw new Exception("$_m.Unsupported result= ".var_export($fo_result,true));
 					}
+					if($this->_debug>2){
+						quicklog_must('BPM-DEBUG', 'STS_a=');
+						quicklog_must('BPM-DEBUG', $STS_a);
+					}
 				}else{
-					$STS='OK';
-					$fo_result = array('STS'=>$STS, 'fo_m'=>$_m);
-
 					if($prev_fo_STS_a){
+						if($this->_debug>2){
+							quicklog_must('BPM-DEBUG', "override by prev_fo_STS_a=");
+							quicklog_must('BPM-DEBUG', $prev_fo_STS_a);
+						}
 						$STS_a = $prev_fo_STS_a;
 					}else{
+						if($this->_debug>2){
+							quicklog_must('BPM-DEBUG', "Default to OK for _m=$_m");
+						}
+
 						$STS_a = array($STS);
 					}
+					$fo_result = array('STS'=>'FATAL', 'errmsg'=>'Not found .'.$_m);
 				}
 
 				$bpm_flow_objects=$bpm_a['all'];
 				$_m_o = $bpm_flow_objects[ $_m ];
 				$_m_type = $_m_o['type'];
 				if(!$_m_type) throw new Exception("DESIGN_ERROR cannot find FlowObject=".$_m);
-				//LgcBPME::M_TYPE_PROGRAM/GATEWAY/EVENT
+
 				$_m_type_quick = self::_getType($_m_type, $_m_o);
-				//println('_m_type_quick=');
-				//println($_m_type_quick);
+
 				$idx_src = $bpm_a['idx_src'];
 				$name2id = $bpm_a['name2id'];
 				$id2name = $bpm_a['id2name'];
@@ -297,13 +337,6 @@ class AppBpmeDefaultMode
 
 				//////////////////////////////////////////////// calc next jump
 				$next_fo_a_func=function() use ($_c,$fo_id,$STS_a,$links,$bpm_flow_objects){
-
-					//println('STS_a=');
-					//println($STS_a);
-					//quicklog_must("TMPDEBUG", '.STS_a=');
-					//quicklog_must("TMPDEBUG", $STS_a);
-					//quicklog_must("TMPDEBUG", '.links=');
-					//quicklog_must("TMPDEBUG", $links);
 
 					$next_fo_a=array();
 					foreach($links as $link){
@@ -316,89 +349,64 @@ class AppBpmeDefaultMode
 						}
 
 						$link_name = $link_fo['name'];
-
 						if($link_name){
-							//quicklog_must("TMPDEBUG", 'link_name=');
-							//quicklog_must("TMPDEBUG", $link_name);
-
 							$link_name_a=self::_parseStsName($link_name);
-
-							$flag_should_jump=false;
-							foreach($STS_a as $STS){
-
-								//skip UI
-								if($STS=='UI'){
-									continue;
-								}
-
-								if(in_array($STS, $link_name_a)){
-									$flag_should_jump=true;
-								}
-							}
-							if($flag_should_jump){
-								$tgt=$link['tgt'];
-								$_m_jump_o=$bpm_flow_objects[$tgt];
-								$_m_jump = $tgt;
-								$next_fo_a[]=array('_c'=>$_c, '_m'=>$_m_jump);
-							}
-
 						}else{
-							//quicklog_must("TMPDEBUG", 'STS_a=');
-							//quicklog_must("TMPDEBUG", $STS_a);
 							$link_name_a=array('OK');
-
-							$flag_should_jump=false;
-							foreach($STS_a as $STS){
-
-								//skip UI
-								if($STS=='UI'){
-									continue;
-								}
-
-								if(in_array($STS, $link_name_a)){
-									$flag_should_jump=true;
-								}
-							}
-							if($flag_should_jump){
-								$tgt=$link['tgt'];
-								$_m_jump_o=$bpm_flow_objects[$tgt];
-								$_m_jump = $tgt;
-								$next_fo_a[]=array('_c'=>$_c, '_m'=>$_m_jump);
+						}
+						$flag_should_jump=false;
+						foreach($STS_a as $STS){
+							if(in_array($STS, $link_name_a)){
+								$flag_should_jump=true;break;
 							}
 						}
-						//quicklog_must("TMPDEBUG", 'link_name=');
-						//quicklog_must("TMPDEBUG", $link_name);
+						if($flag_should_jump){
+							$tgt=$link['tgt'];
+							$_m_jump_o=$bpm_flow_objects[$tgt];
+							$_m_jump = $tgt;
+							$next_fo_a[]=array('_c'=>$_c, '_m'=>$_m_jump);
+						}
 					}
 					return $next_fo_a;
 				};
+
 				$next_fo_a = $next_fo_a_func();
-				//array==null is true...
+
+				//NOTES: array==null is true...特别小心...
 				if($next_fo_a===null){
-					print('TMPDEBUG._m_o=');
-					println($_m_o);
-					println('bpm_flow_objects=');
-					println($bpm_flow_objects);
-					println('idx_src=');
-					println($idx_src);
-					println('name2id=');
-					println($name2id);
-					println('id2name=');
-					println($id2name);
-					println('prev_fo_id=');
-					println($prev_fo_id);
-					println('prev_fo_STS_a=');
-					println($prev_fo_STS_a);
-					throw new Exception('fail to calc next jump for '.$_m);
+					if($this->_debug>0){
+						//研究为什么无处可跳:
+						quicklog_must('BPM-DEBUG', '_m_o=');
+						quicklog_must('BPM-DEBUG', $_m_o);
+						quicklog_must('BPM-DEBUG', 'bpm_flow_objects=');
+						quicklog_must('BPM-DEBUG', $bpm_flow_objects);
+						quicklog_must('BPM-DEBUG', 'idx_src=');
+						quicklog_must('BPM-DEBUG', $idx_src);
+						quicklog_must('BPM-DEBUG', 'name2id=');
+						quicklog_must('BPM-DEBUG', $name2id);
+						quicklog_must('BPM-DEBUG', 'id2name=');
+						quicklog_must('BPM-DEBUG', $id2name);
+						quicklog_must('BPM-DEBUG', 'prev_fo_id=');
+						quicklog_must('BPM-DEBUG', $prev_fo_id);
+						quicklog_must('BPM-DEBUG', 'prev_fo_STS_a=');
+						quicklog_must('BPM-DEBUG', $prev_fo_STS_a);
+					}
+					throw new Exception('Fail to calc next jump for .'.$_m);
 				}
 			}while(false);
 
+			//TODO 这个还要完善..特别是要记录栈层量，以防止递归等爆厂.
 			if ( is_array($next_fo_a) ) {
 				$next_fo_a_c = count($next_fo_a);
 				if( $next_fo_a_c>1 ){
+					//如果计算出有超过1个的方向跳转，可以理解为异步并发，如果不是平行网关暂时先不允许...
 					if($_m_type!='ParallelGateWay'){
-						print('next_fo_a=');
-						println($next_fo_a);
-						throw new Exception('not support multi jump if not a ParallelGateWay');
+						if($this->_debug>0){
+							quicklog_must('BPM-DEBUG', 'Not support multi jump if not a ParallelGateWay');
+							quicklog_must('BPM-DEBUG', 'next_fo_a=');
+							quicklog_must('BPM-DEBUG', $next_fo_a);
+						}
+						throw new Exception('Not support multi jump if not a ParallelGateWay');
 					}
 				}
 			}
@@ -406,15 +414,20 @@ class AppBpmeDefaultMode
 			$errmsg=$ex->getMessage();
 			$errcode=$ex->getCode();
 			//NOTES: in this catch to handle the special case that BPMN DESIGN ERROR
-			if(!$fo_result){
-				$fo_result['STS']='FATAL';//TODO UnpectedError???
-				$fo_result['errmsg']=$errmsg;
-				$fo_result['errcode']=$errcode;
-			}
+			//if(!$fo_result){
+			$fo_result['STS']='FATAL';
+			$fo_result['errmsg']=$errmsg;
+			$fo_result['errcode']=$errcode;
+			//}
 			$next_fo_a = array(
 				array('_c'=>$_c,'_m'=>LgcBPME::DefaultHandleFatalError,
 				'_p'=>array('errmsg'=>$errmsg,'errcode'=>$errcode)),
 			);
+			if($this->_debug>0){
+				//研究为什么计算不出.
+				quicklog_must('BPM-DEBUG', 'next_fo_a=');
+				quicklog_must('BPM-DEBUG', $next_fo_a);
+			}
 		}
 
 		$this->H[$fo_id]['status']=LgcBPME::FO_STATUS_DONE;
@@ -452,7 +465,7 @@ class AppBpmeDefaultMode
 
 	//Test  { [S1/S2]\nS3 } => array('S1','S2','S3');
 	//parse the name of the link into programmable array
-	public static function _parseStsName($name_s){
+	protected static function _parseStsName($name_s){
 		//println( "name_s=$name_s ");
 		$name_s=str_replace(' ','',$name_s);//ignore space
 		$name_s=str_replace('\\',',',$name_s);//change \ into ,
@@ -468,7 +481,7 @@ class AppBpmeDefaultMode
 		return $name_a;
 	}
 
-	public static function _getType($_m_type, $_m_o){
+	protected static function _getType($_m_type, $_m_o){
 		if( BpmeTool::endsWith($_m_type, 'Task')
 			|| BpmeTool::endsWith($_m_type, 'Activity')
 		){
@@ -483,6 +496,50 @@ class AppBpmeDefaultMode
 		return $_m_type_quick;
 	}
 
+	//public getFirstFo(){
+
+	//$env=$fo['env'];
+	//if(!$env){
+	//	//要取第一个的env...
+	//	//$H0=array_slice($this->H,0,1,false);
+	//	$H0=current($this->H);
+	//	$env=$H0['env'];
+	//	if(!$_p){
+	//		$_p=$H0['_p'];
+	//	}
+	//}
+	//$bpo->_setEnv($env);
+
+	//}
+
+	private $observers = array();
+
+	public function addEventListener( $eventname, iObserver $observer )
+	{
+		if ( !isset( $this->observers[$eventname] ) ) {
+			$this->observers[$eventname] = array();
+		}
+
+		foreach ( $this->observers[$eventname] as $o ) {
+			if ( $o == $observer ) {
+				return;
+			}
+		}
+
+		$this->observers[$eventname][] = $observer;
+	}
+
+	public function notify( $eventname, $info )
+	{
+		if ( !isset( $this->observers[$eventname] ) ) {
+			$this->observers[$eventname] = array();
+		}
+
+		foreach ( $this->observers[$eventname] as $observer ) {
+			$observer->onEvent( $eventname, $info );
+		}
+	}
+	
 }
 
 	/*public function queryResultUntilTimeout( $param )

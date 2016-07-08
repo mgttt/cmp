@@ -2,10 +2,10 @@
 class LgcBPME
 {
 	//FOR ORM LEVEL
-	public static function getDefaultDSN(){
-		$dsn="db_app";
-		return $dsn;
-	}
+	//public static function getDefaultDSN(){
+	//	$dsn="db_app";
+	//	return $dsn;
+	//}
 
 	const BPM_MODE_FUNC ='FUNC';//[SYNC]: Sync, Func
 	const BPM_MODE_DEFAULT ='DEFAULT';//[SYNC]: Sync, Local, Simple
@@ -33,12 +33,19 @@ class LgcBPME
 	const M_TYPE_GATEWAY = 'Gateway';
 	const M_TYPE_EVENT = 'Event';
 
-	//public function handleFuncMode($bpo, $_p){
-	//	println('bpo=');
-	//	println($bpo);
-	//	$output = array( 'STS'=>'TODO', 'errmsg'=>'handleFuncMode()' );
-	//	return $output;
-	//}
+	public function handleFuncMode($bpo, $_p){
+		$bpm_a=$bpo->bpm_a;
+		quicklog_must('BPM-DEBUG', 'LgcBPME.TODO{');
+		quicklog_must('BPM-DEBUG', 'bpo{');
+		quicklog_must('BPM-DEBUG', $bpo);
+		quicklog_must('BPM-DEBUG', 'bpo}');
+		quicklog_must('BPM-DEBUG', 'bpm_a{');
+		quicklog_must('BPM-DEBUG', $bpm_a);
+		quicklog_must('BPM-DEBUG', 'bpm_a}');
+		quicklog_must('BPM-DEBUG', 'LgcBPME.TODO}');
+		$output = array( 'STS'=>'TODO', 'errmsg'=>'handleFuncMode TODO' );
+		return $output;
+	}
 
 	//Design:
 	//https://www.processon.com/embed/570759a0e4b0dcddf98190f1
@@ -56,20 +63,17 @@ class LgcBPME
 		//	throw new Exception("bpm_mode is not config");
 		//}
 
-		if($bpm_mode==self::BPM_MODE_FUNC){
-			//for func mode
-			$bpo = new BpBase('Bp'.$_c);
-			//return $this->handleFuncMode($bpo, $_p);
+		$bpmn_c = 'Bp'.$_c;//safer, don't use $_c directly
+		if( class_exists( $bpmn_c ) ){
+			$bpo = new $bpmn_c( $bpmn_c );
 		}else{
-			$bpmn_c = 'Bp'.$_c;//safer, don't use it directly
-			if( class_exists( $bpmn_c ) ){
-				$bpo = new $bpmn_c( $bpmn_c );
-			}else{
-				throw new Exception("BPMN_NOT_FOUND $bpmn_c");
-			}
+			throw new Exception("BPMN_NOT_FOUND $bpmn_c");
 		}
-
 		$bpm_a=$bpo->bpm_a;
+
+		if($bpm_mode==self::BPM_MODE_FUNC){
+			return $this->handleFuncMode($bpo, $_p);//Function Mode is Special
+		}
 
 		$properties=$bpm_a['properties'];
 
@@ -87,34 +91,26 @@ class LgcBPME
 		$_m=$_p['_m'];
 		if(!$_m){
 			$_m='start';
-			//$_m=$properties['start'];
-			//if(!$_m) {
-			//	println($properties);
-			//	throw new Exception('BPMN_DESIGN_ERROR default start not define');
-			//}
 		}
-		//BpmeTool::checkCond( strtolower(trim($_m))=='defaultHandleFatalError', null, 'Not Allow defaultHandleFatalError()');
 
 		//get definition of the _m
 		$t=$bpm_flow_objects[$_m];
-		//BpmeTool::checkCond(!$t, null, "Unknown _m $_c.$_m");
 		if(!$t){
 			throw new Exception("$_c.$_m undefined");
 		}
 
-		$bpm_entry_channel=$_p['bpm_entry_channel'];
+		//bpm_entry_channel 是 bpm.php 给当前打上的.
+		$bpm_entry_channel=$_p['bpm_entry_channel'];//ref cmp
 		if($bpm_entry_channel=='WEB'){
 			$t_type=$t['type'];
 			$t_properties=$t['properties'];
 			$AllowWeb=$t_properties['AllowWeb'];
-			//$AllowWeb=false;//TEST UserTask Only
 			if ($AllowWeb===true || in_array(strtoupper($AllowWeb), array('YES','Y','TRUE'))){
-				//PASS if the _m designed as AllowWeb 
+				//PASS if the _m.AllowWeb 
 			}else{
 				if("UserTask"==$t_type){
-					//PASS IF UserTask for Web...
+					//PASS IF UserTask (mostly for Web)...
 				}else{
-					//$rt['debug_AllowWeb']=$AllowWeb;
 					$rt['errmsg']="$_c.$_m Not Allow Access From $bpm_entry_channel";
 					return $rt;
 				}
@@ -128,12 +124,11 @@ class LgcBPME
 			#NOTES: In PHP-Safe-Mode, Fail to use ini_set() or set_time_limit() to change it.  For that case, edit max_execution_time in the php.ini or not use safe-mode is the only solution.
 		}
 
-		///////////////////////  Basic check done.
+		///////////////////////  Basic check done... start to build FlowObject
 
 		$_p['bpm_mode'] = $bpm_mode;
 
-		$flagAutoNotify=true;
-		$fo = array(
+		$FlowObject = array(
 			'_c'=>$_c,
 			'_m'=>$_m,
 			'_p'=>$_p,
@@ -146,11 +141,12 @@ class LgcBPME
 				$system_code=$saas_conf['tenant_code'];
 		}
 		if($system_code){
-			$fo['system_code']=$system_code;
+			$FlowObject['system_code']=$system_code;
 		}
 		if($bpm_timeout){
-			$fo['bpm_timeout']=$bpm_timeout;
+			$FlowObject['bpm_timeout']=$bpm_timeout;
 		}
+
 		$env=array();
 		if($_SERVER) $env['SERVER']=$_SERVER;
 		if($_SESSION) $env['SESSION']=$_SESSION;
@@ -158,37 +154,40 @@ class LgcBPME
 		if($_GET) $env['GET']=$_GET;
 		if($_POST) $env['POST']=$_POST;
 		if($GLOBALS['HTTP_RAW_POST_DATA']) $env['HTTP_RAW_POST_DATA']=$GLOBALS['HTTP_RAW_POST_DATA'];
-		if ($env) $fo['env']=$env;
+		if ($env) $FlowObject['env']=$env;
+
+		//$flagAutoNotify=true;
+		//$BpmeInstance = self::getEngineInstance( $bpm_mode );
+		//$fo_id = $BpmeInstance->enqueueFlowObject(array(
+		//	"fo"=>$FlowObject,
+		//	"flagAutoNotify"=>$flagAutoNotify,//true will notify() automatically
+		//));
+		//if(!$flagAutoNotify) $BpmeInstance->notify("taskEnqueueed", array("fo_id"=>$fo_id));
 
 		$BpmeInstance = self::getEngineInstance( $bpm_mode );
 		$fo_id = $BpmeInstance->enqueueFlowObject(array(
-			"fo"=>$fo,
-			"flagAutoNotify"=>$flagAutoNotify,//true will notify() automatically
+			"fo"=>$FlowObject,
 		));
-		if(!$flagAutoNotify) $BpmeInstance->notify("taskEnqueueed", array("fo_id"=>$fo_id));
 
-		//get the result when it stop:
+		//notify the engine there comes a task...
+		$BpmeInstance->notify("taskEnqueueed", array("fo_id"=>$fo_id));
+
+		//get the result when it stop, unless timeout:
+		//NOTES: the client may get the result to think whether to continue.
 		$query_rt_o = $BpmeInstance->queryLatestResultUntilTimeout(array(
 			'fo_id'=>$fo_id,
 			'bpm_timeout'=>$bpm_timeout,
 		));
-		$result = $query_rt_o['result'];
+		$latest_result = $query_rt_o['result'];
 
-		if (is_string($result)) {print $result;return;}//return $result;
+		if (is_string($latest_result)) {print $latest_result;return;}
 
-		$rt = array_merge( $rt, (array) $result);
+		$rt = array_merge( $rt, (array) $latest_result);
 
-		//TODO ??
-		//$next_fo_id = $query_rt_o['next_fo_id'];
-		//if($next_fo_id){
-		//	$rt['next_fo_id']=$next_fo_id;
-		//}
-
-		//if(!$rt['STS']) $rt['STS']='KO';
-
-		//TMP FOR DEBUG:
-		$latest_fo = $query_rt_o['fo'];
-		$rt['latest_fo']=$latest_fo;
+		//TMP FOR DEBUG ONLY:
+		$rt['debug_rt']=$query_rt_o;
+		//$latest_fo = $query_rt_o['fo'];
+		//$rt['debug_fo']=$latest_fo;
 
 		return $rt;
 	}
