@@ -1,3 +1,7 @@
+/**
+* Good Func for Wap Core Dev.
+*/
+//Get the Query Param Array
 var getQueryStringA = function(){
 	var _qva=this._qva;
 	if(! this._qva){
@@ -14,9 +18,11 @@ var getQueryStringA = function(){
 	return _qva;
 };
 
+//Get specific Query Param Value
 function getQueryVar(sVar){
 	_qva=this._qva=getQueryStringA();
 	return _qva[sVar];
+	//Deprecated Codes:
 	//var _qva=this._qva;
 	//if(!_qva){
 		//	_qva=this._qva={};
@@ -27,46 +33,42 @@ function getQueryVar(sVar){
 		//return v;
 }
 
-//if(typeof($)=='undefined'){
-//var $= function(s){
-//	return document.getElementById(s);//暂时，迟点再在网上找个完备一点的.
-//};
-
+//In Wap/Mini Env, we don't use jQuery, target is to shrink the size of the files.
 //@ref http://microjs.com/
 //@ref https://github.com/james2doyle/saltjs/blob/master/js/salt.js
 /*! Salt.js DOM Selector Lib. By @james2doyle */
 window.$ = function(selector, context, undefined){
-  // an object containing the matching keys and native get commands
+	// an object containing the matching keys and native get commands
 	//var _d=selector[0];//IE6 not compatible...
 	//var _d=(selector || "").substring(0,1);
 	var _d=(selector || "").charAt(0);//Good for even IE6
 	/*
-  var matches = {
-    '#': 'getElementById',
-    '.': 'getElementsByClassName',
-    '@': 'getElementsByName',
-    '=': 'getElementsByTagName',
-    '*': 'querySelectorAll'
-  }[selector[0]]; // you can treat a string as an array of characters
+	var matches = {
+	'#': 'getElementById',
+	'.': 'getElementsByClassName',
+	'@': 'getElementsByName',
+	'=': 'getElementsByTagName',
+	'*': 'querySelectorAll'
+	}[selector[0]]; // you can treat a string as an array of characters
 	*/
-  var matches = {
-    '#': 'getElementById',
-    '.': 'getElementsByClassName',
-    '@': 'getElementsByName',
-    '=': 'getElementsByTagName',
-    '*': 'querySelectorAll'
-  }[_d]; // you can treat a string as an array of characters
+	var matches = {
+		'#': 'getElementById',
+		'.': 'getElementsByClassName',
+		'@': 'getElementsByName',
+		'=': 'getElementsByTagName',
+		'*': 'querySelectorAll'
+	}[_d]; // you can treat a string as an array of characters
 
-  // now pass the selector without the key/first character
-  var el = (((context === undefined) ? document: context)[matches](selector.slice(1)));
+	// now pass the selector without the key/first character
+	var el = (((context === undefined) ? document: context)[matches](selector.slice(1)));
 
-  // if there is one element than return the 0 element
-  return ((el.length < 2) ? el[0]: el);
+	// if there is one element than return the 0 element
+	return ((el.length < 2) ? el[0]: el);
 };
 
 //}
 
-//TODO checkbox和radio暂未实地测试. (wanjo notes at 2015-2-24):
+//TODO checkbox和radio暂未实地测试. [2015-2-24]
 function form2a(form){
 	if(!form){
 		form=document.forms[0];
@@ -85,8 +87,8 @@ function form2a(form){
 		//name=name.toLowerCase();
 		var value = element.value;
 		switch(type){
-			case 'radio'://TODO 要特别处理?
-			case 'checkbox'://TODO 要特别处理?
+			case 'radio'://TODO 可能要特别处理.
+			case 'checkbox'://TODO 可能要特别处理.
 				str = name + '=' + encodeURIComponent(value);
 				_a.push(str);
 				break;
@@ -104,28 +106,13 @@ function form2s(form){
 	return rt;
 }
 
-//window['_s']=null;
-//function getSID(){
-//	if(window['_s']==null){
-//		window['_s']=getQueryVar('_s');
-//	}
-//	return window['_s'];
-//}
-//function U(p1,p2){
-//	var s="";
-//	//to if no lang then pack lang
-//	for(var k in p2){
-//		s+=k+"="+p2[k];//TODO url encode
-//	}
-//	return p1+".web?"+s;
-//}
-
 //NOTES: diff of ( escape|encodeURI|encodeURIComponent) http://xkr.us/articles/javascript/encode-compare/
 function BuildQueryStr(arr){
 	var rt = [];
 	for (var d in arr) rt.push(encodeURIComponent(d) + "=" + encodeURIComponent(arr[d]));
 	return rt.join("&");
 }
+
 //把a2的某些抄到a1，如果ka是空就表示a2全部抄到a1
 function arr2arr(a1,a2,ka){
 	if(!a1)a1={};
@@ -136,11 +123,14 @@ function arr2arr(a1,a2,ka){
 	}
 	return a1;
 }
+
+//////////////////////////////////////  Work With CMP Framework.
 function J(_m,_p,_c){
 	if(!_c)_c="WapAce";
 	var ub="";
 	if(_m){
-		ub=","+_c+","+_m+".web";
+		//ub=","+_c+","+_m+".web";
+		ub=""+_c+"."+_m+".api";
 	}else{
 		ub=window.location.pathname;
 	}
@@ -148,6 +138,8 @@ function J(_m,_p,_c){
 	var _u=ub+"?"+BuildQueryStr(_a);
 	location.href=_u;
 }
+
+//////////////////////////////////
 /* 桌面Web App 封禁新开窗口 */
 if(("standalone" in window.navigator) && window.navigator.standalone){
 	var noddy, remotes = true;
@@ -187,21 +179,24 @@ _AttachEvent('load', window, function(){
 				case "click":
 				//case "touchstart":
 					if(_nn=='A'/* || _nn=='INPUT'*/){
-						ld7.style.visibility='visible';
+						//如果有class为noLoadingHint则不出现loading
+						var _class = _tgt.getAttribute('class');
+						if(!_class || _class.indexOf('noLoadingHint') == '-1')
+							ld7.style.visibility='visible';
 						//ld7.style.visibility='inline';
 					}
-					//ld7.style.display='inline';
-					setTimeout(function(){
-						ld7.style.visibility='hidden';
-						//ld7.style.display='none';
-					},7000);
-					break;
-				//case "touchend":
-				//	setTimeout(function(){
-				//		ld7.style.visibility='hidden';
-				//		//ld7.style.display='none';
-				//	},3000);
-				//	break;
+					//聪：因为发现有些地方，点击之后调用ajax，loading就不见了					
+					//					setTimeout(function(){
+						//						ld7.style.visibility='hidden';
+						//						//ld7.style.display='none';
+						//					},7000);
+						break;
+					//case "touchend":
+						//	setTimeout(function(){
+							//		ld7.style.visibility='hidden';
+							//		//ld7.style.display='none';
+//	},3000);
+							//	break;
 			}
 		}catch(e){alert(e);}
 		return true;
@@ -212,6 +207,35 @@ _AttachEvent('load', window, function(){
 	_AttachEvent('click', document, _doc_ontouch);
 });
 
-function my_alert(s){
-	return alert(s);
+function my_alert(s,funcOK){
+	var tm_00 = (new Date()).getTime();
+	alert(s);
+	var tm_01 = (new Date()).getTime();
+	if(tm_01-tm_00 < 0.02){
+		//assume blocked, so try using another method
+		zdialog_alert(s);
+	}else{
+		if(funcOK){
+			funcOK();
+		}
+	}
+}
+function my_confirm(s,funcOK,funcKO){
+	var tm_00 = (new Date()).getTime();
+	var rs=confirm(s);
+	var tm_01 = (new Date()).getTime();
+	if(tm_01-tm_00 < 0.02){
+		//assume blocked, so try using another method
+		zdialog_confirm(s,funcOK,funcKO);
+	}else{
+		if(rs){
+			if(funcOK){
+				funcOK();
+			}
+		}else{
+			if(funcKO){
+				funcKO();
+			}
+		}
+	}
 }

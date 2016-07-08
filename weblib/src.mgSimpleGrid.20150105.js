@@ -41,6 +41,7 @@ var _proc_series_wrap= function(func, timeout){
 		}
 	};
 };
+//wrap the series result and pass to next one
 var _proc_series_wrap_result=function(callback,err,result){
 	setTimeout(function(){
 		callback.lastrst = callback(err, result) || (new Date());
@@ -55,6 +56,7 @@ var _func_create_action=function(index,action,action_disp){
 
 /////////////////////////////////////////////////////////////
 var clsSimpleGrid=function(params){
+	var me=this;
 	var _this_cls_name='clsSimpleGrid';
 	var _proc_toggle_filter_panel=function(){
 		var _fp=me.params.filterPanel;
@@ -65,7 +67,7 @@ var clsSimpleGrid=function(params){
 	var _proc_mggrid_load_remote_data= function(callback){
 		$.messager.progress();
 		async.series([
-			_proc_series_wrap(_proc_mggrid_getdata)
+			_proc_series_wrap(_proc_mggrid_getdata, 15000)
 			,_proc_series_wrap(_proc_mggrid_handledata)
 			], function (err, async_result) {
 				if(err) my_msg(err.message);
@@ -90,7 +92,10 @@ var clsSimpleGrid=function(params){
 			if (!_grid) throw new Error("404 mygrid");
 			switch(o.action){
 				//暂时默认的行为只有Reload和开关查询panel
-			case 'Reload': _proc_mggrid_load_remote_data(); break;
+			//case 'Reload': _proc_mggrid_load_remote_data(); break;
+			case 'Reload': 
+				me.reload();
+			break;
 			case 'Query': _proc_toggle_filter_panel(); break;
 			}
 			return false;
@@ -385,7 +390,7 @@ var clsSimpleGrid=function(params){
 		_grid.datagrid(_options);
 		_grid_div.find(".mg-grid-action").off("click").on("click",function(evt)
 		{
-			var _this = $(this);
+			var _this = $(this);//this here is the event owner... not "me"
 			var _index = _this.attr("index");
 			var action = _this.attr("action");
 			var _all_data_a = _grid.datagrid('getRows') || {};//全部:
@@ -393,16 +398,22 @@ var clsSimpleGrid=function(params){
 			$(me).trigger("RowAction", {a: _this, index: _index, action: action, rowdata:_rowdata});
 			return false;//no bubble
 		});
-		if(me.isReload){//如果是重新加载的，就只是渲染表格，不渲染查询的div等其他的。
-			$.parser.onComplete = function(){
-				if(me.isReload){
-					me.isReload = false;
-					$.parser.parse($("td[field=_actions]"));
-				}
-			};
+		if(me.isReload){//如果是重新加载的，就只是渲染表格，不渲染 filter 等其他的。
+			//这样会覆盖全局的 onComplete，不是很好
+			//$.parser.onComplete = function(){
+			//	if(me.isReload){
+			//		me.isReload = false;
+			//		$.parser.parse($("td[field=_actions]"));
+			//		//$.parser.parse($(".mg-grid-action",_grid));
+			//	}
+			//};
 			$.parser.parse(_grid);
-		}else
+			me.isReload = false;
+			//$.parser.parse($("td[field=_actions]"));
+			$.parser.parse($("td[field=_actions]",_grid_div));//TMP, TODO find better way.
+		}else{
 			$.parser.parse(_grid_div);
+		}
 		_proc_series_wrap_result(callback,null,null);
 	};//_proc_mggrid_handledata
 
@@ -484,12 +495,13 @@ var clsSimpleGrid=function(params){
 			}
 		}
 		this.reload = function(_callback,_param){
-			me.isReload = true;
-			if(_param) me.params.data_opt = _param;//TODO 要解决 使用 原默认参数+filterPanel 还是叠加，还是只用这个_param
-			//console.log(me.params);
+			me.isReload = true;//markdown to avoid the filter parse() again later
+			if(_param) me.params.data_opt = _param;
 
-			$(me).trigger('BeforeDataLoaded');
-
+			var _onBeforeDataLoaded=me.params.onBeforeDataLoaded;
+			if(_onBeforeDataLoaded){
+				_onBeforeDataLoaded();
+			}
 			_proc_mggrid_load_remote_data(_callback);
 		}
 
@@ -518,7 +530,6 @@ var clsSimpleGrid=function(params){
 			return false;
 		}
 
-		var me=this;
 		me.params = params || {};
 		me.params['startTime'] = (new Date());
 		me.params['targetDiv'] = targetDiv;
