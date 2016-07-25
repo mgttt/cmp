@@ -1,30 +1,5 @@
 <?php
-
 ###  some VERY COMMON FUNC to the platform...
-
-//mostly moved to mg class.   short functions for function-base programming only..
-
-if(!function_exists('mg_autoload_function')){
-	throw new Exception("mg_autoload_function is not defined");
-}
-if(!function_exists('__autoload')){
-	if(function_exists('spl_autoload_register')) {
-		spl_autoload_register('mg_autoload_function');
-	} else {
-		function __autoload($class_name) {
-			mg_autoload_function($class_name);
-		}
-	}
-} else {
-	if(function_exists('spl_autoload_register')) {
-		spl_autoload_register('__autoload');
-		spl_autoload_register('mg_autoload_function');
-	} else {
-		throw new Exception("spl_autoload_register func not exists");
-	}
-}
-
-
 //---------------------------------------------------------Json{
 if(!function_exists("my_json_encode")){
 	function my_json_encode($o,$wellformat=false){
@@ -96,20 +71,22 @@ function unicode2any($str,$target_encoding="UTF-8"){
 	return join("",$ar);
 }
 
-function getServerTimeZone(){
-	//The plus and minus signs (+/-) are not intuitive. For example,
-	//"Etc/GMT-10" actually refers to the timezone "(GMT+10:00)
-	$server_timezone = getConf('SERVER_TIMEZONE');
-	//$server_timezone = str_ireplace("etc/", "", $server_timezone)
-		/*if (strpos($server_timezone, "-") !== false) {
-			$server_timezone = str_replace("-", "+", $server_timezone);
-		} else if (strpos($server_timezone, "+") !== false) {
-			$server_timezone = str_replace("+", "-", $server_timezone);
-		}*/
-	$GMT_TIMEZONE = getConf('GMT_TIMEZONE');
-	return $GMT_TIMEZONE[$server_timezone];
-}
+# TODO in mg tool class
+#function getServerTimeZone(){
+#	//The plus and minus signs (+/-) are not intuitive. For example,
+#	//"Etc/GMT-10" actually refers to the timezone "(GMT+10:00)
+#	$server_timezone = getConf('SERVER_TIMEZONE');
+#	//$server_timezone = str_ireplace("etc/", "", $server_timezone)
+#		/*if (strpos($server_timezone, "-") !== false) {
+#			$server_timezone = str_replace("-", "+", $server_timezone);
+#		} else if (strpos($server_timezone, "+") !== false) {
+#			$server_timezone = str_replace("+", "-", $server_timezone);
+#		}*/
+#	$GMT_TIMEZONE = getConf('GMT_TIMEZONE');
+#	return $GMT_TIMEZONE[$server_timezone];
+#}
 
+# TODO move to mg/cmptool class for later use.
 function adjust_timezone($SERVER_TIMEZONE){
 	if(!$SERVER_TIMEZONE)
 		$SERVER_TIMEZONE=getConf('SERVER_TIMEZONE');
@@ -163,6 +140,7 @@ function debug_stack($s="") {
 	return $rt;
 }
 
+# strongger suggested packed with date('YmdHis') the 14 chars ahead
 function _getbarcode($defaultLen=23,$seed='0123456789ABCDEF'){
 	list($usec, $sec) = explode(" ", microtime());
 	srand($sec + $usec * 100000);

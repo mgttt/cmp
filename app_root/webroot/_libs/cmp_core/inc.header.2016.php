@@ -66,9 +66,9 @@ if(!is_dir(_LIB_)){
 	throw new Exception("404 _LIB_");
 }
 
-require_once "inc.v5.mymagicload.php";//class loader adjustment ** important class
+require_once "inc.classloader.php";//class loader adjustment ** important class
 
-require_once "inc.v5.globalerror.example.php";//虽然是example但好好用...
+require_once "inc.v5.globalerror.example.php";
 
 require_once "inc.header.myglobalerror.php";//global error handling
 

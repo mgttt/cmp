@@ -16,9 +16,8 @@ if (!defined("_LIB_")) define("_LIB_",realpath(__DIR__ ."/../"));
 
 if (_LIB_=="" || _LIB_=="_LIB_") throw new Exception("empty _LIB_");
 
-#Again, if not enough, copy it and make your own.
-#require_once 'inc.header.sample.2014b.php';
-require_once 'inc.header.2015.php';
+# If not enough, copy it and make your own.
+require_once 'inc.header.2016.php';
 
 //adjust_timezone();//adjust php timezone getConf(SERVER_TIMEZONE), ignore it if using db time
 

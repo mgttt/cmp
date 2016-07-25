@@ -1,4 +1,8 @@
 .svn
+_tmp/
+_logs/
 *.tmp
 *.log
 *.cache
+app_root/webroot/_logs/
+app_root/webroot/_tmp/
