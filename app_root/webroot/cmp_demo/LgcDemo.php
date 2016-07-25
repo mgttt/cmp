@@ -16,7 +16,7 @@ class LgcDemo
 
 		$rs=$rb->PageExecute(array(
 			"SELECT"=>"*",
-			"FROM"=>"tbl_note",  
+			"FROM"=>"tbl_note",
 			"WHERE"=>$where,
 			"ORDER"=>"id DESC "
 		));
@@ -38,31 +38,51 @@ class LgcDemo
 
 		return $rt;
 	}
-	
+
 	public function DeleteTestNote($param){
 		$cls = new OrmDemo(LgcDemo::getDSN());
 		$cls->deleteBean($param['id']);
 		return array("STS"=>"OK");
 	}
-	
-	public function AddTestNote($param){		
+
+	public function AddTestNote($param){
+		$rt=array();
+		$dsn=LgcDemo::getDSN();
+		$rt['dsn']=$dsn;//for debug
+		$rt['act']='add';//for debug
+		$rt['param']=$param;
+		$rt['_POST']=$_POST;
+
 		$param['note_status'] = "0";
 
-		$cls = new OrmDemo(LgcDemo::getDSN());
-		$info = $cls->Insert($param);
-		if($info){
-			return array("STS"=>"OK","data"=>$info);
+		$orm_class = new OrmDemo($dsn);
+
+		$rst = $orm_class->insert($param);//TODO 要从ACE取最新模式，UPSERT...
+		if($rst){
+			$rt['STS']='OK';
+			$rt['rst']=$rst;
+		}else{
+			$rt['STS']='KO';
 		}
-		return array("STS"=>"KO");
+		return $rt;
 	}
-	
-	public function UpdateTestNote($param){		
-		$cls = new OrmDemo(LgcDemo::getDSN());
-		$info = $cls->Update($param);
-		if($info){
-			return array("STS"=>"OK","data"=>$info);
+
+	public function UpdateTestNote($param){
+		$rt=array();
+		$dsn=LgcDemo::getDSN();
+		$rt['dsn']=$dsn;//for debug
+		$rt['act']='add';//for debug
+		$rt['param']=$param;
+
+		$orm_class = new OrmDemo($dsn);
+		$rst = $orm_class->update($param);//要从ACE取最新模式，UPSERT...
+		if($rst){
+			$rt['STS']='OK';
+			$rt['rst']=$rst;
+		}else{
+			$rt['STS']='KO';
 		}
-		return array("STS"=>"KO");
+		return $rt;
 	}
 }
 

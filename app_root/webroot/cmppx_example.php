@@ -2,7 +2,7 @@
 /* vim: set tabstop=2 shiftwidth=2 softtabstop=2: */
 error_reporting(E_ERROR|E_COMPILE_ERROR|E_PARSE|E_CORE_ERROR|E_USER_ERROR);
 
-(function(){
+//(function(){
 
 $REQUEST_URI=$_SERVER['REQUEST_URI'];
 $PATH_INFO=$_SERVER['PATH_INFO'];
@@ -60,14 +60,15 @@ if($proxy_url){
 
 		flush();die;
 	}else{
-		if('_pi_.php'==$proxy_url){
-			print filemtime('index.php').' '.date('YmdHis')."<br/>";
-			phpinfo();
-		}else{
-			print "TODO $proxy_url<br/>";
-			print "REQUEST_URI=$REQUEST_URI<br/>";
-			print "PATH_INFO=$PATH_INFO<br/>";
-		}
+		require_once 'cmp_root_controller.php';
+		//if('_pi_.php'==$proxy_url){
+		//	print filemtime('index.php').' '.date('YmdHis')."<br/>";
+		//	phpinfo();
+		//}else{
+		//	print "TODO $proxy_url<br/>";
+		//	print "REQUEST_URI=$REQUEST_URI<br/>";
+		//	print "PATH_INFO=$PATH_INFO<br/>";
+		//}
 	}
 } else {
 	//require 'index_default.php';
@@ -78,7 +79,7 @@ if($proxy_url){
 	//print "last_line=$last_line<br/>";
 
 	print 'cmp HTTP_VERSION_CMP_APP_SERVER='.$_SERVER['HTTP_VERSION_CMP_APP_SERVER'].'<br/>';
-	phpinfo();
+	#phpinfo();
 }
 //die;
-})();
+//})();

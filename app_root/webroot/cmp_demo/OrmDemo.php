@@ -1,6 +1,6 @@
 <?php
 class OrmDemo
-	extends OrmBase
+	extends ORM_Base
 {
 	public $NAME_R = 'tbl_note';
 
