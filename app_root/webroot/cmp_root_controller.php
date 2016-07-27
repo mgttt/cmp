@@ -1,30 +1,21 @@
 <?php
-
+(function(){
+$REQUEST_URI=$_SERVER['REQUEST_URI'];
+$PATH_INFO=$_SERVER['PATH_INFO'];
+$proxy_url = $PATH_INFO or $REQUEST_URI;
 $proxy_url = ltrim($proxy_url,'/');
-
-if(preg_match("/([^\/]*)\.([^\.]*)\.api$/",$proxy_url,$matches)){
-	//handle cmp elegant mode
-	$_c=$_REQUEST['_c']=$_GET['_c']=$matches[1];
-	$_m=$_REQUEST['_m']=$_GET['_m']=$matches[2];
-	$proxy_url=dirname($proxy_url).'/index.php';
-}elseif(preg_match("/\.static$/",$proxy_url,$matches)){
-	//handle cmp fake static mode
-	$_c=$_REQUEST['_c']=$_GET['_c']=$matches[1];
-	$_m=$_REQUEST['_m']=$_GET['_m']=$matches[2];
-	$proxy_url=dirname($proxy_url).'/static.php';
-}
 foreach(
 	array(
 		//TODO skip _logs? _tmp?
 
-		"/([^\/]*)\.([^\.]*)\.api$/"=>function(&$proxy_url,$pattern){
+		"/([^\/]*)\.([^\.]*)\.api$/"=>function(&$proxy_url,$pattern,$matches){
 			//handle cmp elegant mode
 			$_c=$_REQUEST['_c']=$_GET['_c']=$matches[1];
 			$_m=$_REQUEST['_m']=$_GET['_m']=$matches[2];
 			$proxy_url=dirname($proxy_url).'/index.php';
 			return true;//true to continue next rule
 		},
-		"/\.static$/"=>function(&$proxy_url,$pattern){
+		"/\.static$/"=>function(&$proxy_url,$pattern,$matches){
 			//handle cmp fake static mode
 			$_c=$_REQUEST['_c']=$_GET['_c']=$matches[1];
 			$_m=$_REQUEST['_m']=$_GET['_m']=$matches[2];
@@ -61,14 +52,16 @@ foreach(
 			print "404 $pattern $u";
 		}
 ) as $k=>$v)
-		{
-			if(preg_match($k,$proxy_url) || $k=='unknown'){
-				//if(is_function($v))
-				//$v($proxy_url,$k);
-				if(true===$v($proxy_url,$k)){
-					//continue next if return true from function...
-					continue;
-				}
-				break;
-			}
-		};
+{
+	$matches=array();
+	if(preg_match($k,$proxy_url,$matches) || $k=='unknown'){
+		//$v($proxy_url,$k);
+		if(true===$v($proxy_url,$k,$matches)){
+			//continue next if return true from function...
+			continue;
+		}
+		break;
+	}
+}
+})();
+
