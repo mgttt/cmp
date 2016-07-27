@@ -12,7 +12,7 @@ $proxy_url = $PATH_INFO or $REQUEST_URI;
 //e.g.
 //http://localhost:9888/https__/devace.sinaapp.com/saas_ace/login.shtml
 //http://localhost:9888/devace/saas_ace/login.shtml
-$proxy_url=preg_replace("/^[\/]?devace\//","http__/devace.sinaapp.com/",$proxy_url);
+//$proxy_url=preg_replace("/^[\/]?devace\//","http__/devace.sinaapp.com/",$proxy_url);
 
 $proxy_url=str_replace("index.php/","",$proxy_url);//tmp solution to remove the leading index.php/
 
