@@ -1,67 +1,46 @@
 <?php
-(function(){
-$REQUEST_URI=$_SERVER['REQUEST_URI'];
-$PATH_INFO=$_SERVER['PATH_INFO'];
-$proxy_url = $PATH_INFO or $REQUEST_URI;
-$proxy_url = ltrim($proxy_url,'/');
+#V20160728
+(function($uu){
+if($uu==''){require 'index_default.php';return;}
 foreach(
 	array(
-		//TODO skip _logs? _tmp?
-
-		"/([^\/]*)\.([^\.]*)\.api$/"=>function(&$proxy_url,$pattern,$matches){
-			//handle cmp elegant mode
+		"/([^\/]*)\.([^\.]*)\.api$/"=>function(&$uu,$pattern,$matches){
 			$_c=$_REQUEST['_c']=$_GET['_c']=$matches[1];
 			$_m=$_REQUEST['_m']=$_GET['_m']=$matches[2];
-			$proxy_url=dirname($proxy_url).'/index.php';
-			return true;//true to continue next rule
+			$uu=dirname($uu).'/index.php';
 		},
-		"/\.static$/"=>function(&$proxy_url,$pattern,$matches){
-			//handle cmp fake static mode
+		"/\.static$/"=>function(&$uu,$pattern,$matches){
 			$_c=$_REQUEST['_c']=$_GET['_c']=$matches[1];
 			$_m=$_REQUEST['_m']=$_GET['_m']=$matches[2];
-			$proxy_url=dirname($proxy_url).'/static.php';
-			return true;//true to continue next rule
+			$uu=dirname($uu).'/static.php';
 		},
-		"/\.php$/"=>function($u,$pattern){
-			if(file_exists($u)){
-				chdir(dirname($u));//change working dir to the folder of the file
-				require $u;
-			}else{
-				print "404 $u";
+		"/\.php$/"=>function($uu,$pattern){
+			if(file_exists($uu)){
+				chdir(dirname($uu));
+				require $uu;
+				return true;
 			}
 		},
-		//default index.php if $folder/
-		"/\/$/"=>function($u){
-			if(file_exists($u .'index.php')){
-				chdir($u);
-				require $u.'index.php';
-			}else{
-				print "404 $u";
+		"/\/$/"=>function($uu){
+			if(file_exists($uu .'index.php')){
+				chdir($uu);
+				require $uu.'index.php';
+				return true;
 			}
 		},
-		//the reaul static file such js/css/png/jpg/gif
-		"/\.(js|css|jpg|jpeg|png|gif)$/"=>function($u,$pattern){
-			if(file_exists($u)){
-				echo file_get_contents($u);
-			}else{
-				print "404 $u";
+		"/\.(js|css|jpg|jpeg|png|gif)$/"=>function($uu,$pattern){
+			if(file_exists($uu)){
+				echo file_get_contents($uu);
+				return true;
 			}
 		},
-		//other regards as 404
-		"unknown"=>function($u,$pattern){
-			print "404 $pattern $u";
+		''=>function($uu){
+			print "404 $uu";
 		}
-) as $k=>$v)
-{
+) as $k=>$v){
 	$matches=array();
-	if(preg_match($k,$proxy_url,$matches) || $k=='unknown'){
-		//$v($proxy_url,$k);
-		if(true===$v($proxy_url,$k,$matches)){
-			//continue next if return true from function...
-			continue;
-		}
-		break;
+	if(preg_match($k,$uu,$matches) || $k==''){
+		if(true===$v($uu,$k,$matches)) break; else continue;
 	}
 }
-})();
-
+})(ltrim($_SERVER['REQUEST_URI'] | $_SERVER['PATH_INFO'],'/'));
