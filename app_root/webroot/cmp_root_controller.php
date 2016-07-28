@@ -1,18 +1,15 @@
 <?php
-#V20160728
+#V20160729
 (function($uu){
 if($uu==''){require 'index_default.php';return;}
 foreach(
 	array(
-		"/([^\/]*)\.([^\.]*)\.api$/"=>function(&$uu,$pattern,$matches){
-			$_c=$_REQUEST['_c']=$_GET['_c']=$matches[1];
-			$_m=$_REQUEST['_m']=$_GET['_m']=$matches[2];
-			$uu=dirname($uu).'/index.php';
-		},
-		"/\.static$/"=>function(&$uu,$pattern,$matches){
-			$_c=$_REQUEST['_c']=$_GET['_c']=$matches[1];
-			$_m=$_REQUEST['_m']=$_GET['_m']=$matches[2];
-			$uu=dirname($uu).'/static.php';
+		"/(,?)([^\/,]*)\.([^\.]*),?(.*)\.(api|static|web|json)$/"=>function(&$uu,$pattern,$matches){
+			$_c=$_REQUEST['_c']=$_GET['_c']=$matches[2];
+			$_m=$_REQUEST['_m']=$_GET['_m']=$matches[3];
+			$p2=$matches[4];//TODO
+			$uu=dirname($uu).'/'.($matches[5]=='static'?'static':'index').'.php';
+			//if($p2!='') $uu.="?_p"=$p2;
 		},
 		"/\.php$/"=>function($uu,$pattern){
 			if(file_exists($uu)){
