@@ -7,9 +7,8 @@ foreach(
 		"/(,?)([^\/,]*)\.([^\.]*),?(.*)\.(api|static|web|json)$/"=>function(&$uu,$pattern,$matches){
 			$_c=$_REQUEST['_c']=$_GET['_c']=$matches[2];
 			$_m=$_REQUEST['_m']=$_GET['_m']=$matches[3];
-			$p2=$matches[4];//TODO
+			$p2=$matches[4];
 			$uu=dirname($uu).'/'.($matches[5]=='static'?'static':'index').'.php';
-			//if($p2!='') $uu.="?_p"=$p2;
 		},
 		"/\.php$/"=>function($uu,$pattern){
 			if(file_exists($uu)){

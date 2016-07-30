@@ -1,5 +1,5 @@
 <?php
-//如果不够用，在应用的目录覆盖一个就可以了.
+//in case some app need override AppAuth, just build one in the app folder and extends this one... or just copy&paste
 class AppAuthBase
 {
 	public static function checkApiAccess($request_class,$request_method,$request_method_param){

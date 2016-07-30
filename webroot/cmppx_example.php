@@ -71,14 +71,14 @@ if($proxy_url){
 		//}
 	}
 } else {
-	//require 'index_default.php';
+	require 'index_default.php';
 	////print "Request Error";
 	//print date('YmdHis');
 	//print rand();"<hr/>";
 	//$last_line=passthru('ls -al');
 	//print "last_line=$last_line<br/>";
 
-	print 'cmp HTTP_VERSION_CMP_APP_SERVER='.$_SERVER['HTTP_VERSION_CMP_APP_SERVER'].'<br/>';
+	//print 'cmp HTTP_VERSION_CMP_APP_SERVER='.$_SERVER['HTTP_VERSION_CMP_APP_SERVER'].'<br/>';
 	#phpinfo();
 }
 //die;
