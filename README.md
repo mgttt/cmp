@@ -1,6 +1,11 @@
 # What is CMP
 CMP = Class.Method (Param), Official website <a href="http://cmptech.info/" target=_blank>cmpTech.info</a>
 
+## [TEST SERVER]
+
+* run ./server_start.sh
+* browser open http://localhost:9888/
+
 # Basic Demo Installation
 * Install into any web server supports PHP >=5.3.X
 * Copy "config.switch.override.tmp.example.php" as "config.switch.override.tmp" for switching config folders.
