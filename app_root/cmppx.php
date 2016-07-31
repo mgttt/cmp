@@ -1,10 +1,4 @@
 <?php
-//NOTES:
-//条粉肠 Jens Segers好像后来用了别的框架重写，网上找到2013的（即本文件最接近的) 在这里：
-//https://github.com/jw2013/sharedProxy/blob/master/proxy.php
-//暂时未知有没有解决不了的反向问题，先用来玩着先.
-//201509: 还真有个BUG，就是在上传附件时不知道什么原因 500，所以暂时后台不使用这个入口....
-//2016: 这个BUG已经解决了.查找下方带 hack的位置.
 //20160723: TODO 文件上传还有BUG（用ACE的upload测试的。要两边都调到可用
 //NOTES: this one don't follow forward auto
 class cmppx
@@ -18,6 +12,7 @@ class cmppx
 		$config = array();
 
 		$config['timeout'] = 58;//ISP like ALIYUN default 1-min...
+		$config['timeout'] = 580;//ISP like ALIYUN default 1-min...
 
 		$this->config = $config;
 
