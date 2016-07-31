@@ -129,7 +129,7 @@
 		function EditRow(obj){
 			var tr = obj.parentNode.parentNode;
 			var tds = tr.childNodes;
-			var name_a = ["note_key",'note_remark'];
+			var name_a = ["id","note_key",'note_remark'];
 			//提前把修改前的tr保存到全局变量。为cancel做准备
 			OldTr[tr.getAttribute('id')] = tr.innerHTML;
 			//遍历tds。把文字变成input输入框
