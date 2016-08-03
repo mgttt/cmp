@@ -1,6 +1,6 @@
 <?php
 class OrmTest
-	extends OrmBase
+	extends ORM_Base
 {
 	public function SearchList($param){ throw new Exception("TODO"); }
 	public function Upsert($param){ throw new Exception("TODO"); }

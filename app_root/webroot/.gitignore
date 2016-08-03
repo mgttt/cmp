@@ -1,0 +1,12 @@
+.svn
+_tmp/
+_logs/
+*.tmp
+*.log
+*.cache
+*.db
+
+local_server_start.sh
+app_root/*.php
+php-fpm-local.conf
+php.ini

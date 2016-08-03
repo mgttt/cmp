@@ -1,0 +1,28 @@
+name: cmpdemo
+version: 1
+handle:
+- directoryindex: index.php
+- hostaccess: if(path ~ "^(application/|templates/|cron/|config\.php$|user_config\.php$)") deny "all"
+- errordoc:  404 /404b.php
+- mime: if( path ~ "\.jpg$") type "image/jpeg"
+- compress: if ( out_header["Content-type"]=="text/css" ) compress
+- compress: if ( out_header["Content-type"]=="text/javascript" ) compress
+- compress: if ( out_header["Content-type"]=="application/javascript" ) compress
+- compress: if ( out_header["Content-type"]=="application/octet-stream" ) compress
+- compress: if ( out_header["Content-type"]=="text/html" ) compress
+- compress: if ( out_header["Content-type"]=="text/plain" ) compress
+- compress: if ( out_header["Content-type"]=="image/bmp" ) compress
+
+- rewrite: if (path ~ "^(.*)/([^/]*).shtml$" ) goto "$1/shtml.php?_p=$2&%{QUERY_STRING}"
+
+- rewrite: if (path ~ "^(.*)/([^,/]*),([^,]*),([^,]*),?([^,]*)(.*).json$" ) goto "$1/index.php?_s=$2&_c=$3&_m=$4&_p=$5&_p2=$6&%{QUERY_STRING}"
+- rewrite: if (path ~ "^(.*)/([^,/]*),([^,]*),([^,]*),?([^,]*)(.*).jsonp$" ) goto "$1/index.php?_s=$2&_c=$3&_m=$4&_p=$5&_p2=$6&%{QUERY_STRING}"
+- rewrite: if (path ~ "^(.*)/([^,/]*),([^,]*),([^,]*),?([^,]*)(.*).web$" ) goto "$1/index.php?_s=$2&_c=$3&_m=$4&_p=$5&_p2=$6&%{QUERY_STRING}"
+
+- rewrite: if (path ~ "^(.*)/([^/\.]*)\.([^/\.]*)\.bpm$" ) goto "$1/bpm.php?_c=$2&_m=$3&%{QUERY_STRING}" 
+- rewrite: if (path ~ "^(.*)/([^/\.]*)\.bpm$" ) goto "$1/bpm.php?_c=$2&%{QUERY_STRING}" 
+- rewrite: if (path ~ "^(.*)/([^/\.]*)\.([^/\.]*)\.api$" ) goto "$1/index.php?_c=$2&_m=$3&%{QUERY_STRING}"
+- rewrite: if (path ~ "^(.*)/([^/\.]*)\.api$" ) goto "$1/index.php?_c=&_m=$2&%{QUERY_STRING}"
+- rewrite: if (path ~ "^(.*)/([^/\.]*)\.([^/\.]*)\.static$" ) goto "$1/static.php?_c=$2&_m=$3&%{QUERY_STRING}"
+- rewrite: if (path ~ "^(.*)/([^/\.]*)\.static$" ) goto "$1/static.php?_c=&_m=$2&%{QUERY_STRING}"
+- rewrite: if (path ~ "^(.*)/upload/([^/]*)$" ) goto "$1/ace_upload/$2?%{QUERY_STRING}"

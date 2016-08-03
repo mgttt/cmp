@@ -3,10 +3,12 @@ class LgcDemo
 	//extends LgcBase
 {
 	public static function getDSN(){
-		//NOTES: 因为是临时的，所以用 sqlite来做数据库接入便于测试。
-		//一般项目是要在conf那里配置DB链接，部分SAAS项目还要去 SAAS中心用API拿配置.
-		$dsn="sqlite:"._TMP_."test.db";
-		//quicklog_must("DEBUG","dsn=$dsn");
+		if(defined('SAE_TMP_PATH')){
+			//SAE not supports sqlite...
+			$dsn="db_app";//@ref ./_conf.{$_config_switch}/{$_config_switch}.php
+		}else{
+			$dsn="sqlite:"._TMP_."test.db";
+		}
 		return $dsn;
 	}
 	public function ListTestNote($param){

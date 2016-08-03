@@ -14,7 +14,7 @@ $_conf_all_[$_switch_conf]["flag_rb_freeze"]=false;//在DEMO不为FREEZE表结�
 
 $_conf_all_[$_switch_conf]["db_conf"]=array(
 
-	"db_local" => array(
+	"db_app" => array(
 		"db_type"=>"mysql",
 		"db_host"=>"127.0.0.1",
 		"db_user"=>"root",

@@ -1,0 +1,29 @@
+# 能用图形界面尽量用咯
+# SAE
+https://www.sinacloud.com/doc/sae/tutorial/code-deploy.html#shi-yong-git-ke-hu-duan
+
+# 新建本地并初始化
+mkdir cmpdemo && cd cmpdemo
+git init
+
+# 远程建立分支sae（似乎是 SAE要求这个名字）检出代码到当前目录
+repo=sae
+git remote add $repo https://git.sinacloud.com/cmpdemo
+## from remote :1 to local branch 
+git pull $repo sae:1
+
+# 普通 git 用法（看手册）
+git status
+git add .
+git status
+git commit -m "...."
+
+# 上传代码，比如从本地 branch\sae到原程 master:1 
+git push $repo master:1
+
+
+# dont auto change CRLF
+git config --global core.autocrlf false
+
+
+
