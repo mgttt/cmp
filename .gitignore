@@ -1,6 +1,7 @@
 .svn
 _tmp/
 _logs/
+*/_del/*
 *.tmp
 *.log
 *.cache

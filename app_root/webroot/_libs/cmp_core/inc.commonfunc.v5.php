@@ -140,7 +140,7 @@ function debug_stack($s="") {
 	return $rt;
 }
 
-# strongger suggested packed with date('YmdHis') the 14 chars ahead
+# strongly suggest pack date('YmdHis') the 14 chars ahead
 function _getbarcode($defaultLen=23,$seed='0123456789ABCDEF'){
 	list($usec, $sec) = explode(" ", microtime());
 	srand($sec + $usec * 100000);
