@@ -6,11 +6,7 @@
 
 ## Usage
 
-```php
-require '/path/to/cmp/bootstrap.php';
-\CMP\CoreFunc::init(__DIR__);
-println(CoreFunc::getVersion());
-```
+* @ref unit_test.php
 
 ## Development
 
