@@ -35,27 +35,27 @@ function getSessionVar($key, $sid="", & $probe_sid){
 	}else{
 		$_session= & $_SESSION;
 	}
-	if($_session){
-		//skip, already started.
-	}else{
-		$_s_cookie=$_COOKIE['_s'];
-		if($_s_cookie){
-			session_id($_s_cookie);
-		}
-		session_start();
-		$sid=session_id();
-		if($sid!=$_s_cookie){
-			if($_s_cookie){
-				//又串号了?!! (RpcController 或者 WebCore 不是已经处理过了么！)
-				quicklog_must('KO-CHECK-SESSION-3',$_SESSION);
-				session_start($_s_cookie);
-				quicklog_must('KO-CHECK-SESSION-3',$_SESSION);
-				throw new Exception('KO-SESS');
-			}else{
-				setcookie("_s",$sid);//通知一下浏览器的 _s变更
-			}
-		}
-	}
+	//2016-7-13: CMP no longer handle cookie/_s
+	//if($_session){
+	//	//skip, already started.
+	//}else{
+	//	//$_s_cookie=$_COOKIE['_s'];
+	//	//if($_s_cookie){
+	//	//	session_id($_s_cookie);
+	//	//}
+	//	//session_start();
+	//	//$sid=session_id();
+	//	//if($sid!=$_s_cookie){
+	//	//	if($_s_cookie){
+	//	//		quicklog_must('KO-CHECK-SESSION-3',$_SESSION);
+	//	//		session_start($_s_cookie);
+	//	//		quicklog_must('KO-CHECK-SESSION-3',$_SESSION);
+	//	//		throw new Exception('KO-SESS');
+	//	//	}else{
+	//	//		setcookie("_s",$sid);//通知一下浏览器的 _s变更
+	//	//	}
+	//	//}
+	//}
 	return $_session[$key];
 }
 //笔记：如果只需要写直接用 _SESSION[?]=? 更好，

@@ -1,7 +1,8 @@
 <?php
 //@deprecated.
-//TODO 有使用到本函数的，请移步去使用 http_req*() 系列
-//如果需要SOCKS5的，需要使用CURL库，准备丰富 inc.func.web_request.php 或者 webclient类，TODO
+//TODO 要不能或不想使用CURL从而要使用到本函数的，建议请移步去使用 http_req*() 系列.
+//如果需要SOCKS5的，则需要使用CURL库
+//(参考 inc.func.web_request.php 或者 NetCommon/WebAPIClient 类).
 function http_post($url, $postdata, $timeout=14){
 	if(is_array($postdata)){
 		$postdata_s=http_build_query($postdata);

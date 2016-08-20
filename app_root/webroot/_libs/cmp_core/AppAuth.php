@@ -1,12 +1,11 @@
 <?php
-//NOTES: Can be overrided.
-//注释：如果逻辑不够用，可以被过载，参考着重写checkApiAccess即可.
+//NOTES: Can be overrided(just put one same name at your App Path)
 class AppAuth
 {
 	public static function checkApiAccess($request_class,$request_method,$request_method_param){
 
 		$request_class=strtolower(trim($request_class));
-		if(preg_match('/^(api|web|wap|ussd|sms|3g|mobile)/',$request_class)){
+		if(preg_match('/^(api|web|wap|json|ussd|sms|3g|mobile)/',$request_class)){
 			return true;
 		}
 

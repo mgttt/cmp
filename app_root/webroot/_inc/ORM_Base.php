@@ -44,16 +44,40 @@ class ORM_Base
 		}
 		return null;
 	}
-	//@ref https://en.wikipedia.org/wiki/Merge_(SQL)
 	//MERGE 或 UPSERT:
-	//1,将参数中的属性抄过去，跟 REPLACE 有不同，REPLACE 是把前者没有的参数都给删除掉....不好...
-	//2,如果不存在就根据参数新建.
-	//NOTES: 如果这个函数甚至这个类不合适用，可以在自己的空间重载!!!!!!!!!!!!!!!!!!!
+	//1,将参数中的属性抄过去，跟 REPLACE 有不同，REPLACE 是把前者没有的参数都给删除掉....REPLACE不好用...
+	//2,如果id的存在就做UPDATE，如果ID不存在就INSERT ID VALUES($id)
+	//3,如果没有参数ID就当成INSERT
+	//4，其它类型的 INSERT_UPDATE 另外实现参考上面Merge/Replace
+	//@ref https://en.wikipedia.org/wiki/Merge_(SQL)
 	public function upsert($param,$flagNew=true){
 		$id=$param['id'];
 		$flagReallyNew=false;
 		if($id){
-			$bean=$this->loadBean($id);//rbWrapper
+			//$bean=$this->loadBean($id);//rbWrapper
+			$bean=$this->load($this->NAME_R,$id);//rbWrapper
+			if($bean && $bean->id){
+				//found
+			}else{
+				if($flagNew){
+					if($id>0){
+						$this->exec('INSERT INTO '.$this->NAME_R.' (id) VALUES('.$id.')');
+					}else{
+						throw Exception('NOT SUPPORT id '.$id);
+					}
+					$bean=$this->load($this->NAME_R,$id);
+					if($bean && $bean->id){
+						//ok now...
+					}else{
+						throw Exception('FAIL id '.$id);
+					}
+					//$bean=$this->dispenseBean();//rbWrapper
+					#$bean->id=$id;//FAILED...
+					$flagReallyNew=true;
+				}else{
+					throw new Exception(getLang('KO-loadBean-').$this->NAME_R.".$id");
+				}
+			}
 		}else{
 			if($flagNew){
 				$bean=$this->dispenseBean();//rbWrapper
@@ -126,9 +150,83 @@ class ORM_Base
 	//由子类覆盖的查找 => Array 函数.
 	public function searchList($param){
 		throw new Exception("searchList() Need Override");
+		//下面的是代码参考 ;)
+		//字段集
+		$field_name_a=$this->bean_name_a;
+		//拆出变量
+		eval(arr2var("param",$field_name_a));
+		//定制查询
+		//$_status_like = $param['_status_like'];
+		//$_status_in = $param['_status_in'];
+		//$_status_not_in = $param['_status_not_in_like'];
+
+		$rb=$this;
+
+		//根据param构建查询条件:
+		$where = "1=1";
+
+		//TODO 下面这样的模式重复代码可以归纳.
+		//if($app_key){
+		//	$where .= " AND app_key=".qstr($app_key);
+		//}
+		//if($app_secret){
+		//	$where .= " AND app_secret=".qstr($app_secret);
+		//}
+		//if($device_id){
+		//	$where .= " AND device_id=".qstr($device_id);
+		//}
+		//TODO 根据来者来判断来确定哪些任务是给它的
+		//if($phone_number){
+		//	$where .= " AND phone_number=".qstr($phone_number);
+		//}
+		//if($sms_status){
+		//	$where .= " AND sms_status=".qstr($phone_number);
+		//}
+		//if($_status_like){
+		//	$where .= " AND sms_status LIKE ".qstr($_status_like);
+		//}
+		//if($_status_in){
+		//	$where .= " AND sms_status IN (".qstr_arr($_status_in) .")";
+		//}
+		//if($_status_not_in){
+		//	$where .= " AND sms_status NOT IN (".qstr_arr($_status_not_in) .")";
+		//}
+
+		//$minute=60*24;//one day
+
+		$_where_else= $param['_where_else'];
+		if($_where_else){
+			$where.=$_where_else;
+		}
+		//$_request_time_more_than = $param['_request_time_more_than'];
+		//if($_request_time_more_than){
+		//	//$where.=" AND request_time > NOW() - INTERVAL $minute MINUTE";
+		//	$where.=" AND request_time > $_request_time_more_than";
+		//}
+		//if($_request_time_less_than){
+		//	//$where.=" AND request_time > NOW() - INTERVAL $minute MINUTE";
+		//	$where.=" AND request_time < $_request_time_more_than";
+		//}
+		if($id){
+			$where.=' and id='.qstr($id);
+		}
+		$pageExecuteParam= array(
+			"SELECT"=>"*",
+			//"SELECT"=>"id, phone_num as sms_target, sms_status as status,sms_content,TIMESTAMPDIFF(SECOND, request_time,NOW()) AS diffsec ",//TIMESTAMPDIFF是后减前.
+			"FROM"=>$this->NAME_R,
+			"WHERE"=>$where,
+			//"ORDERBY"=>"id DESC",
+			//"pageSize"=>$pageSize,
+			//"pageNumber"=>$pageNumber,
+			//'LIMIT'=>$limit,
+		);
+		//TODO ORDERBY/pageSize/pageNumber
+		$rs=$rb->PageExecute($pageExecuteParam);
+		return $rs;
 	}
 
 	//WARNING: duplicate item created if design not good.
+	//高并发下这样做是不行的。所以应用场合有限，特别注意！
 	//try to find first, if found then return, if not found then do insert()
 	public function findOrInsert($param,$flag_just_id=true){
 		$one=$this->searchOne($param);
@@ -136,6 +234,7 @@ class ORM_Base
 			if(!$flag_just_id) return $one;
 			$id=$one['id'];
 		}else{
+			//TODO 要解决高并发时的问题；改实现思路；
 			$id=$this->insert($param);
 		}
 		if($flag_just_id) return $id;

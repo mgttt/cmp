@@ -30,11 +30,11 @@ class rbWrapper4
 		return $this->NAME_R;
 	}
 
-	private $_default_bean=null;
+	private $_inner_rbfacade=null;
 
 	//NOTES 如果第二参数不显式，就会用getConf('flag_rb_freeze');
 	public function __construct($dsn,$freeze){
-		$this->_default_bean=new \RedBeanPHP\FacadeNonStaticCmp43;//!!!!
+		$this->_inner_rbfacade=new \RedBeanPHP\FacadeNonStaticCmp43;//!!!!
 		
 		//失败尝试，静态类确实很难简单污染...
 		//$md5=md5($dsn);
@@ -42,7 +42,7 @@ class rbWrapper4
 		//if (!class_exists($newClass)) {
 		//	eval("class $newClass extends \RedBeanPHP\Facade{ public static \$toolboxes = array(); };");
 		//}
-		//$this->_default_bean=new $newClass;
+		//$this->_inner_rbfacade=new $newClass;
 		
 		$this->R_setup($dsn,$freeze);
 
@@ -112,10 +112,10 @@ class rbWrapper4
 		return $this->trash($bean);
 	}
 	public function loadBean($id){
-		$rt=$this->_default_bean->load($this->NAME_R,$id);
+		$rt=$this->_inner_rbfacade->load($this->NAME_R,$id);
 		if($rt && $rt->id){
 			return $rt;
-		}else throw new Exception(getLang('KO-loadBean-'.$this->NAME_R).".$id");
+		}else throw new Exception(getLang('KO-loadBean-').$this->NAME_R.".$id");
 		//return $rt;
 	}
 	public function loadBeanArr($id){
@@ -125,7 +125,7 @@ class rbWrapper4
 
 	//返回的是 beans array （注意不是数字索引的，索引的key是 id！！！)...
 	public function findBeanArr($q1,$q2=array()){
-		$rt=$this->_default_bean->find($this->NAME_R,$q1,$q2);
+		$rt=$this->_inner_rbfacade->find($this->NAME_R,$q1,$q2);
 		if(is_array($rt) && count($rt)>0){
 			return $rt;
 		}else{
@@ -137,7 +137,7 @@ class rbWrapper4
 	//返回的是 beans array 的随意(天然顺序)一个...
 	public function findBeanOne($sql_piece,$binding=array()){
 		if(!is_string($sql_piece)) throw new Exception("findBeanOne need correct param");
-		$rt=$this->_default_bean->find($this->NAME_R,$sql_piece.' LIMIT 1',$binding);
+		$rt=$this->_inner_rbfacade->find($this->NAME_R,$sql_piece.' LIMIT 1',$binding);
 		if(is_array($rt) && count($rt)>0){
 			return array_pop($rt);
 		}else{
@@ -149,11 +149,11 @@ class rbWrapper4
 		if($q3===null)
 		{
 			$bean_type=$this->NAME_R;
-			$rsa=$this->_default_bean->find($bean_type,$q1,$q2);
+			$rsa=$this->_inner_rbfacade->find($bean_type,$q1,$q2);
 		}else{
 			$bean_type=$q1;
 			if(!$q2) $q2=array();
-			$rsa=$this->_default_bean->find($bean_type,$q2,$q3);
+			$rsa=$this->_inner_rbfacade->find($bean_type,$q2,$q3);
 		}
 		if(is_array($rsa) && count($rsa)>0){
 			return array_pop($rt);
@@ -173,10 +173,10 @@ class rbWrapper4
 		{
 			$bean_type=$this->NAME_R;
 			if(!$q2) $q2=array();
-			$rsa=$this->_default_bean->findAndExport($bean_type,$q1,$q2);
+			$rsa=$this->_inner_rbfacade->findAndExport($bean_type,$q1,$q2);
 		}else{
 			$bean_type=$q1;
-			$rsa=$this->_default_bean->findAndExport($bean_type,$q2,$q3);
+			$rsa=$this->_inner_rbfacade->findAndExport($bean_type,$q2,$q3);
 		}
 		if(is_array($rsa) && count($rsa)>0){
 		}else{
@@ -208,7 +208,7 @@ class rbWrapper4
 		/**
 			在 【rb和我们框架】 里面，exec返回的是 af，不是返回 rsa的。如果要使用SELECT获得返回，统一使用 PageExecute 或者 getAll等
 		 */
-		$rt=$this->_default_bean->exec($sql,$binding);
+		$rt=$this->_inner_rbfacade->exec($sql,$binding);
 		if($rt===NULL){
 			throw new Exception("exec return null");
 		}elseif(is_numeric($rt)){
@@ -418,7 +418,7 @@ class rbWrapper4
 	//}
 
 	public function __call($func, $args){
-		$call_ee=array($this->_default_bean, $func);
+		$call_ee=array($this->_inner_rbfacade, $func);
 		if ( !is_callable($call_ee) ){
 			throw new Exception("Unknown Func $func");
 		}
