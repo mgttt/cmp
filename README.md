@@ -20,6 +20,7 @@ echo now use your browser to open http://localhost:9888/
 * BPME integration ( github/cmptech/bpme-php )
 * Folder Autoload and namespace consolidate
 * Tiny(OneFileBundle)version
+* build composer package (cmptech/cmp)
 
 # Core Dependency
 * <a href="http://github.com/faisalman/simple-excel-php" target=_blank>SimpleExcel</a> [0.3.15], for the xls(xml)-php-compilation-for-langpack   //@link QuickFunc getLang()
