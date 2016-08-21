@@ -1,7 +1,6 @@
 <?php
-//Since 2015-1-4
-//some useful static functions from mg
-//will copy to CmpTool
+//@deprecated.  going to move to \CMP\LibExt
+
 class mg
 {
 	function println($s,$wellformat=false){

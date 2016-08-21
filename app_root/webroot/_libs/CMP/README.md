@@ -6,7 +6,7 @@
 
 ## Usage
 
-* @ref unit_test.php
+@ref unit_test.php
 
 ## Development
 

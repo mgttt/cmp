@@ -79,7 +79,7 @@ class DefaultErrorHandler
 			//skip if already handled.
 			return;
 		}
-		CmpClassLoader::stderrln("TODO handleShutdown !!!!");die;
+		LibBase::stderrln("TODO handleShutdown !!!!");die;
 
 		$_json=true;//TODO
 		$error = error_get_last();

@@ -3,16 +3,13 @@ namespace CMP{
 
 class CmpClassLoader
 {
-	public static function str_starts_with($haystack, $needle) {
+	protected static function str_starts_with($haystack, $needle) {
 		return preg_match('/^'.preg_quote($needle,'/').'/', $haystack) > 0;
 	}
-	public static function stderrln($s){
+	protected static function stderrln($s){
 		file_put_contents('php://stderr',$s."\n",FILE_APPEND);
 	}
-	public static function stderr($s){
-		file_put_contents('php://stderr',$s,FILE_APPEND);
-	}
-	public static function Size($path, $recursive = true)
+	protected static function Size($path, $recursive = true)
 	{
 		$result = 0;
 
@@ -43,7 +40,7 @@ class CmpClassLoader
 		return $result;
 	}
 
-	public static function Path($path)
+	protected static function Path($path)
 	{
 		if (file_exists($path) === true)
 		{
@@ -59,7 +56,7 @@ class CmpClassLoader
 
 		return false;
 	}
-	public static function Map($path, $recursive = false)
+	protected static function Map($path, $recursive = false)
 	{
 		$result = array();
 
@@ -97,16 +94,15 @@ class CmpClassLoader
 		return $md5;
 	}
 	public static function tryload($classname){
-		#self::stderr("load $classname\n");
 		$ns="CMP\\";
 		if(self::str_starts_with($classname,$ns)){
 			$xxx=substr($classname, strlen($ns));
 			if($xxx && $classname!= 'CMP'){
-				include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.str_replace('\\', DIRECTORY_SEPARATOR, $xxx).'.php');
+				#include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.str_replace('\\', DIRECTORY_SEPARATOR, $xxx).'.php');
+				include_once(__DIR__.DIRECTORY_SEPARATOR.str_replace('\\', DIRECTORY_SEPARATOR, $xxx).'.php');
 				if(class_exists($classname)){
-					#self::stderrln("OK LOAD $classname");
 				}else{
-					#self::stderr("not found $classname\n");
+					self::stderrln("not found $classname\n");
 				}
 			}
 		}

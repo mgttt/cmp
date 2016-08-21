@@ -29,6 +29,9 @@ class MyClassLoader
 		//class path to file path
 		$class_name=str_replace('\\', '/', $class_name);
 		$class_name=preg_replace("/^\//","",$class_name);//remove the leading /
+		#$class_name=preg_replace("/^.*\//","",$class_name);
+
+		#print("!!! $class_name !!!\n");
 
 		if( file_exists( "$class_name.php" ) ){
 			require_once "$class_name.php";
@@ -47,6 +50,8 @@ class MyClassLoader
 			if(file_exists($ccc)){
 				require $ccc;
 				return true;
+			}else{
+				#print("!!! $ccc !!!\n");
 			}
 		}
 
