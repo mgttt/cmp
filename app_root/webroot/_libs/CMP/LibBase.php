@@ -39,7 +39,7 @@ namespace CMP
 		public static function println($s,$wellformat=false){
 			if(is_array($s) || is_object($s)){
 				//$s=json_encode($s,$wellformat);
-				$s=self::o2s($s,$wellformat);
+				$s=LibBase::o2s($s,$wellformat);
 			}
 			print $s ."\n";//.PHP_EOL;
 		}
@@ -119,9 +119,9 @@ EOSQL;
 		public static function logger($log_filename,$log_content,$prefix="",$gzf){
 			//TMP..dirty tricks
 			if(defined('SAE_TMP_PATH')){
-				return self::logger_sae($log_filename,$log_content,$prefix,$gzf);
+				return LibBase::logger_sae($log_filename,$log_content,$prefix,$gzf);
 			}
-			
+
 			$rt="";
 			if(!defined('_LOG_')){ throw new Exception("//_LOG_ not defined to call logger"); }
 			if($prefix=="DEFAULT"){
@@ -151,7 +151,7 @@ EOSQL;
 			//if(is_object($log_content) || is_array($log_content)){
 			//	$log_content=o2s($log_content);
 			//}
-			return self::logger($log_type."-".date('Ymd').".log",$log_content,"DEFAULT",$gz);
+			return LibBase::logger($log_type."-".date('Ymd').".log",$log_content,"DEFAULT",$gz);
 		}
 
 		//Usage:
@@ -163,16 +163,16 @@ EOSQL;
 			$caller = $trace[1];
 			$caller_class=$caller['class'];
 			$caller_function=$caller['function'];
-			$debug_a=self::getConf("debug_a");
-			$debug2=self::getConf("$caller_class.$caller_function",array("debug_a"),false);
+			$debug_a=LibBase::getConf("debug_a");
+			$debug2=LibBase::getConf("$caller_class.$caller_function",array("debug_a"),false);
 			if($debug2){
 				$debug=$debug2;
 			}else{
-				$debug1=self::getConf($caller_class,array("debug_a"),false);
+				$debug1=LibBase::getConf($caller_class,array("debug_a"),false);
 				if($debug1){
 					$debug=$debug1;
 				}else{
-					$debug0=self::getConf("*",array("debug_a"),false);
+					$debug0=LibBase::getConf("*",array("debug_a"),false);
 					$debug=$debug0;
 				}
 			}
@@ -205,9 +205,9 @@ EOSQL;
 			if($debug>0){
 				if(is_string($log_type)){
 					if(is_object($log_content) || is_array($log_content)){
-						$log_content=self::o2s($log_content);
+						$log_content=LibBase::o2s($log_content);
 					}
-					return self::logger($log_type."-".date('Ymd').".log",$log_content,"DEFAULT",$gz);
+					return LibBase::logger($log_type."-".date('Ymd').".log",$log_content,"DEFAULT",$gz);
 				}
 			}
 			if(is_object($log_type)){
@@ -305,7 +305,7 @@ EOSQL;
 
 		//变体：返回以行 为数组的结果, 暂时使用到的地方有 AceTool、ApiTopup
 		public static function getXlsArr2($nameXls){
-			$file=self::getXlsArrFile2($nameXls);
+			$file=LibBase::getXlsArrFile2($nameXls);
 			require($file);
 			$rt=$getXlsArrFile_rt;//约定.
 			return $rt;
@@ -369,10 +369,10 @@ EOSQL;
 			static $lang_a=null;
 			if($lang_a) return $lang_a[$lang];//静态有的话就用静态的.
 			if(!$lang)$lang=$_SESSION['lang'];
-			if(!$lang)$lang=getConf("default_lang");
+			if(!$lang)$lang=LibBase::getConf("default_lang");
 
-			$lang_pack_conf=getConf("lang_pack_conf");//注意是相对目录
-			$lang_a=$a=getXlsArr($lang_pack_conf);
+			$lang_pack_conf=LibBase::getConf("lang_pack_conf");//注意是相对目录
+			$lang_a=$a=LibBase::getXlsArr($lang_pack_conf);
 			return $a[$lang];
 		}
 
@@ -397,13 +397,13 @@ EOSQL;
 					$lang_static=$lang;//保存到静态给下一个用.
 				}
 			}
-			$lang_a=getLang_a($lang);
+			$lang_a=LibBase::getLang_a($lang);
 			if(in_array($lang,array("type","column","remark","uidefault"))){
 				//special...
 				$rt=$lang_a[$k];
 			}else{
 				if($lang_static_en) $lang_a_en=$lang_static_en;
-				else $lang_static_en=$lang_a_en=getLang_a("en");
+				else $lang_static_en=$lang_a_en=LibBase::getLang_a("en");
 
 				if(!$lang_a) $lang_a=$lang_a_en;
 				$rt=$lang_a[$k];
@@ -414,81 +414,82 @@ EOSQL;
 		}
 
 		#============================================================================================ config
-		public static function &getConf($key,$path=array(),$mandate_flag=false,$setConf=0,$setValue=null){
-		if(!defined('_APP_DIR_')) throw new Exception('_APP_DIR_ not defined for getConf');
-		static $_conf_=null;
-		if(!$_conf_){
-			$_switch_conf="";
-			require(_APP_DIR_ ."/config.switch.php");
-			if($_switch_conf=="") throw new Exception("ConfigError: config.switch.php not found?? ($_switch_conf)");
+		public static function getConf($key,$path=array(),$mandate_flag=false,$setConf=0,$setValue=null){
+			if(!defined('_APP_DIR_')) throw new Exception('_APP_DIR_ not defined for getConf');
+			static $_conf_=null;
+			if(!$_conf_){
+				$_switch_conf="";
+				require(_APP_DIR_ ."/config.switch.php");
+				if($_switch_conf=="") throw new Exception("ConfigError: config.switch.php not found?? ($_switch_conf)");
 
-			//require "inc.commonconf.php";//_conf_all_common_
-			require _APP_DIR_."/_conf/inc.commonconf.php";//_conf_all_common_
-			if(!$_conf_all_common_) throw new Exception("ConfigError: not found _conf_all_common_");
+				//require "inc.commonconf.php";//_conf_all_common_
+				require _APP_DIR_."/_conf/inc.commonconf.php";//_conf_all_common_
+				if(!$_conf_all_common_) throw new Exception("ConfigError: not found _conf_all_common_");
 
-			//$dir_switch_conf=$_conf_all_common_['dir_switch_conf'];
-			//if(!$dir_switch_conf) throw new Exception("ConfigError: not found $_switch_conf.dir_switch_conf");
+				//$dir_switch_conf=$_conf_all_common_['dir_switch_conf'];
+				//if(!$dir_switch_conf) throw new Exception("ConfigError: not found $_switch_conf.dir_switch_conf");
 
-			$conf_file=(realpath(_APP_DIR_."/_conf.$_switch_conf/$_switch_conf.php"));
-			if(!$conf_file) throw new Exception("ConfigError: $_switch_conf not found");
-			require $conf_file;
+				$conf_file=(realpath(_APP_DIR_."/_conf.$_switch_conf/$_switch_conf.php"));
+				if(!$conf_file) throw new Exception("ConfigError: $_switch_conf not found");
+				require $conf_file;
 
-			//if($mandate_flag && $_conf_all_[$_switch_conf]){} else {
-			//	throw new Exception("ConfigError: getConf failed \$_conf_all_[$_switch_conf]");
-			//}
+				//if($mandate_flag && $_conf_all_[$_switch_conf]){} else {
+				//	throw new Exception("ConfigError: getConf failed \$_conf_all_[$_switch_conf]");
+				//}
 
-			if(! $_conf_all_[$_switch_conf] )
-				throw new Exception("ConfigError: getConf failed \$_conf_all_[$_switch_conf]");
+				if(! $_conf_all_[$_switch_conf] )
+					throw new Exception("ConfigError: getConf failed \$_conf_all_[$_switch_conf]");
 
-			$_conf_=($_conf_all_[$_switch_conf]);
-		}
+				$_conf_=($_conf_all_[$_switch_conf]);
+			}
 
-		$rt=& $_conf_;
-		$errmsg="ConfigError: getConf".join('/',$path)."/$key failed";
-		if($key){
-			foreach($path as $_k){
-				if(!array_key_exists($_k,$rt)){
-					if($setConf==1){
-						$rt[$_k]=array();
-					}elseif($mandate_flag){
-						throw new Exception($errmsg);
+			$rt=& $_conf_;
+			$errmsg="ConfigError: getConf".join('/',$path)."/$key failed";
+			if($key){
+				foreach($path as $_k){
+					if(!array_key_exists($_k,$rt)){
+						if($setConf==1){
+							$rt[$_k]=array();
+						}elseif($mandate_flag){
+							throw new Exception($errmsg);
+						}
 					}
-				}
-				$rt=& $rt[$_k];
-			}
-			if($setConf==1){ //1=save
-				$rt[$key]=$setValue;
-			}elseif($setConf==2){//2=remove
-				unset($rt[$key]);
-			}
-			if(array_key_exists($key,$rt)){
-			}else{
-				if($mandate_flag){
-					throw new Exception($errmsg);
+					$rt=& $rt[$_k];
 				}
 				if($setConf==1){ //1=save
 					$rt[$key]=$setValue;
 				}elseif($setConf==2){//2=remove
 					unset($rt[$key]);
 				}
+				if(array_key_exists($key,$rt)){
+				}else{
+					if($mandate_flag){
+						throw new Exception($errmsg);
+					}
+					if($setConf==1){ //1=save
+						$rt[$key]=$setValue;
+					}elseif($setConf==2){//2=remove
+						unset($rt[$key]);
+					}
+				}
+				//$rt=$val=$rt[$key];
+				$rt= & $rt[$key];
+			}else{
+				throw new Exception("getConf need param key");
 			}
-			//$rt=$val=$rt[$key];
-			$rt= & $rt[$key];
-		}else{
-			throw new Exception("getConf need param key");
-		}
-		return $rt;
+			return $rt;
 		}
 		public static function setConf($key,$val,$path=array()){
 			#throw new Exception("setConf() to be rewritten as V5Conf::set()");
-			return self::getConf($key,$path,false,1,$val);
+			return LibBase::getConf($key,$path,false,1,$val);
 		}
 		public static function removeConf($key,$val,$path=array()){
 			#throw new Exception("removeConf() to be rewritten as V5Conf::remove()");
-			return self::getConf($key,$path,false,2);
+			return LibBase::getConf($key,$path,false,2);
 		}
 		public static function saveConf($key,$path=array(),$filename=""){//save to file
-			#throw new Exception("saveConf() to be rewritten as V5Conf::save()");
+			throw new Exception("TODO saveConf()");
 		}
+
 	}//class LibBase
 }//namespace

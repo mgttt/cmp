@@ -20,8 +20,14 @@ class DefaultErrorHandler
 		//$rt.= "\r\n".'----------------'."\r\n";
 		//$rt.= 'Debug backtrace:'."\r\n";
 		//$rt.= '----------------'."\r\n";
+		$c=0;
 		foreach(debug_backtrace() as $t)
 		{
+			if($c<2){
+				//skip the row
+				$c++;
+				//continue;
+			}
 			$rt.= "\t" . '@ ';
 			if(isset($t['file'])) $rt.= basename($t['file']) . ':' . $t['line'];
 			else
@@ -41,7 +47,7 @@ class DefaultErrorHandler
 			else $rt.= '()';
 
 			//$rt.= PHP_EOL;
-			$rt.= '\n';
+			$rt.= "\n";
 		}
 		return $rt;
 	}
@@ -79,18 +85,16 @@ class DefaultErrorHandler
 			//skip if already handled.
 			return;
 		}
-		LibBase::stderrln("TODO handleShutdown !!!!");die;
-
 		$_json=true;//TODO
-		$error = error_get_last();
 
+		$error = error_get_last();
 		if ( $error !== NULL ) {
 			if ( 8!=$error['type'] //ignore notice
 				&& 2!=$error['type'] //ignore warning
 				&& 128!=$error['type'] //ignore deprecated warning
 				&& 8192!=$error['type'] //ignore deprecated warning
 			){
-				print json_encode($error);return;//TODO
+				LibBase::stderrln("?????? ".json_encode($error));
 
 				$trace_s=self::cmp_debug_stack();
 				$trace_s=substr($trace_s,0,4096);
@@ -106,31 +110,39 @@ class DefaultErrorHandler
 				unset($output['trace']);//不给外面看..
 				//$output['errmsg']="UnexpectedFatalError";
 				if($_json){
-					print my_json_encode($output,true);
+					print json_encode($output,true);
 					ob_end_flush();
 				}else{
 					print_r($output);
 					ob_end_flush();
 				}
-				quicklog_must("IT-CHECK","$log_id ".my_json_encode($error,true)."\n".$trace_s);
-				quicklog_must("IT-CHECK","$log_id _SESSION=".my_json_encode($_SESSION));
+				quicklog_must("IT-CHECK","$log_id ".json_encode($error,true)."\n".$trace_s);
+				quicklog_must("IT-CHECK","$log_id _SESSION=".json_encode($_SESSION));
 				require_once _LIB_CORE_.DIRECTORY_SEPARATOR."inc.v5.secure.php";//for _get_ip_()
 				$_get_ip_=_get_ip_();
 				quicklog_must("IT-CHECK","$log_id _get_ip_=$_get_ip_");
 				//return $output;
-			}
-		}else{
-			$trace_s=self::cmp_debug_stack();
-			//print $trace_s;
-			return;//TODO do logging...
 
+			}else{
+				//ignore minor...
+				//$error['module']=basename($error['file'],'.php');
+				//unset($error['file']);
+				//LibBase::stderrln(json_encode($error));
+			}
+
+		}else{
+
+			$trace_s=self::cmp_debug_stack();
 			$trace_s=substr($trace_s,0,4096);
-			$log_id=CoreFunc::getbarcode(8);//for easier to trace ...
-			quicklog_must("IT-CHECK","$log_id [Not Error Shutdown?]"."\n".$trace_s);//debug_stack in inc.common.func.v5.php
-			quicklog_must("IT-CHECK","$log_id _SESSION=".my_json_encode($_SESSION));
-			require_once _LIB_CORE_.DIRECTORY_SEPARATOR."inc.v5.secure.php";//for _get_ip_()
-			$_get_ip_=_get_ip_();
-			quicklog_must("IT-CHECK","$log_id _get_ip_=$_get_ip_");
+
+			LibBase::stderr($trace_s);
+
+			#$log_id=CoreFunc::getbarcode(8);//for easier to trace ...
+			#quicklog_must("IT-CHECK","$log_id [Not Error Shutdown?]"."\n".$trace_s);//debug_stack in inc.common.func.v5.php
+			#quicklog_must("IT-CHECK","$log_id _SESSION=".json_encode($_SESSION));
+			#require_once _LIB_CORE_.DIRECTORY_SEPARATOR."inc.v5.secure.php";//for _get_ip_()
+			#$_get_ip_=_get_ip_();
+			#quicklog_must("IT-CHECK","$log_id _get_ip_=$_get_ip_");
 		}
 		#ini_set("display_error", "Off");
 	}

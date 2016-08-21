@@ -36,7 +36,7 @@ namespace CMP
 				//local mode
 				//LOG
 				if(!defined("_LOG_"))
-					define(_LOG_, _APP_DIR_ .'/_logs/');
+					define("_LOG_", _APP_DIR_ .'/_logs/');
 				if(!is_dir(_LOG_)){
 					mkdir(_LOG_,0777,true);
 					if(!is_dir(_LOG_)){
@@ -45,7 +45,7 @@ namespace CMP
 				}
 				//TMP && SESSION DEFAULT
 				if(!defined("_TMP_")){
-					define(_TMP_, _APP_DIR_ .'/_tmp/');
+					define("_TMP_", _APP_DIR_ .'/_tmp/');
 				}
 				if(!is_dir(_TMP_)){
 					mkdir(_TMP_,0777,true);
@@ -67,13 +67,55 @@ namespace CMP
 			//	throw new Exception("_TMP_ is not config");
 			//LIB
 			if(!defined("_LIB_")){
-				define(_LIB_, realpath(_APP_DIR_ .'/_libs/'));
+				define("_LIB_", realpath(_APP_DIR_ .'/_libs/'));
 			}
 			if(!is_dir(_LIB_)){
 				throw new Exception("404 _LIB_");
 			}
 
 			register_shutdown_function(array('\CMP\DefaultErrorHandler', 'handleShutdown'));
+			//register_shutdown_function(function(){
+			//	var_dump(debug_backtrace());
+			//	$rt="";
+			//	if(!function_exists('debug_backtrace'))
+			//	{
+			//		$rt.= 'function debug_backtrace does not exists'."\r\n";
+			//		return $rt;
+			//	}
+			//	//$rt.= "\r\n".'----------------'."\r\n";
+			//	//$rt.= 'Debug backtrace:'."\r\n";
+			//	//$rt.= '----------------'."\r\n";
+			//	$c=0;
+			//	foreach(debug_backtrace() as $t)
+			//	{
+			//		if($c<2){
+			//			//skip the row
+			//			$c++;
+			//			//continue;
+			//		}
+			//		$rt.= "\t" . '@ ';
+			//		if(isset($t['file'])) $rt.= basename($t['file']) . ':' . $t['line'];
+			//		else
+			//		{
+			//			// if file was not set, I assumed the functioncall
+			//			// was from PHP compiled source (ie XML-callbacks).
+			//			$rt.= '<PHP inner-code>';
+			//		}
+
+			//		$rt.= ' -- ';
+
+			//		if(isset($t['class'])) $rt.= $t['class'] . $t['type'];
+
+			//		$rt.= $t['function'];
+
+			//		if(isset($t['args']) && sizeof($t['args']) > 0) $rt.= '(...)';
+			//		else $rt.= '()';
+
+			//		//$rt.= PHP_EOL;
+			//		$rt.= "\n";
+			//	}
+			//	return $rt;
+			//});
 			set_exception_handler(array('\CMP\DefaultErrorHandler', 'handleException'));
 			self::InitGlobalFunc();
 
@@ -101,6 +143,8 @@ namespace CMP
 			if(!$funclist){
 				$funclist=array(
 					'println'=>'',
+					'getConf'=>'',
+					'setConf'=>'',
 					'logger'=>'',
 					'quicklog'=>'',
 					'quicklog_must'=>'',
@@ -113,6 +157,7 @@ namespace CMP
 					'my_YmdHis'=>'LibExt::getYmdHis',//titto
 					'my_isoDate'=>'LibExt::isoDate',//titto
 					'my_isoDateTime'=>'LibExt::isoDateTime',//titto
+					'getSessionVar'=>'LibExt::getSessionVar',//from old projects.
 				);
 			}
 			foreach($funclist as $func=>$clsmethod){

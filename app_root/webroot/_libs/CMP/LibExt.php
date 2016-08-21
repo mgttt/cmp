@@ -68,7 +68,7 @@ namespace CMP
 			}elseif($strlen_s>0){
 				throw new Exception(__CLASS__.".getTimeStamp() Unsupport $s");
 			}else{
-				if (self::is_os_64_more()){
+				if (LibExt::is_os_64_more()){
 					return time();
 				}else{
 					//32bit.
@@ -96,64 +96,64 @@ namespace CMP
 		//	if(!$o) return null;
 		//	return $o->format('U');
 		//}
-//@deprecated, useing ::getYmdHis($s);
-//convert unixtimestamp to format of YmdHis.
-//function my_YmdHis($timestamp,$timezone){
-//	if($s){
-//		$o=date_create("@$timestamp");
-//	}else{
-//		$o=date_create("now",new DateTimeZone('UTC'));
-//	}
-//	if(!$o) {throw new Exception("date_create() failed for $timestamp/$timezone");};
-//	if($timezone!=''){
-//		date_timezone_set( $o, new DateTimeZone($timezone) );
-//	}else{
-//		//if not specifitied, using SERVER_TIMEZONE from getConf
-//		date_timezone_set( $o, new DateTimeZone(getConf("SERVER_TIMEZONE")) );
-//	}
-//	return $o->format('YmdHis');
-//}
-//@deprecated, useing ::isoDate($s);
-//function my_isoDate($s){
-//	if($s){
-//		$o=date_create_from_format('U',$s);
-//		if(!$o){
-//			//try U.u
-//			$o=date_create_from_format('U.u',$s);
-//		}
-//		if($o){
-//			return $o->format('Y-m-d');
-//		}else{
-//			//return null;
-//			throw new Exception("my_isoDate $s");
-//		}
-//	}else{
-//		return date_create()->format('Y-m-d');
-//	}
-//}
-//@deprecated, useing ::isoDateTime($s);
-//function my_isoDateTime($s){
-//	if($s){
-//		$o=date_create_from_format('U',$s);
-//		if(!$o){
-//			//try U.u
-//			$o=date_create_from_format('U.u',$s);
-//		}
-//		if($o){
-//			return $o->format('Y-m-d H:i:s');
-//		}else{
-//			//return null;
-//			throw new Exception("my_isoDate $s");
-//		}
-//	}else{
-//		return date_create()->format('Y-m-d H:i:s');
-//	}
-//}
-		
+		//@deprecated, useing ::getYmdHis($s);
+		//convert unixtimestamp to format of YmdHis.
+		//function my_YmdHis($timestamp,$timezone){
+		//	if($s){
+		//		$o=date_create("@$timestamp");
+		//	}else{
+		//		$o=date_create("now",new DateTimeZone('UTC'));
+		//	}
+		//	if(!$o) {throw new Exception("date_create() failed for $timestamp/$timezone");};
+		//	if($timezone!=''){
+		//		date_timezone_set( $o, new DateTimeZone($timezone) );
+		//	}else{
+		//		//if not specifitied, using SERVER_TIMEZONE from getConf
+		//		date_timezone_set( $o, new DateTimeZone(getConf("SERVER_TIMEZONE")) );
+		//	}
+		//	return $o->format('YmdHis');
+		//}
+		//@deprecated, useing ::isoDate($s);
+		//function my_isoDate($s){
+		//	if($s){
+		//		$o=date_create_from_format('U',$s);
+		//		if(!$o){
+		//			//try U.u
+		//			$o=date_create_from_format('U.u',$s);
+		//		}
+		//		if($o){
+		//			return $o->format('Y-m-d');
+		//		}else{
+		//			//return null;
+		//			throw new Exception("my_isoDate $s");
+		//		}
+		//	}else{
+		//		return date_create()->format('Y-m-d');
+		//	}
+		//}
+		//@deprecated, useing ::isoDateTime($s);
+		//function my_isoDateTime($s){
+		//	if($s){
+		//		$o=date_create_from_format('U',$s);
+		//		if(!$o){
+		//			//try U.u
+		//			$o=date_create_from_format('U.u',$s);
+		//		}
+		//		if($o){
+		//			return $o->format('Y-m-d H:i:s');
+		//		}else{
+		//			//return null;
+		//			throw new Exception("my_isoDate $s");
+		//		}
+		//	}else{
+		//		return date_create()->format('Y-m-d H:i:s');
+		//	}
+		//}
+
 		//take system time if no param. diff from rb one.
 		public static function isoDate( $timestamp )
 		{
-			if(!$timestamp) throw new Exception(__CLASS__.".isoDate() need param timestamp"); //$time=$this->db_time();
+			#if(!$timestamp) throw new Exception(__CLASS__.".isoDate() need param timestamp"); //$time=$this->db_time();
 
 			if($timestamp){
 				$o=date_create_from_format('U',$timestamp);
@@ -174,7 +174,7 @@ namespace CMP
 		//take system time if no param. diff from rb one.
 		public static function isoDateTime( $timestamp )
 		{
-			if(!$timestamp) throw new Exception(__CLASS__.".isoDateTime() need param timestamp"); //$time=$this->db_time();
+			#if(!$timestamp) throw new Exception(__CLASS__.".isoDateTime() need param timestamp"); //$time=$this->db_time();
 			if($timestamp){
 				$o=date_create_from_format('U',$timestamp);
 				if(!$o){
@@ -192,7 +192,7 @@ namespace CMP
 			}
 		}
 		public static function getYmdHis( $timestamp, $timezone ){
-			if (self::is_os_64_more()){
+			if (LibExt::is_os_64_more()){
 				if($timestamp){
 					return date('YmdHis', $timestamp);
 				}else{
@@ -223,7 +223,7 @@ namespace CMP
 		//or
 		//mg::checkRequired($param,array("name");
 		public static function checkRequired($arr,$key_a, $msg_tpl="MSG_ParamIsRequired"){
-			$flag_is_assoc=self::is_assoc($key_a);
+			$flag_is_assoc=LibExt::is_assoc($key_a);
 			foreach($key_a as $k=>$v){
 				$kk=($flag_is_assoc)?$k:$v;
 				//$vv=($flag_is_assoc)?$v:$k;
@@ -271,24 +271,24 @@ namespace CMP
 
 				$LOCAL127="127.0.0.1";
 
-				$HTTP_X_REAL_IP=self::get_env("HTTP_X_REAL_IP");
+				$HTTP_X_REAL_IP=LibExt::get_env("HTTP_X_REAL_IP");
 				if($HTTP_X_REAL_IP && $HTTP_X_REAL_IP!=$LOCAL127){
 					$_ip=$HTTP_X_REAL_IP;break;
 				}
 
-				$HTTP_CLIENT_IP=self::get_env("HTTP_CLIENT_IP");
+				$HTTP_CLIENT_IP=LibExt::get_env("HTTP_CLIENT_IP");
 				if($HTTP_CLIENT_IP && $HTTP_CLIENT_IP!=$LOCAL127){
 					$_ip=$HTTP_CLIENT_IP;break;
 				}
 
-				$HTTP_X_FORWARDED_FOR=self::get_env("HTTP_X_FORWARDED_FOR");
+				$HTTP_X_FORWARDED_FOR=LibExt::get_env("HTTP_X_FORWARDED_FOR");
 				if($HTTP_X_FORWARDED_FOR)
 					list($HTTP_X_FORWARDED_FOR)= explode(",",$HTTP_X_FORWARDED_FOR);
 				if($HTTP_X_FORWARDED_FOR && $HTTP_X_FORWARDED_FOR!=$LOCAL127){
 					$_ip=$HTTP_X_FORWARDED_FOR;break;
 				}
 
-				$REMOTE_ADDR=self::get_env("REMOTE_ADDR");
+				$REMOTE_ADDR=LibExt::get_env("REMOTE_ADDR");
 				//		if($REMOTE_ADDR && $REMOTE_ADDR!=$LOCAL127){
 				//			$_ip=$REMOTE_ADDR;break;
 				//		}
@@ -303,13 +303,13 @@ namespace CMP
 		}
 		private static $_cached_isos64more;
 		public static function is_os_64_more(){
-			if(self::$_cached_isos64more !== null){
-				return self::$_cached_isos64more;
+			if(LibExt::$_cached_isos64more !== null){
+				return LibExt::$_cached_isos64more;
 			}
 			$isos64bit = (strstr(php_uname("m"), '64'))?true:false;
 			//$isos128bit = (strstr(php_uname("m"), '128'))?true:false;//future
-			self::$_cached_isos64more = $isos64bit;
-			//self::$_cached_isos64more = $isos64bit or $isos128bit;
+			LibExt::$_cached_isos64more = $isos64bit;
+			//LibExt::$_cached_isos64more = $isos64bit or $isos128bit;
 			return $isos64bit;
 		}
 		//get the sequence of a single second (in single thread...)
@@ -317,7 +317,7 @@ namespace CMP
 		public static function getTimeSequence(){
 			global $getTimeSequence;
 			//list($sec,$microsec)=explode('.',microtime(true));
-			$sec = self::getYmdHis();
+			$sec = LibExt::getYmdHis();
 			if($getTimeSequence){
 				if($getTimeSequence['sec']!=$sec){
 					$getTimeSequence=array('sec'=>$sec, 'seq'=>1);
@@ -341,7 +341,82 @@ namespace CMP
 		//	if($p) die($p);
 		//	else die();
 		//}
-		public static function __callStatic( $__function__, $param_a ){
+		public static function _change_session($sid){
+			$_prev_sid=session_id();
+			if($sid && $sid!=$_prev_sid){
+				//万一session有变:
+				session_write_close();
+
+				session_id($sid);
+				session_start();
+				return $_prev_sid;
+			}else{
+				//如果一样就不用变了..
+			}
+		}
+		//获得制定session id的，一般很少情况下用，多数是一些自动化cron job在用..
+		public static function getSession($sid){
+			if($sid){
+				//change session
+				$_prev_sid=LibExt::_change_session($sid);
+
+				//steal
+				$session_clone=$_SESSION;
+
+				//restore prev
+				session_id($_prev_sid);
+				session_start();
+				return $session_clone;
+			}else{
+				throw new Exception("getSession() needs param, if want to use SESSION, just access \$_SESSION for now");
+			}
+		}
+		public static function getSessionVar($key, $sid="", & $probe_sid){
+			if($sid){
+				$_session= & LibExt::getSession($sid);
+			}else{
+				$_session= & $_SESSION;
+			}
+			//2016-7-13: CMP no longer handle cookie/_s
+			//if($_session){
+			//	//skip, already started.
+			//}else{
+			//	//$_s_cookie=$_COOKIE['_s'];
+			//	//if($_s_cookie){
+			//	//	session_id($_s_cookie);
+			//	//}
+			//	//session_start();
+			//	//$sid=session_id();
+			//	//if($sid!=$_s_cookie){
+			//	//	if($_s_cookie){
+			//	//		quicklog_must('KO-CHECK-SESSION-3',$_SESSION);
+			//	//		session_start($_s_cookie);
+			//	//		quicklog_must('KO-CHECK-SESSION-3',$_SESSION);
+			//	//		throw new Exception('KO-SESS');
+			//	//	}else{
+			//	//		setcookie("_s",$sid);//通知一下浏览器的 _s变更
+			//	//	}
+			//	//}
+			//}
+			return $_session[$key];
+		}
+		//笔记：如果只需要写直接用 _SESSION[?]=? 更好，
+		//2、记得有写的话就用session_write_close 来提交更新.
+		public static function setSessionVar($key, $var, $sid=""){
+			if($sid){
+				$_prev_sid=LibExt::_change_session($sid);
+			}else{
+				$current_sid=session_id();
+				session_start();//open it for write
+			}
+			$_SESSION[$key]=$var;
+			if($sid){
+				LibExt::_change_session($_prev_sid);
+			}
+			return true;
+		}
+		public static function
+			__callStatic( $__function__, $param_a ){
 			//TODO 查找相关的函数和函数...
 			throw new Exception("TODO FUNC $__function__");
 		}

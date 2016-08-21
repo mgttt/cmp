@@ -29,7 +29,7 @@ if($SAE){
 	//local mode
 	//LOG
 	if(!defined("_LOG_"))
-		define(_LOG_, _APP_DIR_ .'/_logs/');
+		define("_LOG_", _APP_DIR_ .'/_logs/');
 	if(!is_dir(_LOG_)){
 		mkdir(_LOG_,0777,true);
 		if(!is_dir(_LOG_)){
@@ -38,7 +38,7 @@ if($SAE){
 	}
 	//TMP && SESSION DEFAULT
 	if(!defined("_TMP_")){
-		define(_TMP_, _APP_DIR_ .'/_tmp/');
+		define("_TMP_", _APP_DIR_ .'/_tmp/');
 	}
 	if(!is_dir(_TMP_)){
 		mkdir(_TMP_,0777,true);
