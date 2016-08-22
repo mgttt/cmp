@@ -220,7 +220,7 @@ EOSQL;
 		public static function getXlsArr($nameXls){
 			global $_tm_, $_g_probe_time;
 			if($_g_probe_time>2) $_tm_[]=array("before getXlsArrFile",microtime(true));
-			$file=getXlsArrFile($nameXls);
+			$file=LibBase::getXlsArrFile($nameXls);
 			if($_g_probe_time>2) $_tm_[]=array("after getXlsArrFile",microtime(true));
 			require($file);
 			if($_g_probe_time>2) $_tm_[]=array("after require $file",microtime(true));
@@ -263,7 +263,7 @@ EOSQL;
 				$xls_file=_TMP_ ."/$filemtime.".basename($nameXls);
 				$xls_file_mtime=filemtime($xls_file);
 				if(!$xls_file_mtime){
-					xls_zip_extract_tmp($xls_zip_file,$xls_file);
+					LibBase::xls_zip_extract_tmp($xls_zip_file,$xls_file);
 					$xls_file_mtime=filemtime($xls_file);
 				}
 				if(!$xls_file_mtime){
@@ -277,7 +277,7 @@ EOSQL;
 			if(!$cache_file_mtime){
 				//gen cache file
 				require_once _LIB_."/faisalman-simple-excel-php-9bcff4b/src/SimpleExcel/SimpleExcel.php";
-				$excel = new SimpleExcel\SimpleExcel('xml');
+				$excel = new \SimpleExcel\SimpleExcel('xml');
 				$excel->parser->loadFile("$xls_file");
 				$csv_a=$excel->parser->getField();
 
@@ -327,7 +327,7 @@ EOSQL;
 				$xls_file=_TMP_ ."/$filemtime.".basename($nameXls);
 				$xls_file_mtime=filemtime($xls_file);
 				if(!$xls_file_mtime){
-					xls_zip_extract_tmp($xls_zip_file,$xls_file);
+					LibBase::xls_zip_extract_tmp($xls_zip_file,$xls_file);
 					$xls_file_mtime=filemtime($xls_file);
 				}
 				if(!$xls_file_mtime){
@@ -341,7 +341,7 @@ EOSQL;
 			if(!$cache_file_mtime){
 				//gen cache file
 				require_once _LIB_."/faisalman-simple-excel-php-9bcff4b/src/SimpleExcel/SimpleExcel.php";
-				$excel = new SimpleExcel\SimpleExcel('xml');
+				$excel = new \SimpleExcel\SimpleExcel('xml');
 				$excel->parser->loadFile("$xls_file");
 				$csv_a=$excel->parser->getField();
 
@@ -383,7 +383,7 @@ EOSQL;
 			return $lang;
 		}
 
-		public function getLang($k,$lang=null){
+		public static function getLang($k,$lang=null){
 			if(!$k) throw new Exception("KO: getLang(null) is not supported");
 			static $lang_static=null;//初值为空
 			static $lang_static_en=null;//初值为空

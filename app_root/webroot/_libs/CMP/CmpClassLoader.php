@@ -93,7 +93,51 @@ class CmpClassLoader
 		$md5=md5(serialize(CmpClassLoader::Map(__DIR__, true)));
 		return $md5;
 	}
-	public static function tryload($classname){
+	public static function tryLoadExt($class_name){
+
+		//class path to file path
+		$class_name=str_replace('\\', '/', $class_name);
+		$class_name=preg_replace("/^\//","",$class_name);//remove the leading /
+
+		if( file_exists( "$class_name.php" ) ){
+			require_once "$class_name.php";
+			return true;
+		}
+		$ppp=(_APP_DIR_ ."/$class_name.php");
+		if( file_exists( $ppp ) ){
+			require_once $ppp;
+			return true;
+		}
+
+		//try class_path_a
+		$class_path_a=getConf("class_path_a");
+		foreach(array_reverse($class_path_a) as $class_path){
+			$ccc="$class_path/$class_name.php";
+			if(file_exists($ccc)){
+				#self::stderrln("### $ccc ###");
+				require $ccc;
+				return true;
+			}else{
+				#print("!!! $ccc !!!\n");
+				#self::stderrln("!!! $ccc !!!");
+			}
+		}
+
+		//try _LIB_CORE_
+		if(file_exists( _LIB_CORE_ ."/$class_name.php")){
+			require_once(_LIB_CORE_ ."/$class_name.php");
+			if(class_exists($class_name)){
+				return true;
+			}
+		}
+
+		if(class_exists($class_name)){
+			return true;
+		}
+		return false;
+	}
+	
+	public static function tryLoad($classname){
 		$ns="CMP\\";
 		if(self::str_starts_with($classname,$ns)){
 			$xxx=substr($classname, strlen($ns));

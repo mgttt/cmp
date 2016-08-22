@@ -4,9 +4,8 @@ namespace CMP
 
 	class CmpCore
 	{
-		//DefaultInit() if not enough, just copy and make your own!!!!!
-
-		public static function DefaultInit(){
+		//纯 OOP 式初始化，注意此时没有用到全局函数了！！
+		public static function DefaultOopInit(){
 			error_reporting(E_ERROR|E_COMPILE_ERROR|E_PARSE|E_CORE_ERROR|E_USER_ERROR);
 			#error_reporting(0);
 			#error_reporting(E_ALL);
@@ -119,20 +118,17 @@ namespace CMP
 			set_exception_handler(array('\CMP\DefaultErrorHandler', 'handleException'));
 			self::InitGlobalFunc();
 
-			//TODO
-			//spl_autoload_register(function($class_name){
-			//	require_once __DIR__ .'/CmpClassLoader.php';
-			//	CmpClassLoader::tryloadExt($class_name);
-			//});
+		}
 
-			//TODO:
-			/*
-			if(!$path) throw new Exception("\\CMP\\CmpCore::DefaultInit() need \$path");
-			//NOTES: just to make compatible for old projects...
-			if(!defined("_APP_DIR_")){
-				define("_APP_DIR_",$path);
-			}
-			 */
+		//DefaultInit() if not enough, just copy and make your own!!!!!
+		public static function DefaultInit(){
+			self::DefaultOopInit();
+			self::InitGlobalFunc();
+
+			//Load Class like the old days:
+			spl_autoload_register(function($class_name){
+				CmpClassLoader::tryLoadExt($class_name);
+			});
 		}
 
 		//For the Backward Compatibility, we need some global function
@@ -148,6 +144,10 @@ namespace CMP
 					'logger'=>'',
 					'quicklog'=>'',
 					'quicklog_must'=>'',
+					'_getbarcode'=>'LibBase::getbarcode',
+					'calcLangFromBrowser'=>'',
+					'getLang'=>'',
+					#'getLang_a'=>'',
 					'my_json_encode'=>'LibBase::o2s',
 					'my_json_decode'=>'LibBase::s2o',
 					'_gzip_output'=>'LibBase::gzip_output',//For the Old Controller...
