@@ -147,6 +147,8 @@ namespace CMP
 					'_getbarcode'=>'LibBase::getbarcode',
 					'calcLangFromBrowser'=>'',
 					'getLang'=>'',
+					'getXlsArr2'=>'',
+					//'getXlsArr'='',
 					#'getLang_a'=>'',
 					'my_json_encode'=>'LibBase::o2s',
 					'my_json_decode'=>'LibBase::s2o',
