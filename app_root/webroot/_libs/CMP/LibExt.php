@@ -61,10 +61,10 @@ namespace CMP
 
 			if($strlen_s>10){
 				//assume YYYY-MM-DD HH:ii:ss, @ref http://php.net/manual/en/datetime.createfromformat.php
-				$o=date_create_from_format('Y-m-d H:i:s',$s,new DateTimeZone('UTC'));//DateTimeZone::UTC
+				$o=date_create_from_format('Y-m-d H:i:s',$s,new \DateTimeZone('UTC'));//\DateTimeZone::UTC
 			}elseif($strlen_s>9){
 				//handle YYYY-MM-DD
-				$o=date_create_from_format('Y-m-d H:i:s',$s.' 00:00:00',new DateTimeZone('UTC'));
+				$o=date_create_from_format('Y-m-d H:i:s',$s.' 00:00:00',new \DateTimeZone('UTC'));
 			}elseif($strlen_s>0){
 				throw new Exception(__CLASS__.".getTimeStamp() Unsupport $s");
 			}else{
@@ -72,7 +72,7 @@ namespace CMP
 					return time();
 				}else{
 					//32bit.
-					$o=date_create("now",new DateTimeZone('UTC'));
+					$o=date_create("now",new \DateTimeZone('UTC'));
 				}
 			}
 			if(!$o) return null;
@@ -84,14 +84,14 @@ namespace CMP
 		//public static function my_strtotime($s){
 		//	if(strlen($s)>10){
 		//		//handle YYYY-MM-DD HH:ii:ss, @ref http://php.net/manual/en/datetime.createfromformat.php
-		//		$o=date_create_from_format('Y-m-d H:i:s',$s,new DateTimeZone('UTC'));//DateTimeZone::UTC
+		//		$o=date_create_from_format('Y-m-d H:i:s',$s,new \DateTimeZone('UTC'));//\DateTimeZone::UTC
 		//	}elseif(strlen($s)>9){
 		//		//handle YYYY-MM-DD
-		//		$o=date_create_from_format('Y-m-d H:i:s',$s.' 00:00:00',new DateTimeZone('UTC'));
+		//		$o=date_create_from_format('Y-m-d H:i:s',$s.' 00:00:00',new \DateTimeZone('UTC'));
 		//	}elseif(strlen($s)>0){
 		//		throw new Exception("Unsupport $s for my_strtotime()");
 		//	}else{
-		//		$o=date_create("now",new DateTimeZone('UTC'));
+		//		$o=date_create("now",new \DateTimeZone('UTC'));
 		//	}
 		//	if(!$o) return null;
 		//	return $o->format('U');
@@ -102,14 +102,14 @@ namespace CMP
 		//	if($s){
 		//		$o=date_create("@$timestamp");
 		//	}else{
-		//		$o=date_create("now",new DateTimeZone('UTC'));
+		//		$o=date_create("now",new \DateTimeZone('UTC'));
 		//	}
 		//	if(!$o) {throw new Exception("date_create() failed for $timestamp/$timezone");};
 		//	if($timezone!=''){
-		//		date_timezone_set( $o, new DateTimeZone($timezone) );
+		//		date_timezone_set( $o, new \DateTimeZone($timezone) );
 		//	}else{
 		//		//if not specifitied, using SERVER_TIMEZONE from getConf
-		//		date_timezone_set( $o, new DateTimeZone(getConf("SERVER_TIMEZONE")) );
+		//		date_timezone_set( $o, new \DateTimeZone(getConf("SERVER_TIMEZONE")) );
 		//	}
 		//	return $o->format('YmdHis');
 		//}
@@ -203,16 +203,16 @@ namespace CMP
 				if($s){
 					$o=date_create("@$timestamp");
 				}else{
-					$o=date_create("now",new DateTimeZone('UTC'));
+					$o=date_create("now",new \DateTimeZone('UTC'));
 				}
 				if(!$o) {throw new Exception(__CLASS__.".getYmdHis() failed for timestamp=$timestamp");};
 				if($timezone!=''){
-					date_timezone_set( $o, new DateTimeZone($timezone) );
+					date_timezone_set( $o, new \DateTimeZone($timezone) );
 				}else{
 					//if not specifitied, using SERVER_TIMEZONE from getConf
 					$SERVER_TIMEZONE=getConf("SERVER_TIMEZONE");
 					if(!$SERVER_TIMEZONE) throw new Exception(__CLASS__.".getYmdHis() find no SERVER_TIMEZONE in config");
-					date_timezone_set( $o, new DateTimeZone($SERVER_TIMEZONE) );
+					date_timezone_set( $o, new \DateTimeZone($SERVER_TIMEZONE) );
 				}
 				return $o->format('YmdHis');
 			}

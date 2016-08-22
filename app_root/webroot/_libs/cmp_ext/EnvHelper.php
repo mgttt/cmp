@@ -2,6 +2,9 @@
 
 class EnvHelper
 {
+	public static function getMyIsoDateTime(){
+		return date('YmdHis');
+	}
 	public static function getMyEnvVar($k){
 		$rt=getenv($k);
 		if($rt && $rt!="") return $rt;
@@ -34,9 +37,6 @@ class EnvHelper
 
 		if(!$MY_SCHEME) $MY_SCHEME='http';
 		return strtolower($MY_SCHEME);
-	}
-	public static function getMyIsoDateTime(){
-		return date('YmdHis');
 	}
 	public static function getClientIp(){
 		static $_ip="";

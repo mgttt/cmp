@@ -7,7 +7,7 @@ class DefaultErrorHandler
 		return array("errmsg"=>$message,"errno"=>$errno,"trace"=>$trace,"line"=>$line,"file"=>$file);
 	}
 	public static function cmp_global_error_handler2($ex){
-		return self::cmp_global_error_handler($ex->getFile(),$ex->getLine(),$ex->getMessage(),"",$ex->getCode());
+		return DefaultErrorHandler::cmp_global_error_handler($ex->getFile(),$ex->getLine(),$ex->getMessage(),"",$ex->getCode());
 		//skip getTraceAsString
 	}
 	public static function cmp_debug_stack($s=""){
@@ -54,8 +54,8 @@ class DefaultErrorHandler
 	public static $exception_before_shutdown=false;
 	public static function handleException($ex){
 
-		self::$exception_before_shutdown=true;
-		#$rt=self::cmp_global_error_handler2($ex);
+		DefaultErrorHandler::$exception_before_shutdown=true;
+		#$rt=DefaultErrorHandler::cmp_global_error_handler2($ex);
 		#print json_encode($rt);
 
 		global $APP_NAME;
@@ -63,7 +63,7 @@ class DefaultErrorHandler
 		$trace_s=$ex->getTraceAsString();
 		$trace_s=substr($trace_s,0,4096);
 
-		$rt=self::cmp_global_error_handler2($ex);
+		$rt=DefaultErrorHandler::cmp_global_error_handler2($ex);
 		//$rt['nav_helper']="<a href='javascript:history.back();'>Go Back";
 
 		$logid=LibBase::getbarcode(8);//for easier to trace ...
@@ -81,7 +81,7 @@ class DefaultErrorHandler
 		print $s;
 	}
 	public static function handleShutdown(){
-		if(self::$exception_before_shutdown){
+		if(DefaultErrorHandler::$exception_before_shutdown){
 			//skip if already handled.
 			return;
 		}
@@ -94,17 +94,19 @@ class DefaultErrorHandler
 				&& 128!=$error['type'] //ignore deprecated warning
 				&& 8192!=$error['type'] //ignore deprecated warning
 			){
-				LibBase::stderrln("?????? ".json_encode($error));
+				//STDERR
+				LibBase::stderrln(json_encode($error));
 
-				$trace_s=self::cmp_debug_stack();
+				//LOG
+				$trace_s=DefaultErrorHandler::cmp_debug_stack();
 				$trace_s=substr($trace_s,0,4096);
 				$error['errmsg']=$error['message'];
 				ob_get_clean();//not functioning unless error_reporting(0);
 
-				$log_id=CoreFunc::getbarcode(8);//for easier to trace ...
+				$log_id=LibBase::getbarcode(8);//for easier to trace ...
 				$error['log_id']=$log_id;
 
-				$output=cmp_global_error_handler(basename($error['file'],".php"),$error['line'],$error['message'],null,$error['type']);
+				$output=DefaultErrorHandler::cmp_global_error_handler(basename($error['file'],".php"),$error['line'],$error['message'],null,$error['type']);
 				$output['module']=$output['file'];//换个名字...
 				unset($output['file']);
 				unset($output['trace']);//不给外面看..
@@ -118,8 +120,8 @@ class DefaultErrorHandler
 				}
 				quicklog_must("IT-CHECK","$log_id ".json_encode($error,true)."\n".$trace_s);
 				quicklog_must("IT-CHECK","$log_id _SESSION=".json_encode($_SESSION));
-				require_once _LIB_CORE_.DIRECTORY_SEPARATOR."inc.v5.secure.php";//for _get_ip_()
-				$_get_ip_=_get_ip_();
+				#require_once _LIB_CORE_.DIRECTORY_SEPARATOR."inc.v5.secure.php";//for _get_ip_()
+				$_get_ip_=LibBase::getClientIp();
 				quicklog_must("IT-CHECK","$log_id _get_ip_=$_get_ip_");
 				//return $output;
 
@@ -132,12 +134,12 @@ class DefaultErrorHandler
 
 		}else{
 
-			$trace_s=self::cmp_debug_stack();
+			$trace_s=DefaultErrorHandler::cmp_debug_stack();
 			$trace_s=substr($trace_s,0,4096);
 
 			LibBase::stderr($trace_s);
 
-			#$log_id=CoreFunc::getbarcode(8);//for easier to trace ...
+			#$log_id=LibBase::getbarcode(8);//for easier to trace ...
 			#quicklog_must("IT-CHECK","$log_id [Not Error Shutdown?]"."\n".$trace_s);//debug_stack in inc.common.func.v5.php
 			#quicklog_must("IT-CHECK","$log_id _SESSION=".json_encode($_SESSION));
 			#require_once _LIB_CORE_.DIRECTORY_SEPARATOR."inc.v5.secure.php";//for _get_ip_()
