@@ -1,3 +1,3 @@
 <?php
-// copy this file with ".example.php" removed
+//cp config.switch.override.tmp.example.php config.switch.override.tmp 
 $_switch_conf="cmp_demo";

@@ -2,6 +2,12 @@
 # SAE
 https://www.sinacloud.com/doc/sae/tutorial/code-deploy.html#shi-yong-git-ke-hu-duan
 
+# e.g. 从远程的 sae的master:1 同步到本地:
+git pull --progress --no-rebase -v "sae" 1
+
+# e.g. 从本地 提交到远程的 sae的master:1
+git.exe push --progress "sae" master:1
+
 # 新建本地并初始化
 mkdir cmpdemo && cd cmpdemo
 git init
@@ -24,6 +30,9 @@ git push $repo master:1
 
 # dont auto change CRLF
 git config --global core.autocrlf false
+
+# 自动记录密码:
+https://git-scm.com/book/zh/v2/Git-%E5%B7%A5%E5%85%B7-%E5%87%AD%E8%AF%81%E5%AD%98%E5%82%A8
 
 
 

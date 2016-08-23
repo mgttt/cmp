@@ -1,5 +1,5 @@
 <?php
-require_once "../cmp_demo/inc.app.php";
+require_once "../../cmp_demo/inc.app.php";
 
 println("date_default_timezone_get=".date_default_timezone_get());
 println("my_isoDateTime=");
