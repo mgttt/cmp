@@ -148,6 +148,8 @@ namespace CMP
 					'calcLangFromBrowser'=>'',
 					'getLang'=>'',
 					'getXlsArr2'=>'',
+					'global_error_handler'=>'DefaultErrorHandler::cmp_global_error_handler',
+					'global_error_handler2'=>'DefaultErrorHandler::cmp_global_error_handler2',
 					//'getXlsArr'='',
 					#'getLang_a'=>'',
 					'my_json_encode'=>'LibBase::o2s',

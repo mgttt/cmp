@@ -85,7 +85,7 @@ namespace CMP
 			 * Q: 什么不用 Sae Storage?
 			 * A: Storage服务适合用来存储用户上传的文件，比如头像、附件等。不适合存储代码类文件，比如页面内调用的JS、 CSS等，尤其不适合存储追加写的日志。使用Storage服务来保存JS、CSS或者日志，会严重影响页面响应速度。建议JS、 CSS直接保存到代码目录，日志使用sae_debug()方法记录。
 			 */
-			$mysql = new SaeMysql();
+			$mysql = new \SaeMysql();
 			//注：sae大小写敏感..
 			//$sql = "INSERT INTO tbl_log_sys (name,value,time) values(".qstr($log_filename).",".qstr($prefix.$log_content.$suffix).",NOW())";
 			$sql = "INSERT INTO tbl_log_sys (name,value,time) values(".qstr($log_filename).",'".$mysql->escape(substr($prefix.$log_content.$suffix,0,1024))."',NOW())";

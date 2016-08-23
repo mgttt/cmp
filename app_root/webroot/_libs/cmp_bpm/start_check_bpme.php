@@ -11,11 +11,8 @@ try{
 
 	//TODO 访问远程。
 	$DIRECTORY_SEPARATOR=DIRECTORY_SEPARATOR;
-	$LIB=_LIB_;
-	//require "$LIB{$DIRECTORY_SEPARATOR}cmp_core{$DIRECTORY_SEPARATOR}inc.func.http_post.php";
-	//echo http_get($url_api_check_bpe);
-	//echo http_post($url_api_check_bpe);
-	require_once "$LIB{$DIRECTORY_SEPARATOR}cmp_core{$DIRECTORY_SEPARATOR}inc.func.http_req.php";
+	$LIBCORE=_LIB_CORE_;
+	require_once "$LIBCORE{$DIRECTORY_SEPARATOR}inc.func.http_req.php";
 
 	//echo http_req(array( 'url'=>$url_api_check_bpe ));
 

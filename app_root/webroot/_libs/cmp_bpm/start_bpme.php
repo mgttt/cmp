@@ -18,9 +18,9 @@ function call_local_bpme_pulse($engine_id){
 }
 function call_remote_bpme_pulse($engine_id){
 	$DIRECTORY_SEPARATOR=DIRECTORY_SEPARATOR;
-	$LIB=_LIB_;
+	$LIBCORE=_LIB_CORE_;
 
-	require_once "$LIB{$DIRECTORY_SEPARATOR}cmp_core{$DIRECTORY_SEPARATOR}inc.func.http_req.php";
+	require_once "$LIBCORE{$DIRECTORY_SEPARATOR}inc.func.http_req.php";
 	$url_api_engine_pulse=getConf("url_api_engine_pulse");//ApiBPME.Pulse.api
 	return my_json_decode(http_req_quick($url_api_engine_pulse,array("engine_id"=>$engine_id),35));
 }
