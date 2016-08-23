@@ -1,4 +1,4 @@
-# 能用图形界面尽量用咯
+﻿# 能用图形界面尽量用咯
 # SAE
 https://www.sinacloud.com/doc/sae/tutorial/code-deploy.html#shi-yong-git-ke-hu-duan
 
@@ -6,7 +6,7 @@ https://www.sinacloud.com/doc/sae/tutorial/code-deploy.html#shi-yong-git-ke-hu-d
 git pull --progress --no-rebase -v "sae" 1
 
 # e.g. 从本地 提交到远程的 sae的master:1
-git.exe push --progress "sae" master:1
+git push --progress "sae" master:1
 
 # 新建本地并初始化
 mkdir cmpdemo && cd cmpdemo

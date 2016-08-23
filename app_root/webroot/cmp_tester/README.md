@@ -17,3 +17,5 @@
 	2，在浏览器入口访问 http://$website/$path/$app/test/test_php_time.php
 	感受好的框架是可以同时支持 命令行模式（适合写console式程序）和Web模式
 
+* 在命令行运行 php $app/test/test_cmp_basic.php （当然用web运行也是可以的）
+  这次测试的是 CMP文档里面提到的 几个基本常用函数（println/my_json_encode/my_json_decode/quicklog_must）和类（CmpCore/CmpClassLoader/LibBase/LibExt）、熟悉一下\CMP\这个命名空间。尝试加人肉 打印语句来追踪一下 整个执行流程（比如 inc.app.php => \CMP\bootstrap.php => \CMP\* ，以及 全局函数如何注册并映射到相关的类静态方法）。顺便继续熟悉下 GIT的操作，比如用 git checkout把上述追踪时添加的代码行给重置恢复为 BASE线文件等。
