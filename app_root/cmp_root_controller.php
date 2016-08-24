@@ -60,10 +60,10 @@ foreach(
 				require basename($uu);
 				return true;
 			}else{
-				echo "404 ".getcwd()."$uu ...";return true;
+				echo "404 $uu ...";return true;
 			}
 		},
-		"/\.(js|css|jpg|jpeg|png|gif|ttf)$/"=>function($uu,$pattern){
+		"/\.(js|css|jpg|jpeg|png|gif|ttf|htm|json)$/"=>function($uu,$pattern){
 			if(file_exists($uu)){
 				echo file_get_contents($uu);
 				return true;

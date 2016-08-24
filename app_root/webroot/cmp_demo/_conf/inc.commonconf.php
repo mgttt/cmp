@@ -11,8 +11,6 @@ $_conf_all_common_ = array(
 		_APP_DIR_."/../_inc",//for multi project share
 		_LIB_,
 		_LIB_."/CMP",
-		_LIB_."/cmp_core",
-		_LIB_."/cmp_ext",
 		_LIB_."/cmp_bpm",
 		_APP_DIR_,//
 		_APP_DIR_."/_api",//Api Level
