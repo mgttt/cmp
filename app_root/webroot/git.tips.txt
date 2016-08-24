@@ -34,5 +34,8 @@ git config --global core.autocrlf false
 # 自动记录密码:
 https://git-scm.com/book/zh/v2/Git-%E5%B7%A5%E5%85%B7-%E5%87%AD%E8%AF%81%E5%AD%98%E5%82%A8
 
-
-
+# ignore file mode
+git config --global core.fileMode false
+git config --add --global core.filemode false
+# if still not working, edit .git/config, set the line :
+#filemode=false
