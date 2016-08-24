@@ -14,8 +14,18 @@ $_conf_all_[$_switch_conf]["flag_rb_freeze"]=false;//在DEMO不为FREEZE表结�
 //setConf("flag_rb_freeze",false);//DEMO不需要freeze
 
 $_conf_all_[$_switch_conf]["db_conf"]=array(
-	//主库
+	//team db of cmp_demo
 	"db_app" => array(
+		"db_type"=>"mysql",
+		"db_host"=>"rds3rj34m4vo902q7zzvo.mysql.rds.aliyuncs.com",
+		"db_user"=>"cmpdemo",
+		"db_pwd"=>"CmpDemo8888",//公用的DB for cmpdemo
+		"db_name"=>"cmpdemo",
+		"db_port"=>3306,
+	),
+	
+	//主库
+	"db_sae" => array(
 		"db_type"=>"mysql",
 		"db_host"=>"wsyddcnxkwts.rds.sae.sina.com.cn",
 		"db_user"=>"cmpdemouser",
@@ -24,7 +34,7 @@ $_conf_all_[$_switch_conf]["db_conf"]=array(
 		"db_port"=>10906,
 	),
 	//从库，由于有延迟。一般用于只读、报表类查询，
-	"db_app_ro" => array(
+	"db_sae_ro" => array(
 		"db_type"=>"mysql",
 		"db_host"=>"mfflidbukzly.rds.sae.sina.com.cn",
 		"db_user"=>"cmpdemouser",

@@ -1,7 +1,9 @@
 <?php
 #if(!defined("_APP_DIR_")) define("_APP_DIR_",realpath(dirname(__FILE__)));
 
-require_once '../../cmp_demo/inc.app.php';
+require_once '../cmp_demo/inc.app.php';
+
+println("<pre>");
 
 use CMP\CmpCore;
 use CMP\LibBase;

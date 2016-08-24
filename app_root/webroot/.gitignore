@@ -5,6 +5,8 @@ _logs/
 *.log
 *.cache
 *.db
+_del
+_del/
 
 local_server_start.sh
 app_root/*.php
