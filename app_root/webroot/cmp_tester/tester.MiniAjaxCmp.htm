@@ -1,0 +1,215 @@
+<body>
+	<h3>[<a href="./">INDEX</a>] WEB =&gt; ApiXXX =&gt; LgcXXX =&gt; AppXXX =&gt; OrmXXX =&gt; DB</h3>
+	<h4>lang={$lang}</h4>
+	<ul>
+		<!--
+		<li><a href="javascript:TestReview(ajax);">Review "mini-ajax"</a></li>
+		-->
+		<li><a href="javascript:TestPingPong(ajax);">Test ApiTester.PingPong.api</a></li>
+		<li><a href="javascript:TestGetDbInfo(ajax);">Test ApiTester.GetDbInfo.api</a></li>
+		<li><a href="javascript:AddTestObj();">Add TestObj</a></li>
+		<li><a href="javascript:ListTestObj();">List TestObj</a></li>
+		<li>
+		testobj_key_search:<input id='testobj_key_search' name='testobj_key_search' value="{$testobj_key_search}"/>
+		testobj_remark_search:<input id='testobj_remark_search' name='testobj_remark_search' value="{$testobj_remark_search}"/>
+		<a href="javascript:ListTestObj2();">Search TestObj</a>
+		</li>
+	</ul>
+	<h3>Exceptional Test</h3>
+	<ul>
+		<li><a href="javascript:TestBlackHole1(ajax);">Test Black Hole 1</a></li>
+		<li><a href="javascript:TestBlackHole2(ajax);">Test Black Hole 2</a></li>
+	</ul>
+	<table id="List" border=1>
+		<thead>
+			<tr><td>id</td><td>TestObjKey</td><td>Remark</td><td>Action</td></tr>
+		</thead>
+		<tbody id="TestObjBody">
+		</tbody>
+	</table>
+	<style>
+		div {background-color:gold}
+	</style>
+	Url<div id="divUrl"></div>
+	Send<div id="divSend"></div>
+	Receive<div id="divReceive"></div>
+	Debug<div id="divDebug"></div>
+	<script src="../weblib/src.mg.miniajax2016.js" comment="面向WAP做的迷你 ajax包"></script>
+	<script src="../weblib/src.wap.core.20150711.js" comment="面向WAP做的几个核心函数"></script>
+	<script src="../weblib/src.mg_core.js" comment="几个常用函数，特别是s2o/o2s（不过跟src.mg.json.js重复，具体用哪个主要还是看项目需求）"></script>
+	<!--
+	<script src="../weblib/?jsa=mg.miniajax2014,wap.core.20150711,mg_core" comment="流量优化"></script>
+	-->
+	<script>
+		function TestBlackHole1(){
+			var url="ApiTester.TestBlackHole1.api";
+			var _send=BuildQueryStr({});
+			ajax.post(url,function(s){
+				$("#divReceive").innerHTML=s;
+			},_send);
+		}
+		function TestBlackHole2(){
+			var url="ApiTester.TestBlackHole2.api";
+			var _send=BuildQueryStr({});
+			ajax.post(url,function(s){
+				if(s){
+					$("#divReceive").innerHTML=s;
+				}
+				else{
+					$("#divReceive").innerHTML=("return nothing");
+				}
+			},_send);
+		}
+		function TestReview(o){
+			$("#divDebug").innerHTML=o2s(o);
+		}
+		function TestPingPong(){
+			var url="ApiTester.PingPong.api?lang={$lang}";
+			var _send_o={ping:(new Date()).getTime()/1000};
+
+			//var _send_s=BuildQueryStr(_send_o);//Style B
+			var _send_s=o2s(_send_o);//Style A
+
+			$("#divUrl").innerHTML=url;
+			$("#divSend").innerHTML=_send_s;
+			ajax.post(url,function(s){
+				$("#divReceive").innerHTML=s;
+			},_send_s);
+		}
+		function TestGetDbInfo(){
+			var url="ApiTester.GetDbInfo.api?lang={$lang}";
+			var _send_o={ping:(new Date()).getTime()/1000};
+
+			//_send=BuildQueryStr(_send_o);//Style B
+			_send=o2s(_send_o);//Style A
+
+			$("#divUrl").innerHTML=url;
+			$("#divSend").innerHTML=_send;
+			ajax.post(url,function(s){
+				$("#divReceive").innerHTML=s;
+			},_send);
+		}
+
+		//////////////////////////////////////  Work With CMP Framework:
+		function AddTestObj(){
+			//创建一个新的tr
+			var tr = document.createElement("tr");
+			tr.innerHTML = "<td></td><td><input type='text' id='testobj_key'></td><td><input type='text' id='testobj_remark'></td>\n\
+			<td><input type='button' value='Save' onclick='SaveTestObj(this)'/><input type='button' value='Cancel' onclick='Cancel(this);'/></td>";
+
+			//把tr追加到表格里面
+			$("#TestObjBody").appendChild(tr);
+		}
+		//通用的保存方法
+		function SaveTestObj(obj){
+			//要保存的数据
+			var _data = {"testobj_key":$("#testobj_key").value,"testobj_remark":$("#testobj_remark").value};
+			//判断是否是修改的数据
+			var tr = obj.parentNode.parentNode;
+			if(tr.getAttribute('id'))
+			_data["id"] = tr.getAttribute('id');
+			//发送到后台处理
+			var url="ApiTester.SaveTestObj.api?lang={$lang}";
+			var _send=BuildQueryStr(_data);
+			$("#divUrl").innerHTML=url;
+			$("#divSend").innerHTML=_send;
+			ajax.post(url,function(s){
+				$("#divReceive").innerHTML=s;
+				var o = s2o(s);
+				if(o.STS){//保存成功
+					//完了更新列表
+					ListTestObj();
+					}else{//保存失败提示
+					var _msg = o.errmsg?o.errmsg:"Error!";
+					alert(_msg);
+				}
+			},_send);
+		}
+		function ListTestObj(){
+			var url="ApiTester.ListTestObj.api?lang={$lang}";
+			var _send = {};
+			$("#divUrl").innerHTML=url;
+			$("#divSend").innerHTML=o2s(_send);
+			ajax.post(url,function(s){
+				$("#divReceive").innerHTML=s;
+				//把返回的json内容转换成对象
+				var o = s2o(s);
+				//处理返回的数据
+				var html = "";
+				for(var i in o.table_data){
+					var row = o.table_data[i];
+					html += "<tr id='"+row['id']+"'><td>"+row['id']+"</td><td>"+row['testobj_key']+"</td><td>"+row['testobj_remark']+"</td>\n\
+						<td><input type='button' value='修改' onclick='EditRow(this)'/><input type='button' value='删除' onclick='DeleteRow(this)'/></td></tr>";
+				}
+				$("#TestObjBody").innerHTML=html;
+			},o2s(_send));
+		}
+		function ListTestObj2(){
+			var url="ApiTester.ListTestObj.api?lang={$lang}";
+			var _send_o = {};
+			_send_o['testobj_key']=$("#testobj_key_search").value;
+			_send_o['testobj_remark']=$("#testobj_remark_search").value;
+			var _send_s=o2s(_send_o);
+			$("#divUrl").innerHTML=url;
+			$("#divSend").innerHTML=_send_s;
+			ajax.post(url,function(s){
+				$("#divReceive").innerHTML=s;
+				//把返回的json内容转换成对象
+				var o = s2o(s);
+				//处理返回的数据
+				var html = "";
+				for(var i in o.table_data){
+					var row = o.table_data[i];
+					html += "<tr id='"+row['id']+"'><td>"+row['id']+"</td><td>"+row['testobj_key']+"</td><td>"+row['testobj_remark']+"</td>\n\
+						<td><input type='button' value='修改' onclick='EditRow(this)'/><input type='button' value='删除' onclick='DeleteRow(this)'/></td></tr>";
+				}
+				$("#TestObjBody").innerHTML=html;
+			},_send_s);
+		}
+
+		var OldTr = {};//用于保存修改时原tr的内容。点击取消按钮时可直接取出来重新赋给tr
+		function EditRow(obj){
+			var tr = obj.parentNode.parentNode;
+			var tds = tr.childNodes;
+			var name_a = ["id","testobj_key",'testobj_remark'];
+			//提前把修改前的tr保存到全局变量。为cancel做准备
+			OldTr[tr.getAttribute('id')] = tr.innerHTML;
+			//遍历tds。把文字变成input输入框
+			for(var i in tds){
+				if(i == tds.length-1){//最后的td为操作列。故特殊处理
+					tds[i].innerHTML = "<input type='button' value='Save' onclick='SaveTestObj(this)'/><input type='button' value='Cancel' onclick='Cancel(this);'/>";
+					continue;
+				}
+				var value = tds[i].innerHTML;
+				tds[i].innerHTML = "<input type='text' value='"+value+"' name='"+name_a[i]+"' id='"+name_a[i]+"'/>";
+			}
+		}
+		function DeleteRow(obj){
+			//确认一下是否删除
+			if(!confirm("sure delete?")) return false;
+			var _data = {};
+			//获取删除列的id
+			var tr = obj.parentNode.parentNode;
+			_data["id"] = tr.getAttribute('id');
+
+			var url="ApiTester.DeleteTestObj.api?lang={$lang}";
+			var _send=BuildQueryStr(_data);
+			$("#divUrl").innerHTML=url;
+			$("#divSend").innerHTML=_send;
+			ajax.post(url,function(s){
+				$("#divReceive").innerHTML=s;
+				var o = s2o(s);
+				if(o.STS == "OK")
+				ListTestObj();
+			},_send);
+		}
+		//通用的取消方法
+		function Cancel(obj){
+			var tr = obj.parentNode.parentNode;
+			if(OldTr[tr.getAttribute('id')])
+			tr.innerHTML = OldTr[tr.getAttribute('id')];
+			else
+			tr.remove();
+		}
+	</script>
+</body>
