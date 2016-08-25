@@ -17,7 +17,7 @@
 
 <meta charset="utf-8">
 <style>
-	#NoteList td{width:140px;}
+	#TestObjList td{width:140px;}
 </style>
 <body>
 	<script>
@@ -43,12 +43,12 @@
 					<td><input name="id" class="easyui-textbox" readonly="true"></td>
 				</tr>
 				<tr>
-					<td><font class="fitem_label">note_key:</font></td>
-					<td><input name="note_key" id="text" class="easyui-textbox"><input type="hidden" name="note_status"></td>
+					<td><font class="fitem_label">testobj_key:</font></td>
+					<td><input name="testobj_key" id="text" class="easyui-textbox"><input type="hidden" name="testobj_status"></td>
 				</tr>
         		<tr>
-					<td><font class="fitem_label">note_remark:</font></td>
-					<td><input name="note_remark" class="easyui-textbox"></td>
+					<td><font class="fitem_label">testobj_remark:</font></td>
+					<td><input name="testobj_remark" class="easyui-textbox"></td>
 				</tr>
      		</table>
      	</form>
@@ -78,11 +78,11 @@
 	Send<div id="divSend"></div>
 	Receive<div id="divReceive"></div>
 	Debug<div id="divDebug"></div>
-	<table id="NoteList" border=1 cellpadding="0" cellspacing='0'>
+	<table id="TestObjList" border=1 cellpadding="0" cellspacing='0'>
 		<thead>
-			<tr><td>id</td><td>NoteKey</td><td>Remark</td><td>Action</td></tr>
+			<tr><td>id</td><td>TestObjKey</td><td>Remark</td><td>Action</td></tr>
 		</thead>
-		<tbody id="NoteBody">
+		<tbody id="TestObjBody">
 		</tbody>
 	</table>
 	
@@ -98,7 +98,7 @@
 					//要在这里写进去远程opt入口，和处理函数
 					var dlg=new mgSimpleDlg({
 						//wintitle:'Add HO',//如果隐藏则使用action
-						values:{"note_status":"0"},//[初始值]
+						values:{"testobj_status":"0"},//[初始值]
 						a:o.a,//[事件来源]:影响出现的位置.
 						tpl_id:'tplCURD',
 						target_id:'divDlg',//目标div
@@ -185,10 +185,10 @@
 		}
 		function AddTestObj() {
 			var tr = document.createElement("tr");
-			tr.innerHTML = "<td></td><td><input type='text' id='note_key'></td><td><input type='text' id='note_remark'></td>\n\
+			tr.innerHTML = "<td></td><td><input type='text' id='testobj_key'></td><td><input type='text' id='testobj_remark'></td>\n\
 				<td><input type='button' value='Save' onclick='SaveTestObj(this)'/><input type='button' value='Cancel' onclick='Cancel(this);'/></td>";
 			//把tr追加到表格里面
-			$("#NoteBody").append(tr);
+			$("#TestObjBody").append(tr);
 		}
 		function ListTestObj() {
 			//	var url="ApiTester.ListTestObj.api?lang={$lang}";
@@ -199,16 +199,16 @@
 					var html = "";
 					for (var i in o.table_data) {
 						var row = o.table_data[i];
-						html += "<tr id='" + row['id'] + "'><td>" + row['id'] + "</td><td>" + row['note_key'] + "</td><td>" + row['note_remark'] + "</td>\n\
+						html += "<tr id='" + row['id'] + "'><td>" + row['id'] + "</td><td>" + row['testobj_key'] + "</td><td>" + row['testobj_remark'] + "</td>\n\
 							<td><input type='button' value='修改' onclick='EditRow(this)'/><input type='button' value='删除' onclick='DeleteRow(this)'/></td></tr>";
 					}
-					$("#NoteBody").html(html);
+					$("#TestObjBody").html(html);
 				}
 			});
 		}
 		function SaveTestObj(obj) {
 			//要保存的数据
-			var _data = {"note_key": $("#note_key").val(), "note_remark": $("#note_remark").val()};
+			var _data = {"testobj_key": $("#testobj_key").val(), "testobj_remark": $("#testobj_remark").val()};
 			//判断是否是修改的数据
 			var tr = $(obj).closest("tr");
 			if (tr.find("td:eq(0)").html())
@@ -234,7 +234,7 @@
 		function EditRow(obj) {
 			var tr = $(obj).closest("tr");
 			var tds = tr.find("td");
-			var name_a = ["id","note_key", 'note_remark'];
+			var name_a = ["id","testobj_key", 'testobj_remark'];
 			//提前把修改前的tr保存到全局变量。为cancel做准备
 			OldTr[tr.find("td:eq(0)").html()] = tr.html();
 			//遍历tds。把文字变成input输入框
@@ -290,5 +290,18 @@
 		$("#btnListNew").on("click", function() {
 			grid_user.reload();
 		});
+
+	//ESC 键映射，处理强弹出来的全部小窗口.
+	$(window).off('keydown').on('keydown', function (e) {
+		if (e.keyCode == 27) {
+			$(".panel-tool-close").trigger("click");
+		}
+	});
+		
+	window['page_data']={
+		lang_a:{
+			R_U_SURE:'{I18N_R_U_SURE}'
+		}
+	};
 	</script>
 </body>

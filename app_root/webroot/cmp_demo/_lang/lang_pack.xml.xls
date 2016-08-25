@@ -56,6 +56,16 @@
    </Borders>
    <Font ss:FontName="宋体" x:CharSet="134" ss:Size="9"/>
   </Style>
+  <Style ss:ID="s24">
+   <Alignment ss:Vertical="Bottom" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Font ss:FontName="Khmer OS" x:Family="Swiss" ss:Size="13"/>
+  </Style>
   <Style ss:ID="s25">
    <Alignment ss:Vertical="Bottom" ss:WrapText="1"/>
    <Borders>
@@ -82,7 +92,7 @@
    <Font ss:FontName="宋体" x:CharSet="134" ss:Size="9"/>
    <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
   </Style>
-  <Style ss:ID="s29">
+  <Style ss:ID="s28">
    <Alignment ss:Vertical="Bottom" ss:WrapText="1"/>
    <Borders>
     <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
@@ -93,23 +103,13 @@
    <Font ss:FontName="Khmer OS" x:Family="Swiss" ss:Size="13"/>
    <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
   </Style>
-  <Style ss:ID="s30">
-   <Alignment ss:Vertical="Bottom" ss:WrapText="1"/>
-   <Borders>
-    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
-    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
-    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
-    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
-   </Borders>
-   <Font ss:FontName="Khmer OS" x:Family="Swiss" ss:Size="13"/>
-  </Style>
  </Styles>
  <Worksheet ss:Name="DataDict">
   <Names>
    <NamedRange ss:Name="_FilterDatabase" ss:RefersTo="=DataDict!R1C1:R4C12"
     ss:Hidden="1"/>
   </Names>
-  <Table ss:ExpandedColumnCount="11" ss:ExpandedRowCount="6" x:FullColumns="1"
+  <Table ss:ExpandedColumnCount="11" ss:ExpandedRowCount="7" x:FullColumns="1"
    x:FullRows="1" ss:StyleID="s21" ss:DefaultColumnWidth="54"
    ss:DefaultRowHeight="21">
    <Column ss:StyleID="s22" ss:AutoFitWidth="0" ss:Width="173.25"/>
@@ -119,7 +119,7 @@
    <Column ss:StyleID="s22" ss:AutoFitWidth="0" ss:Width="209.25"/>
    <Column ss:StyleID="s23" ss:AutoFitWidth="0" ss:Width="134.25"/>
    <Column ss:StyleID="s22" ss:AutoFitWidth="0" ss:Width="128.25"/>
-   <Column ss:StyleID="s30" ss:AutoFitWidth="0" ss:Width="159"/>
+   <Column ss:StyleID="s24" ss:AutoFitWidth="0" ss:Width="159"/>
    <Column ss:StyleID="s22" ss:AutoFitWidth="0" ss:Width="90.75" ss:Span="1"/>
    <Column ss:Index="11" ss:StyleID="s22" ss:AutoFitWidth="0" ss:Width="78.75"/>
    <Row ss:AutoFitHeight="0" ss:StyleID="s26">
@@ -137,7 +137,7 @@
       ss:Name="_FilterDatabase"/></Cell>
     <Cell ss:StyleID="s25"><Data ss:Type="String">zh-tw</Data><NamedCell
       ss:Name="_FilterDatabase"/></Cell>
-    <Cell ss:StyleID="s29"><Data ss:Type="String">kh</Data><NamedCell
+    <Cell ss:StyleID="s28"><Data ss:Type="String">kh</Data><NamedCell
       ss:Name="_FilterDatabase"/></Cell>
     <Cell ss:StyleID="s25"><Data ss:Type="String">vn</Data><NamedCell
       ss:Name="_FilterDatabase"/></Cell>
@@ -160,7 +160,7 @@
       ss:Name="_FilterDatabase"/></Cell>
     <Cell ss:StyleID="s27"><Data ss:Type="String">簡體中文</Data><NamedCell
       ss:Name="_FilterDatabase"/></Cell>
-    <Cell ss:StyleID="s29"><Data ss:Type="String">Khmer</Data><NamedCell
+    <Cell ss:StyleID="s28"><Data ss:Type="String">Khmer</Data><NamedCell
       ss:Name="_FilterDatabase"/></Cell>
     <Cell ss:StyleID="s25"><Data ss:Type="String">Vietnamese</Data><NamedCell
       ss:Name="_FilterDatabase"/></Cell>
@@ -200,6 +200,12 @@
     <Cell ss:StyleID="s23"><Data ss:Type="String">語言</Data></Cell>
     <Cell><Data ss:Type="String">ភាសា</Data></Cell>
    </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">R_U_SURE</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">Are you sure</Data></Cell>
+    <Cell><Data ss:Type="String">您确认吗</Data></Cell>
+    <Cell ss:StyleID="s23"><Data ss:Type="String">確認</Data></Cell>
+   </Row>
   </Table>
   <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
    <PageSetup>
@@ -236,7 +242,7 @@
     <Pane>
      <Number>0</Number>
      <ActiveRow>7</ActiveRow>
-     <ActiveCol>6</ActiveCol>
+     <ActiveCol>5</ActiveCol>
     </Pane>
    </Panes>
    <ProtectObjects>False</ProtectObjects>
