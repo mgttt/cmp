@@ -37,7 +37,7 @@ WebCmpTester.MiniAjaxCmp.api => WebCmpTester->MiniAjaxCmp() => tester.MiniAjaxCm
 ## 接下来是自学 jeasyui （注：jeasyui这里的例子未完善，以后有机会再安排回顾时完善。。。）
 http://jeasyui.com/
 
-## 然后就是投入实际项目中慢慢丰富知识。
+## 然后就是投入实际项目中慢慢丰富知识。（比如 I18N 多语言处理）
 
 ### 以后经验丰富之后，请回来协助 CMP的 文档、案例的完善（加入 //github.com/cmptech/cmp/ 后做 pull request，或者直接提交到 SAE上面的UAT，由管理员定期比较和同步去 github/cmptech/cmp/）
 
