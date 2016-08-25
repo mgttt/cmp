@@ -154,6 +154,8 @@ namespace CMP
 					#'getLang_a'=>'',
 					'my_json_encode'=>'LibBase::o2s',
 					'my_json_decode'=>'LibBase::s2o',
+					'o2s'=>'',
+					's2o'=>'',
 					'_gzip_output'=>'LibBase::gzip_output',//For the Old Controller...
 					'adjust_timezone'=>'LibExt::adjust_timezone',//
 					'debug_stack'=>'DefaultErrorHandler::cmp_debug_stack',
