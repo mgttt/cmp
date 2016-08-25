@@ -401,7 +401,7 @@ namespace CMP
 			return $_session[$key];
 		}
 		//笔记：如果只需要写直接用 _SESSION[?]=? 更好，
-		//2、记得有写的话就用session_write_close 来提交更新.
+		//2、记得有写的话就用session_write_close 来提交更新！！！
 		public static function setSessionVar($key, $var, $sid=""){
 			if($sid){
 				$_prev_sid=LibExt::_change_session($sid);
