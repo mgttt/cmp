@@ -1,4 +1,8 @@
 //var namespace=function(s,r,c,i,k){r=r||/^u/.test(typeof window)?global:window;c=s.split('.');for(i=0;i<c.length;i++){k=c[i];r[k]||(r[k]={});r=r[k];}return r};
+/* if(typeof namespace=='undefined'){...}
+=> /^u/.test(typeof namespace) && ...
+save about 6 char.  anyway preg is little lower than string compare
+*/
 /^u/.test(typeof namespace)&&(namespace=function(s,r,c,i,k){r=r||/^u/.test(typeof window)?global:window;c=s.split('.');for(i=0;i<c.length;i++){k=c[i];r[k]||(r[k]={});r=r[k];}return r});
 /^u/.test(typeof module)||function(m){m.exports=namespace}(module);
 /**

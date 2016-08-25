@@ -4,6 +4,27 @@
 //等稳定之后再删除这个检查:
 if('undefined'==typeof SaasTool) throw new Error("mgSimpleGrid depends SaasTool");
 
+//get xy and node to evt
+//function e2xy(evt){
+//	var out = {x:-1, y:-1};
+//	switch(evt.type){
+//		case 'touchstart':
+//		case 'touchmove':
+//		case 'touchend':
+//		case 'touchcancel':
+//			var touch = evt.originalEvent.touches[0] || evt.originalEvent.changedTouches[0];
+//			out.x = touch.pageX;
+//			out.y = touch.pageY;
+//			break;
+//		default:
+//			out.x = evt.pageX;
+//			out.y = evt.pageY;
+//			break;
+//	}
+//	out['nn']=evt.target.nodeName;
+//	return out;
+//}
+
 var clsSimpleDlg=function(params){
 	var me=this;
 	var my_warn=SaasTool.my_warn;
@@ -107,6 +128,20 @@ var clsSimpleDlg=function(params){
 				,success: function(result){}
 			});
 		};
+
+		//get xy of node
+		var n2xy= function(node){
+			var rt={x:-1,y:-1,w:-1,h:-1};
+			if(node){
+				var _node_o=$(node);
+				var offset=_node_o.offset();
+				rt.x=offset.left;
+				rt.y=offset.top;
+				rt.w=_node_o.width() || -1;
+				rt.h=_node_o.height() || -1;
+			}
+			return rt;
+		}
 
 		var _pos=n2xy(params_a);
 		//var _left=_pos.x+_pos.w;

@@ -4,22 +4,23 @@
  * http://..../weblib/?jsa=json4ie,jstorage
  * http://..../weblib/?js=jstorage
  */
-
 //TODO 未做针对 js和jsa参数所生产的制作缓存....所以还不能大量使用
 //TODO 还需要做一个静态处理，比如  weblib/static.{$jsa}.js =>映射 weblib/?jsa=$jsa.js
-
 error_reporting(E_ERROR|E_COMPILE_ERROR|E_PARSE|E_CORE_ERROR|E_USER_ERROR);
+
 if(!defined("_APP_DIR_")) define("_APP_DIR_",realpath(dirname(__FILE__)));
 
 #微调目录结构...
-#define("_LIB_",realpath(__DIR__ ."/../_libs/"));
-#if(_LIB_=="")throw new Exception("empty _LIB_");
+if(!defined("_LIB_")) define("_LIB_",realpath(__DIR__ ."/../_libs/"));
+if(_LIB_=="" || _LIB_=="_LIB_")throw new Exception("empty _LIB_");
 
-#adjust_timezone();//...
+require_once _LIB_.'/CMP/bootstrap.php';
+\CMP\CmpCore::DefaultInit();
 
-require "../_libs/cmp_core/inc.cmp_core.php";
+#如果注释，用的是 WEB的PHP的默认时间，如果使用，用的是 配置目录里面的时区，测试用 test/test_timezone.php
+#adjust_timezone();//现在用的数据库的，所以是否adjust_timezone问题不大。不过有些 Web Server所以的可能未弄好，所以弄一下可以调整好php的时区.
+
 require_once _LIB_CORE_ ."/func.js_enc_txt.php";
-
 
 //初步想法是算出需要的文件的 MD5 ？
 

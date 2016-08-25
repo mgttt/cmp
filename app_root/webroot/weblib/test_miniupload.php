@@ -1,7 +1,14 @@
 <?php
-//error_reporting(E_ERROR|E_COMPILE_ERROR|E_PARSE|E_CORE_ERROR|E_USER_ERROR);
+error_reporting(E_ERROR|E_COMPILE_ERROR|E_PARSE|E_CORE_ERROR|E_USER_ERROR);
+
 if(!defined("_APP_DIR_")) define("_APP_DIR_",realpath(dirname(__FILE__)));
-require "../_libs/cmp_core/inc.cmp_core.php";
+
+#微调目录结构...
+if(!defined("_LIB_")) define("_LIB_",realpath(__DIR__ ."/../_libs/"));
+if(_LIB_=="" || _LIB_=="_LIB_")throw new Exception("empty _LIB_");
+
+require_once _LIB_.'/CMP/bootstrap.php';
+\CMP\CmpCore::DefaultInit();
 
 $whitelist_image = array('jpg', 'jpeg', 'png', 'gif','bmp','tiff');
 $whitelist_attach = array('jpg',"jpeg","bmp","png","ico","ppt","pptx","doc","docx","xls","xlsx","txt","rar","pdf");
