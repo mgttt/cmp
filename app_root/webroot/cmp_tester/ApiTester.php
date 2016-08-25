@@ -23,6 +23,36 @@ class ApiTester
 		}
 		return $rt;
 	}
+	public function GetSessionVar($param){
+		//不用自己處理的，因為參數有 _s的時候，框架自動處理了。
+		//$sid=$param['_s'];
+		//if($sid){
+		//	session_id($sid);
+		//	session_start();
+		//}
+		return array(
+			'test_sess'=>\CMP\LibExt::getSessionVar('test_sess'),
+			'test_sess2'=>$_SESSION['test_sess2'],
+			'session_id'=>session_id(),
+			#'param'=>$param,
+		);
+	}
+	public function GetSessionID($param){
+		$sid=$param['_s'];
+		if(!$sid){
+			$sid=\CMP\LibBase::getBarCode(23);
+			session_id($sid);
+			session_start();
+		}
+		$test_sess=\CMP\LibExt::setSessionVar('test_sess',rand());
+		$test_sess2=$_SESSION['test_sess2']=rand();
+		session_write_close();//這是個坑也不算是坑。不用 session_write_close 有可能沒真正保存的。。。
+		return array(
+			'_s'=>$sid,
+			'test_sess'=>$test_sess,
+			'test_sess2'=>$test_sess2,
+		);
+	}
 	public function GetDbInfo($param){
 		$orm =new ORM_Base(LgcTester::getDSN());
 		$rt=array('STS'=>'OK');
