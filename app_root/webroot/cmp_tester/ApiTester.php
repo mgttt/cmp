@@ -30,10 +30,21 @@ class ApiTester
 		//	session_id($sid);
 		//	session_start();
 		//}
+
+		$GetSessionVarTestPrev=$_SESSION['GetSessionVarTest'];
+
+		//session_start();//因为 CMP的 控制器为了性能，默认在呼叫 $_c.$_m()之前就做了 session_write_close()，如果如果要写session就要重新启动一下session_start()
+		//$_SESSION['GetSessionVarTest']=rand();
+		//session_write_close();//手动关闭
+
+		$GetSessionVarTest=\CMP\LibExt::setSessionVar('GetSessionVarTest',rand());
+		
 		return array(
 			'test_sess'=>\CMP\LibExt::getSessionVar('test_sess'),
 			'test_sess2'=>$_SESSION['test_sess2'],
 			'session_id'=>session_id(),
+			'GetSessionVarTest'=>$GetSessionVarTest,
+			'GetSessionVarTestPrev'=>$GetSessionVarTestPrev,
 			#'param'=>$param,
 		);
 	}

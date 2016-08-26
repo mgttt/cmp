@@ -413,7 +413,7 @@ namespace CMP
 			if($sid){
 				LibExt::_change_session($_prev_sid);
 			}
-			return true;
+			return $var;
 		}
 		public static function
 			__callStatic( $__function__, $param_a ){
