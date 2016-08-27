@@ -58,26 +58,7 @@ class AppTester
 			"binding"=>$binding,
 		));
 
-		//表馅:
-		$rt['table_data']=$rs['rst'];
-
-		//表头:
-		$cols=array(
-			array('field'=>'id','title'=>"id","hidden"=>true),
-			array('field'=>'testobj_key','title'=>"主键"),
-			array('field'=>'testobj_status','title'=>"状态"),
-			array('field'=>'testobj_remark','title'=>"备注"),
-		);
-
-		$rt['table_columns']=array($cols);
-		//总数量 for SimpleGrid
-		$rt['maxRowCount']=$rs['maxRowCount'];
-		$rt['sql']=$rs['sql'];#TMP DEBUG...
-
-		$table_data=$rt['table_data'];
-		$table_data_c=count($table_data);
-		$rt['table_data_c']=$table_data_c;
-		return $rt;
+		return $rs;
 	}
 	public function __call($func, $args){
 		$call_ee=array($this->_inner_orm, $func);

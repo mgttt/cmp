@@ -89,10 +89,10 @@ class ApiTester
 
 	//////////////////////////////////////////////////
 	// 从 Api=>Lgc=>App=>Orm 的四层封装案例演示
-	// Api层：负责接受外部呼叫参数，进行简单处理（有时甚至不处理）而转给Lgc（逻辑层）进行处理.
-	// Lgc层：负责主要的《业务逻辑》。它一般会呼叫《数据对象》进行读写并应用业务逻辑。
-	// App层：《应用数据对象》的封装，在我们的最佳实践经验认为可以它应该是对 Orm层的继承及扩展，从而理解为相对复杂的应用级别的数据对象
-	// Orm层：《基本数据对象》的封装，在我们的最佳实践经验认为它适合对 Sql层进行封装、对数据库访问进行封装。
+	// Api层：负责接受外部呼叫参数，进行简单处理（有时甚至不处理）而转给Lgc（逻辑层）进行处理；
+	// Lgc层：负责主要的《业务逻辑》。它一般会呼叫《数据对象》进行读写并应用业务逻辑；
+	// App层：《应用数据对象》的封装，在我们的最佳实践经验认为可以它应该是对 Orm层的继承及扩展，从而理解为相对复杂的应用级别的数据对象操作；
+	// Orm层：《基本数据对象》的封装，在我们的最佳实践经验认为它适合对 Sql层进行封装、对数据库基本（增删查改）访问进行封装；
 
 	//** 程序员总是比较懒的，有时在比较简单的业务逻辑时，会有时在 Lgc层会直接使用到 Orm层 而跳过 App层，
 	//有时甚至直接在 Api就直接使用Orm层而跳过了Lgc和App层，
@@ -100,16 +100,19 @@ class ApiTester
 	//上述的行为我们非常反对，但是有时将就接受，但希望所有工程师能严格遵循四层规范.
 
 	public function ListTestObj($param){
-		//demo安例比较简单，所以先不做处理，直接转给逻辑层跟进.
+
+		//从可重用的逻辑层取资料.
 		$lgc = new LgcTester;
-		return $lgc->ListTestObj($param);
+		$rt=$lgc->ListTestObj($param);
+		return $rt;
 	}
+
 	public function DeleteTestObj($param){
-		//啊，有人偷懒直接访问orm层
-//		$cls = new OrmDemo(LgcTester::getDSN());
-//		$cls->deleteBean($param['id']);
-//		return array("STS"=>"OK");
-	
+		//啊，有人偷懒直接访问orm层:
+		//		$cls = new OrmDemo(LgcTester::getDSN());
+		//		$cls->deleteBean($param['id']);
+		//		return array("STS"=>"OK");
+
 		//正确写法
 		$lgc = new LgcTester;
 		return $lgc->DeleteTestObj($param);

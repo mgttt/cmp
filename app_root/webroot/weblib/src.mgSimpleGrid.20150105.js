@@ -216,7 +216,7 @@ var clsSimpleGrid=function(params){
 		var _grid = _grid_div.mygrid;
 		if (!_grid){
 			//easyUI的datagrid的方法是在同一层而不是子层做的...
-			_grid = $("<div style='width:100%'></div>");
+			_grid = $("<div style='width:100%;height:100%'></div>");
 			_grid_div.prepend(_grid);
 			_grid_div.mygrid = _grid;
 		}
