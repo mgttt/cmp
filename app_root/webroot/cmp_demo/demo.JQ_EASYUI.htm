@@ -1,15 +1,23 @@
-<script src="../weblib/jquery-1.9.1.min.js"></script>
+<!-- 1.8.3暂时还支持IE<9，也没什么大问题就先用着 -->
+<script src="../weblib/jquery.1.8.3.min.js"></script>
+
+<!--要用到 jq的大概基础包-->
+<link rel="stylesheet" type="text/css" href="../weblib/jqeasyui_latest/themes/gray/easyui.css">
+<link rel="stylesheet" type="text/css" href="../weblib/jqeasyui_latest/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="../weblib/jqeasyui_latest/themes/color.css">
+<script type="text/javascript" src="../weblib/jqeasyui_latest/jquery.easyui.min.js"></script>
+
+<!-- 以下的js 其实不是全部要用到的，只是还没时间整理，先插着用吧 -->
 <script src="../weblib/src.common.js"></script>
 <script src="../weblib/src.content.js"></script>
-<link rel="stylesheet" type="text/css" href="../weblib/jqeasyui1.4/themes/gray/easyui.css">
-<link rel="stylesheet" type="text/css" href="../weblib/jqeasyui1.4/themes/icon.css">
-<link rel="stylesheet" type="text/css" href="../weblib/jqeasyui1.4/themes/color.css">
-<script type="text/javascript" src="../weblib/jqeasyui1.4/jquery.easyui.min.js"></script>
 <script src="../weblib/src.easyui.mgdefault.js"></script>
+<script src="../weblib/src.mg.json.js"></script>
 <script src="../weblib/src.mg.aj.2014.js"></script>
 <script src="../weblib/src.mg_core.js"></script>
 <script src="../weblib/src.async.js"></script>
 <script src="../weblib/src.mgrender2014.js"></script>
+
+<!-- 我们对 jqeasyUi的Grid/Dialog的简单二次封装，方便我们使用 -->
 <script src="../weblib/src.SaasTool.js"></script>
 <script src="../weblib/src.mgSimpleGrid.20150105.js"></script>
 <script src="../weblib/src.mgSimpleDlg.20141215.js"></script>
@@ -289,5 +297,18 @@
 		$("#btnListNew").on("click", function() {
 			grid_user.reload();
 		});
+
+	//ESC 键映射，处理强弹出来的全部小窗口.
+	$(window).off('keydown').on('keydown', function (e) {
+		if (e.keyCode == 27) {
+			$(".panel-tool-close").trigger("click");
+		}
+	});
+		
+	window['page_data']={
+		lang_a:{
+			R_U_SURE:'{I18N_R_U_SURE}'
+		}
+	};
 	</script>
 </body>

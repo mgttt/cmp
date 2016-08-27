@@ -5,16 +5,8 @@
 		<li><a href="./?_c=WebCmpDemo&_m=JQ_EASYUI" target=_blank> JQuery + EASYUI</a></li>
 	</ul>
 	<h3>Env & Lib Tester</h3>
-	<ul>
-		<li><a href="" target=_blank>jQuery 1.8.3 (Stable, and $.browser and $.browser.version still workable)</a></li>
-		<li><a href="" target=_blank>jQuery 1.9.1 (Latest IE678 Supported, removed $.browser 和 $.browser.version with $.support)</a></li>
-		<li><a href="" target=_blank>jQuery Latest (IE678 no longer Supported)</a></li>
-	</ul>
-	<h3>Links</h3>
-	<ul>
-		<li><a href="http://code.jquery.com/jquery/" target=_blank>jQuery</a></li>
-	</ul>
-	{if $test_tpl_1}
-	<h1>随机出现.看代码模板</h1>
+	<h3>模板简单测试：test_tpl_1={$test_tpl_1}</h3>
+	{if $test_tpl_1>500}
+	<h1>test_tpl_1>500时出现</h1>
 	{/if}
 </body>
