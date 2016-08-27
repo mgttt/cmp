@@ -13,11 +13,11 @@ namespace CMP
 	if( !function_exists('spl_autoload_register') ){
 		throw new Exception("\\CMP needs spl_autoload_register()");
 	}
+	//default behavior about to load class file under __DIR__.
 	spl_autoload_register(function($class_name){
 		require_once __DIR__ .'/CmpClassLoader.php';
 		CmpClassLoader::tryload($class_name);
 	});
-
 }
 //TODO 下面的全局稍后再搬到 LibBase.   有eval，所以不好搞的，晚点看.
 namespace
