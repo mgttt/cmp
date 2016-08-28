@@ -240,7 +240,7 @@ namespace CMP
 	}
 	//default behavior about to load class file under __DIR__.
 	spl_autoload_register(function($class_name){
-		require_once __DIR__ .'/CmpClassLoader.php';
+		#require_once __DIR__ .'/CmpClassLoader.php';
 		CmpClassLoader::tryload($class_name);
 	});
 }
