@@ -28,7 +28,7 @@
 //	public function realDeleteAll($param);//please dont use unless you are very very sure.
 //}
 class ORM_Base
-	extends rbWrapper4 //@ cmp_core\
+	extends rbWrapper //@ref CMP
 {
 	public static $DSN='db_app';
 	//public $bean_name_a;//please override by the children
@@ -61,15 +61,27 @@ class ORM_Base
 			}else{
 				if($flagNew){
 					if($id>0){
-						$this->exec('INSERT INTO '.$this->NAME_R.' (id) VALUES('.$id.')');
+						//$this->exec('INSERT INTO '.$this->NAME_R.' (id) VALUES('.$id.')');
+						//上面这个在没表的时候不行。下面是利用RB特性自动快速建表，再改ID.
+						$bean=$this->dispenseBean();//rbWrapper
+						$new_id=$this->store($bean);
+						if($new_id){
+							$sql='UPDATE '.$this->NAME_R.' SET id='.qstr($id).' WHERE id='.$new_id
+								.' LIMIT 1'//免得有重大意外...虽然从来没遇到过有意外...
+							;
+							print $sql;
+							$this->exec($sql);
+						}else{
+							throw new Exception('FAIL CREATE id '.$id);
+						}
 					}else{
-						throw Exception('NOT SUPPORT id '.$id);
+						throw new Exception('NOT SUPPORT id '.$id);
 					}
 					$bean=$this->load($this->NAME_R,$id);
 					if($bean && $bean->id){
 						//ok now...
 					}else{
-						throw Exception('FAIL id '.$id);
+						throw new Exception('FAIL id '.$id);
 					}
 					//$bean=$this->dispenseBean();//rbWrapper
 					#$bean->id=$id;//FAILED...

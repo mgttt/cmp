@@ -6,19 +6,18 @@
 require_once(_LIB_CORE_."/rb4.3_cmp.php");
 //require_once(_LIB_CORE_."/FacadeNonStatic.php");//cmp hack for non static mode of facade of redbean
 //require_once(_LIB_CORE_."/FacadeNonStaticCmp425.php");//cmp hack for non static mode of facade of redbean
-require_once(_LIB_CORE_."/FacadeNonStaticCmp43.php");//cmp hack for non static mode of facade of redbean
+require_once(_LIB_CORE_."/CmpRbFacadeNonStatic.php");//cmp hack for non static mode of facade of redbean
 
 //NOTES:
 //
 // This is a RedBeanPHP-Wrapper
+//暂时要用到到的函数不是很多，现在的临时的做法是先把 Facade静态类复制并修改为动态类，用它的有限几个方法。
+//这几个方法稍后可能都要重新修改一下再用？
 
 //sqlite mode:
-//$rb=new rbWrapper4("sqlite:"._APP_DIR_.DIRECTORY_SEPARATOR."../test_rb.db");
+//$rb=new rbWrapper("sqlite:"._APP_DIR_.DIRECTORY_SEPARATOR."../test_rb.db");
 
-class rbWrapper4
-	//extends \RedBeanPHP\FacadeNonStatic
-	//extends \RedBeanPHP\FacadeNonStaticCmp425
-	//extends \RedBeanPHP\FacadeNonStaticCmp43
+class rbWrapper
 {
 	//对应的表名...
 	public $NAME_R=null;
@@ -34,15 +33,8 @@ class rbWrapper4
 
 	//NOTES 如果第二参数不显式，就会用getConf('flag_rb_freeze');
 	public function __construct($dsn,$freeze){
-		$this->_inner_rbfacade=new \RedBeanPHP\FacadeNonStaticCmp43;//!!!!
-		
-		//失败尝试，静态类确实很难简单污染...
-		//$md5=md5($dsn);
-		//$newClass="R_$md5";
-		//if (!class_exists($newClass)) {
-		//	eval("class $newClass extends \RedBeanPHP\Facade{ public static \$toolboxes = array(); };");
-		//}
-		//$this->_inner_rbfacade=new $newClass;
+		#$this->_inner_rbfacade=new \RedBeanPHP\FacadeNonStaticCmp43;//!!!!
+		$this->_inner_rbfacade=new \RedBeanPHP\CmpRbFacadeNonStatic;//201608
 		
 		$this->R_setup($dsn,$freeze);
 

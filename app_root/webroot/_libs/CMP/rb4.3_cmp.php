@@ -824,7 +824,7 @@ class RPDO implements Driver
 			$this->pdo->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
 			$this->pdo->setAttribute( \PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC );
 
-			//wjc.hack{
+			//CMP.hack{
 			$driver = $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME );
 			//$version = floatval( $this->pdo->getAttribute(\PDO::ATTR_SERVER_VERSION ) );
 
@@ -837,7 +837,7 @@ class RPDO implements Driver
 					//throw new Exception("db_timezone not config");
 				}
 			}//TODO other database ...
-			//wjc.hack}
+			//CMP.hack}
 			
 			$this->isConnected = TRUE;
 		} catch ( \PDOException $exception ) {
@@ -4827,7 +4827,7 @@ abstract class AQueryWriter
 		}
 	}
 
-	//wjc: regards "+..." as TEXT instead of NUMERIC
+	//CMP: regards "+..." as TEXT instead of NUMERIC
 	protected function startsWithPlus( $value )
 	{
 		$value = strval( $value );
@@ -5834,8 +5834,8 @@ class SQLiteT extends AQueryWriter implements QueryWriter
 	const C_DATATYPE_NUMERIC   = 1;
 	const C_DATATYPE_TEXT      = 2;
 	const C_DATATYPE_SPECIFIED = 99;
-	const C_DATATYPE_SPECIAL_DATE     = 80;//patch from wjc
-	const C_DATATYPE_SPECIAL_DATETIME = 81;//patch from wjc
+	const C_DATATYPE_SPECIAL_DATE     = 80;//patch from CMP
+	const C_DATATYPE_SPECIAL_DATETIME = 81;//patch from CMP
 
 	/**
 	 * @var DBAdapter
@@ -6030,8 +6030,8 @@ class SQLiteT extends AQueryWriter implements QueryWriter
 			SQLiteT::C_DATATYPE_INTEGER => 'INTEGER',
 			SQLiteT::C_DATATYPE_NUMERIC => 'NUMERIC',
 			SQLiteT::C_DATATYPE_TEXT    => 'TEXT',
-			SQLiteT::C_DATATYPE_SPECIAL_DATE => 'DATE',//wjc
-			SQLiteT::C_DATATYPE_SPECIAL_DATETIME => 'DATETIME',//wjc
+			SQLiteT::C_DATATYPE_SPECIAL_DATE => 'DATE',//CMP
+			SQLiteT::C_DATATYPE_SPECIAL_DATETIME => 'DATETIME',//CMP
 		);
 
 		$this->sqltype_typeno = array();
@@ -6065,20 +6065,20 @@ class SQLiteT extends AQueryWriter implements QueryWriter
 		if ( $value === INF ) return self::C_DATATYPE_TEXT;
 
 		if ( $this->startsWithZeros( $value ) ) return self::C_DATATYPE_TEXT;
-		if ( $this->startsWithPlus( $value ) ) return self::C_DATATYPE_TEXT;//patch from wjc
+		if ( $this->startsWithPlus( $value ) ) return self::C_DATATYPE_TEXT;//patch from CMP
 
 		if ( $value === TRUE || $value === FALSE )  return self::C_DATATYPE_INTEGER;
 
 		if ( is_numeric( $value ) && ( intval( $value ) == $value ) && $value < 2147483648 && $value > -2147483648 ) return self::C_DATATYPE_INTEGER;
 
-		//patch from wjc{
+		//patch from CMP{
 		if ( preg_match( '/^\d{4}\-\d\d-\d\d$/', $value ) ) {
 			return self::C_DATATYPE_SPECIAL_DATE;
 		}
 		if ( preg_match( '/^\d{4}\-\d\d-\d\d\s\d\d:\d\d:\d\d(\.\d{1,6})?$/', $value ) ) {
 			return self::C_DATATYPE_SPECIAL_DATETIME;
 		}
-		//patch from wjc}
+		//patch from CMP}
 		if ( ( is_numeric( $value ) && $value < 2147483648 && $value > -2147483648)
 			//|| preg_match( '/\d{4}\-\d\d\-\d\d/', $value )
 			//|| preg_match( '/\d{4}\-\d\d\-\d\d\s\d\d:\d\d:\d\d/', $value )
@@ -12342,7 +12342,7 @@ class DispenseHelper
 		}
 
 		//if ( !preg_match( '/^[a-z0-9]+$/', $type ) )
-		if ( !preg_match( '/^[a-zA-Z0-9_]+$/', $type ) )//wjc.patch
+		if ( !preg_match( '/^[a-zA-Z0-9_]+$/', $type ) )//CMP.patch
 		{
 			throw new RedException( 'Invalid type: ' . $type );
 		}
