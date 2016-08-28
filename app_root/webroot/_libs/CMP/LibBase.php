@@ -3,45 +3,11 @@ namespace CMP
 {
 	//based global function library from previous CMP version
 	//@ref CmpCore::tryRegisterGlobalFunc()
-
 	class LibBase
+		extends LibCore
 	{
 		public static function str_starts_with($haystack, $needle) {
 			return preg_match('/^'.preg_quote($needle,'/').'/', $haystack) > 0;
-		}
-		public static function stderrln($s){
-			file_put_contents('php://stderr',$s."\n",FILE_APPEND);
-		}
-		public static function stderr($s){
-			file_put_contents('php://stderr',$s,FILE_APPEND);
-		}
-		public static function o2s($o,$wellformat=false){
-			if($wellformat){
-				if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-					$s=json_encode($o,JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-				}else{
-					$s=json_encode($o);//will have {"a":"b"} instead of {a:"b"}, but encode speed might slightly inproved
-					$s=preg_replace('/","/',"\",\n\"",$s);//dirty work for tmp...
-				}
-			}else{
-				if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-					$s=json_encode($o,JSON_UNESCAPED_UNICODE);
-				}else{
-					$s=json_encode($o);//NOTES: official json_encode must result {"a":"b"} instead of {a:"b"}, but encode speed might slightly inproved
-				}
-			}
-			return $s;
-		}
-		public static function s2o($s){
-			$o=json_decode($s,true);//true->array, false->obj, NOTES that the json_decode not support {a:"b"} but only support {"a":"b"}. it sucks!!
-			return $o;
-		}
-		public static function println($s,$wellformat=false){
-			if(is_array($s) || is_object($s)){
-				//$s=json_encode($s,$wellformat);
-				$s=LibBase::o2s($s,$wellformat);
-			}
-			print $s ."\n";//.PHP_EOL;
 		}
 		public static function gzip_output($buffer){
 			$len = strlen($buffer);
@@ -216,7 +182,7 @@ EOSQL;
 			}
 		}
 
-		#============================================================================================ config
+		#========================================================================== config & I18N
 		public static function getXlsArr($nameXls){
 			global $_tm_, $_g_probe_time;
 			if($_g_probe_time>2) $_tm_[]=array("before getXlsArrFile",microtime(true));
@@ -413,7 +379,6 @@ EOSQL;
 			return $rt;
 		}
 
-		#============================================================================================ config
 		public static function getConf($key,$path=array(),$mandate_flag=false,$setConf=0,$setValue=null){
 			if(!defined('_APP_DIR_')) throw new Exception('_APP_DIR_ not defined for getConf');
 			static $_conf_=null;
@@ -556,6 +521,5 @@ EOSQL;
 			}while(false);
 			return($_ip);
 		}
-
 	}//class LibBase
 }//namespace
