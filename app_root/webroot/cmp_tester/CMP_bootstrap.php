@@ -50,7 +50,7 @@ namespace CMP
 			}
 			print $s ."\n";//.PHP_EOL;
 		}
-		function web($url,$postdata,$timeout=7){
+		public function web($url,$postdata,$timeout=7){
 			if(is_array($postdata)){
 				$postdata_s=http_build_query($postdata);
 			}elseif(is_string($postdata)){
