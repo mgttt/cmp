@@ -340,8 +340,8 @@ namespace CMP
 		}
 		public static function
 			__callStatic( $__function__, $param_a ){
-			//TODO 查找相关的函数和函数...
-			throw new Exception("TODO FUNC $__function__");
-		}
+				//TODO 查找相关的函数和函数...
+				throw new Exception("TODO FUNC $__function__");
+			}
 	}
 }

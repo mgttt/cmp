@@ -257,7 +257,6 @@ namespace CMP
 			return $md5;
 		}
 
-
 		public static function tryLoad($classname){
 			$ns="CMP\\";
 			if(self::str_starts_with($classname,$ns)){
