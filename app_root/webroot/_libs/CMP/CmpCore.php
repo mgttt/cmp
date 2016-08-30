@@ -1,10 +1,52 @@
 <?php
 namespace CMP
 {
-	if(!class_exists("\\CMP\\CmpCore")){//暂时先这样解决.
+	if(!class_exists("\\CMP\\CmpCore")){
 		class CmpCore
 		{
-			//纯 OOP 式初始化，注意此时没有用到全局函数了！！
+			public static function tryLoadExt($class_name){
+
+				//class path to file path
+				$class_name=str_replace('\\', '/', $class_name);
+				$class_name=preg_replace("/^\//","",$class_name);//remove the leading /
+
+				if( file_exists( "$class_name.php" ) ){
+					require_once "$class_name.php";
+					return true;
+				}
+				$ppp=(_APP_DIR_ ."/$class_name.php");
+				if( file_exists( $ppp ) ){
+					require_once $ppp;
+					return true;
+				}
+
+				//try class_path_a
+				$class_path_a=LibBase::getConf("class_path_a");
+				foreach(array_reverse($class_path_a) as $class_path){
+					$ccc="$class_path/$class_name.php";
+					if(file_exists($ccc)){
+						#LibCore::stderrln("### $ccc ###");
+						require $ccc;
+						return true;
+					}else{
+						#print("!!! $ccc !!!\n");
+						#LibCore::stderrln("!!! $ccc !!!");
+					}
+				}
+
+				//try _LIB_CORE_
+				if(file_exists( _LIB_CORE_ ."/$class_name.php")){
+					require_once(_LIB_CORE_ ."/$class_name.php");
+					if(class_exists($class_name)){
+						return true;
+					}
+				}
+
+				if(class_exists($class_name)){
+					return true;
+				}
+				return false;
+			}
 			public static function DefaultOopInit(){
 				error_reporting(E_ERROR|E_COMPILE_ERROR|E_PARSE|E_CORE_ERROR|E_USER_ERROR);
 				#error_reporting(0);
@@ -22,13 +64,13 @@ namespace CMP
 				if($SAE){
 					//SAE mode
 					if(!defined("_LOG_"))
-						define("_LOG_",  'saestor://logs/');//提醒：新建SAE应用要打开 storage应用并新建 domain=logs
+						define("_LOG_",  'saestor://logs/');//HINT: new SAE app need to open storage and create domain=logs
 					if(!defined("_TMP_"))
-						define("_TMP_", "saemc://");//提醒：新建 SAE应用要打开 memcache 服务...
+						define("_TMP_", "saemc://");//HINT: new SAE app need to open memcache service.
 
-					//SAE Special...but seems not working at all
+					//SAE Special (not using session.name) ...but seems not working
 					if(ini_get("session.name")!='_s'){
-						setcookie('PHPSESSID',"",-1,'/');//http://stackoverflow.com/questions/686155/remove-a-cookie
+						setcookie('PHPSESSID',"",-1,'/');//@ref http://stackoverflow.com/questions/686155/remove-a-cookie
 						unset($_COOKIE['PHPSESSID']);
 					}
 				}else{
@@ -73,61 +115,19 @@ namespace CMP
 				}
 
 				register_shutdown_function(array('\CMP\DefaultErrorHandler', 'handleShutdown'));
-				//register_shutdown_function(function(){
-				//	var_dump(debug_backtrace());
-				//	$rt="";
-				//	if(!function_exists('debug_backtrace'))
-				//	{
-				//		$rt.= 'function debug_backtrace does not exists'."\r\n";
-				//		return $rt;
-				//	}
-				//	//$rt.= "\r\n".'----------------'."\r\n";
-				//	//$rt.= 'Debug backtrace:'."\r\n";
-				//	//$rt.= '----------------'."\r\n";
-				//	$c=0;
-				//	foreach(debug_backtrace() as $t)
-				//	{
-				//		if($c<2){
-				//			//skip the row
-				//			$c++;
-				//			//continue;
-				//		}
-				//		$rt.= "\t" . '@ ';
-				//		if(isset($t['file'])) $rt.= basename($t['file']) . ':' . $t['line'];
-				//		else
-				//		{
-				//			// if file was not set, I assumed the functioncall
-				//			// was from PHP compiled source (ie XML-callbacks).
-				//			$rt.= '<PHP inner-code>';
-				//		}
-
-				//		$rt.= ' -- ';
-
-				//		if(isset($t['class'])) $rt.= $t['class'] . $t['type'];
-
-				//		$rt.= $t['function'];
-
-				//		if(isset($t['args']) && sizeof($t['args']) > 0) $rt.= '(...)';
-				//		else $rt.= '()';
-
-				//		//$rt.= PHP_EOL;
-				//		$rt.= "\n";
-				//	}
-				//	return $rt;
-				//});
 				set_exception_handler(array('\CMP\DefaultErrorHandler', 'handleException'));
 				self::InitGlobalFunc();
 
 			}
 
-			//DefaultInit() if not enough, just copy and make your own!!!!!
+			//if DefaultInit() not enough, just copy and make your own!!!!!
 			public static function DefaultInit(){
 				self::DefaultOopInit();
 				self::InitGlobalFunc();
 
 				//Load Class like the old days:
 				spl_autoload_register(function($class_name){
-					CmpClassLoader::tryLoadExt($class_name);
+					self::tryLoadExt($class_name);
 				});
 			}
 
@@ -173,15 +173,15 @@ namespace CMP
 			/** Try Register Function as Global Function.
 			 * global $name() => forward to => \CMP\$cls::$name()
 			 */
-			public static function tryRegisterGlobalFunc($name,$clsmethod)
+			public static function tryRegisterGlobalFunc($name,$clsandmethod)
 			{
-				if(!$clsmethod)$clsmethod='LibBase::'.$name;
+				if(!$clsandmethod)$clsandmethod='LibBase::'.$name;
 				eval(<<<EF
 if(!function_exists('$name')){
 function $name()
 {
 \$args=func_get_args();
-return call_user_func_array("\\CMP\\$clsmethod",\$args);
+return call_user_func_array("\\CMP\\$clsandmethod",\$args);
 }
 }
 EF

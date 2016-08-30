@@ -85,6 +85,83 @@ namespace CMP
 			}
 			return $result;
 		}
+		private static $_cached_isos64more;
+		public static function is_os_64_more(){
+			if(LibExt::$_cached_isos64more !== null){
+				return LibExt::$_cached_isos64more;
+			}
+			$isos64bit = (strstr(php_uname("m"), '64'))?true:false;
+			//$isos128bit = (strstr(php_uname("m"), '128'))?true:false;//future
+			LibExt::$_cached_isos64more = $isos64bit;
+			//LibExt::$_cached_isos64more = $isos64bit or $isos128bit;
+			return $isos64bit;
+		}
+		//take system time if no param. diff from rb one.
+		public static function isoDate( $timestamp )
+		{
+			#if(!$timestamp) throw new Exception(__CLASS__.".isoDate() need param timestamp"); //$time=$this->db_time();
+
+			if($timestamp){
+				$o=date_create_from_format('U',$timestamp);
+				if(!$o){
+					//try U.u
+					$o=date_create_from_format('U.u',$timestamp);
+				}
+				if($o){
+					return $o->format('Y-m-d');
+				}else{
+					throw new Exception(__CLASS__.".isoDate() Unknown timestamp=$timestamp");
+				}
+			}else{
+				//return now of current system
+				return date_create()->format('Y-m-d');
+			}
+		}
+		//take system time if no param. diff from rb one.
+		public static function isoDateTime( $timestamp )
+		{
+			#if(!$timestamp) throw new Exception(__CLASS__.".isoDateTime() need param timestamp"); //$time=$this->db_time();
+			if($timestamp){
+				$o=date_create_from_format('U',$timestamp);
+				if(!$o){
+					//try U.u
+					$o=date_create_from_format('U.u',$timestamp);
+				}
+				if($o){
+					return $o->format('Y-m-d H:i:s');
+				}else{
+					throw new Exception(__CLASS__.".isoDateTime() Unknown timestamp=$timestamp");
+				}
+			}else{
+				//return now of current system
+				return date_create()->format('Y-m-d H:i:s');
+			}
+		}
+		//if $s, translate to timestamp
+		//if !$s, using now.
+		public static function getTimeStamp( $s ){
+
+			$strlen_s=strlen($s);
+
+			if($strlen_s>10){
+				//assume YYYY-MM-DD HH:ii:ss, @ref http://php.net/manual/en/datetime.createfromformat.php
+				$o=date_create_from_format('Y-m-d H:i:s',$s,new \DateTimeZone('UTC'));//\DateTimeZone::UTC
+			}elseif($strlen_s>9){
+				//handle YYYY-MM-DD
+				$o=date_create_from_format('Y-m-d H:i:s',$s.' 00:00:00',new \DateTimeZone('UTC'));
+			}elseif($strlen_s>0){
+				throw new Exception(__CLASS__.".getTimeStamp() Unsupport $s");
+			}else{
+				if (self::is_os_64_more()){
+					return time();
+				}else{
+					//32bit.
+					$o=date_create("now",new \DateTimeZone('UTC'));
+				}
+			}
+			if(!$o) return null;
+			return $o->format('U');
+		}
 	}//LibCore
 	class CmpClassLoader
 		extends LibCore
@@ -126,7 +203,7 @@ namespace CMP
 			return $result;
 		}
 
-		protected static function Path($path)
+		public static function Path($path)
 		{
 			if (file_exists($path) === true)
 			{
@@ -142,7 +219,7 @@ namespace CMP
 
 			return false;
 		}
-		protected static function Map($path, $recursive = false)
+		public static function Map($path, $recursive = false)
 		{
 			$result = array();
 
@@ -179,49 +256,7 @@ namespace CMP
 			$md5=md5(serialize(CmpClassLoader::Map(__DIR__, true)));
 			return $md5;
 		}
-		public static function tryLoadExt($class_name){
 
-			//class path to file path
-			$class_name=str_replace('\\', '/', $class_name);
-			$class_name=preg_replace("/^\//","",$class_name);//remove the leading /
-
-			if( file_exists( "$class_name.php" ) ){
-				require_once "$class_name.php";
-				return true;
-			}
-			$ppp=(_APP_DIR_ ."/$class_name.php");
-			if( file_exists( $ppp ) ){
-				require_once $ppp;
-				return true;
-			}
-
-			//try class_path_a
-			$class_path_a=getConf("class_path_a");
-			foreach(array_reverse($class_path_a) as $class_path){
-				$ccc="$class_path/$class_name.php";
-				if(file_exists($ccc)){
-					#self::stderrln("### $ccc ###");
-					require $ccc;
-					return true;
-				}else{
-					#print("!!! $ccc !!!\n");
-					#self::stderrln("!!! $ccc !!!");
-				}
-			}
-
-			//try _LIB_CORE_
-			if(file_exists( _LIB_CORE_ ."/$class_name.php")){
-				require_once(_LIB_CORE_ ."/$class_name.php");
-				if(class_exists($class_name)){
-					return true;
-				}
-			}
-
-			if(class_exists($class_name)){
-				return true;
-			}
-			return false;
-		}
 
 		public static function tryLoad($classname){
 			$ns="CMP\\";
@@ -238,10 +273,9 @@ namespace CMP
 			}
 		}
 	}
-	//default behavior about to load class file under __DIR__.
+	//default behavior about to load class
 	spl_autoload_register(function($class_name){
-		#require_once __DIR__ .'/CmpClassLoader.php';
-		CmpClassLoader::tryload($class_name);
+		CmpClassLoader::tryLoad($class_name);
 	});
 }
 

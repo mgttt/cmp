@@ -53,31 +53,6 @@ namespace CMP
 			}
 		}
 
-		//if $s, translate to timestamp
-		//if !$s, using now.
-		public static function getTimeStamp( $s ){
-
-			$strlen_s=strlen($s);
-
-			if($strlen_s>10){
-				//assume YYYY-MM-DD HH:ii:ss, @ref http://php.net/manual/en/datetime.createfromformat.php
-				$o=date_create_from_format('Y-m-d H:i:s',$s,new \DateTimeZone('UTC'));//\DateTimeZone::UTC
-			}elseif($strlen_s>9){
-				//handle YYYY-MM-DD
-				$o=date_create_from_format('Y-m-d H:i:s',$s.' 00:00:00',new \DateTimeZone('UTC'));
-			}elseif($strlen_s>0){
-				throw new Exception(__CLASS__.".getTimeStamp() Unsupport $s");
-			}else{
-				if (LibExt::is_os_64_more()){
-					return time();
-				}else{
-					//32bit.
-					$o=date_create("now",new \DateTimeZone('UTC'));
-				}
-			}
-			if(!$o) return null;
-			return $o->format('U');
-		}
 		//@deprecated, using ::getTimeStamp($s);
 		//get timestamp of now or specified iso format
 		//replace time() for 32bit-2038 bug
@@ -150,49 +125,8 @@ namespace CMP
 		//	}
 		//}
 
-		//take system time if no param. diff from rb one.
-		public static function isoDate( $timestamp )
-		{
-			#if(!$timestamp) throw new Exception(__CLASS__.".isoDate() need param timestamp"); //$time=$this->db_time();
-
-			if($timestamp){
-				$o=date_create_from_format('U',$timestamp);
-				if(!$o){
-					//try U.u
-					$o=date_create_from_format('U.u',$timestamp);
-				}
-				if($o){
-					return $o->format('Y-m-d');
-				}else{
-					throw new Exception(__CLASS__.".isoDate() Unknown timestamp=$timestamp");
-				}
-			}else{
-				//return now of current system
-				return date_create()->format('Y-m-d');
-			}
-		}
-		//take system time if no param. diff from rb one.
-		public static function isoDateTime( $timestamp )
-		{
-			#if(!$timestamp) throw new Exception(__CLASS__.".isoDateTime() need param timestamp"); //$time=$this->db_time();
-			if($timestamp){
-				$o=date_create_from_format('U',$timestamp);
-				if(!$o){
-					//try U.u
-					$o=date_create_from_format('U.u',$timestamp);
-				}
-				if($o){
-					return $o->format('Y-m-d H:i:s');
-				}else{
-					throw new Exception(__CLASS__.".isoDateTime() Unknown timestamp=$timestamp");
-				}
-			}else{
-				//return now of current system
-				return date_create()->format('Y-m-d H:i:s');
-			}
-		}
 		public static function getYmdHis( $timestamp, $timezone ){
-			if (LibExt::is_os_64_more()){
+			if (self::is_os_64_more()){
 				if($timestamp){
 					return date('YmdHis', $timestamp);
 				}else{
@@ -300,17 +234,6 @@ namespace CMP
 		//https://gist.github.com/1965669
 		public static function is_assoc($array){
 			return (array_values($array) !== $array);
-		}
-		private static $_cached_isos64more;
-		public static function is_os_64_more(){
-			if(LibExt::$_cached_isos64more !== null){
-				return LibExt::$_cached_isos64more;
-			}
-			$isos64bit = (strstr(php_uname("m"), '64'))?true:false;
-			//$isos128bit = (strstr(php_uname("m"), '128'))?true:false;//future
-			LibExt::$_cached_isos64more = $isos64bit;
-			//LibExt::$_cached_isos64more = $isos64bit or $isos128bit;
-			return $isos64bit;
 		}
 		//get the sequence of a single second (in single thread...)
 		//Usage list($sec,$seq)=mg::getTimeSequence();echo "$sec.$seq";

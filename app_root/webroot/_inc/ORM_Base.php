@@ -121,10 +121,29 @@ class ORM_Base
 		//基本通用:
 		$isoDateTime = $this->isoDateTime();
 		$bean->lmt = $isoDateTime;//LastModifiedTime
+
+		//【笔记】
+		//如果param是从API层来的，如果参数检查、权限检查不细致或者漏了，然后直接呼叫Orm层时
+		//这里可能会导致被更新掉状态/ID/密码等等，从而产生安全漏洞！！
+		//特别是 party/app/user/acct 表这种特别的必须要加强代码方法。 TODO
+		//if($flag_check_import && $flag_important){
+		//}
+
+		if($status==''){
+			$status=$param['status'];
+			if($status!=''){
+				$bean->status=$status;
+			}
+		}
 		if( $flagReallyNew ){
-			$bean->status=0;
+			if($status!=''){
+				$bean->status=$status;
+			}else{
+				$bean->status=0;
+			}
 			$bean->create_time = $isoDateTime;//Time When Create
 		}
+
 		//其他字段:
 		//******** 其它特别处理}
 
