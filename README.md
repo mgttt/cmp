@@ -1,13 +1,13 @@
 # What is CMP
+
 CMP = Class.Method (Param), Official website <a href="http://cmptech.info/" target=_blank>cmpTech.info</a>
 
 * https://github.com/cmptech/cmp/tree/master/app_root/webroot/_libs/CMP
 
-## \CMP\LibCore
+## one-file-mini-framework: \CMP\LibCore
 
 example:
-*
-
+* https://github.com/cmptech/cmp/blob/master/app_root/webroot/cmp_demo/example_test_cmp_libcore.php
 
 ### [TEST SERVER WITH DOCKER]
 
