@@ -1,4 +1,4 @@
-# 培训第二周 周二与周三 2天的内容 （到时根据实际情况来判定要否加到三天的量）
+# 培训第二周 周2至周5的内容
 建立
 WebTester{$Devname}.php
 
@@ -29,13 +29,16 @@ Form
 DataGrid
 TreeGrid
 Application
-【提示】
-我们实际后台应用跟数据交互最多的就是 Grid/Dialog，所以才根据经验定制了两个封装
-后面还有一个 DateBox的 Hack（根据我们用户体验去hack的一个输入时间box）
-以及一个 Combo/ComboBox的 Hack，配合后台数据，调出之前的高频录入数据提供下拉
 
 * 测试目的：
 通过对模板、数据接口的编写考察大家对
 前端（暂时用jeasyui库）与后台数据接口的联通，同时熟悉基本的前端库的使用；
+
+【其它说明】
+我们实际后台应用跟数据交互最多的就是 Grid/Dialog，所以才根据经验定制了两个封装
+后面还有一个 DateBox的 Hack（根据我们用户体验去hack的一个输入时间box）
+以及一个 Combo/ComboBox的 Hack，配合后台数据，调出之前的高频录入数据提供下拉
+见 (README_Week3.md)
+
 
 

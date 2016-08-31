@@ -3,6 +3,12 @@ CMP = Class.Method (Param), Official website <a href="http://cmptech.info/" targ
 
 * https://github.com/cmptech/cmp/tree/master/app_root/webroot/_libs/CMP
 
+## \CMP\LibCore
+
+example:
+*
+
+
 ### [TEST SERVER WITH DOCKER]
 
 ```shell

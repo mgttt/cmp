@@ -5,6 +5,7 @@ namespace CMP
 	 * Aleady copy func from class 'mg'
 	 */
 	class LibExt
+		extends LibCore
 	{
 		//unicode(UCS-2 to any)
 		public function unicode2any($str,$target_encoding="UTF-8"){

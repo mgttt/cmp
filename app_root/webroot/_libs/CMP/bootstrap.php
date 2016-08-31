@@ -1,5 +1,5 @@
 <?php
-/**
+/**20160831
 http://cmptech.info/
 Usage
 require_once 'CMP/bootstrap.php';
@@ -28,7 +28,7 @@ namespace CMP
 					$s=json_encode($o,JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 				}else{
 					$s=json_encode($o);//will have {"a":"b"} instead of {a:"b"}, but encode speed might slightly inproved
-					$s=preg_replace('/","/',"\",\n\"",$s);//dirty work for tmp...
+					#$s=preg_replace('/","/',"\",\n\"",$s);//dirty work for tmp...//so skip it ..
 				}
 			}else{
 				if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
@@ -278,7 +278,7 @@ namespace CMP
 	});
 }
 
-//几个很好用的快速函数.能大量减少代码量!! 没必要搬到LibBase...
+//some wonderfull short global, not suitable to move to LibBase/LibCore...
 namespace
 {
 	//Usage: eval(arr2var_all("param"));
