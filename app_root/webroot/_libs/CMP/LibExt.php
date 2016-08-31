@@ -127,30 +127,31 @@ namespace CMP
 		//}
 
 		public static function getYmdHis( $timestamp, $timezone ){
-			if (self::is_os_64_more()){
-				if($timestamp){
-					return date('YmdHis', $timestamp);
-				}else{
-					return date('YmdHis');
-				}
-			}else{
-				//32bit
-				if($s){
-					$o=date_create("@$timestamp");
-				}else{
-					$o=date_create("now",new \DateTimeZone('UTC'));
-				}
-				if(!$o) {throw new Exception(__CLASS__.".getYmdHis() failed for timestamp=$timestamp");};
-				if($timezone!=''){
-					date_timezone_set( $o, new \DateTimeZone($timezone) );
-				}else{
-					//if not specifitied, using SERVER_TIMEZONE from getConf
-					$SERVER_TIMEZONE=getConf("SERVER_TIMEZONE");
-					if(!$SERVER_TIMEZONE) throw new Exception(__CLASS__.".getYmdHis() find no SERVER_TIMEZONE in config");
-					date_timezone_set( $o, new \DateTimeZone($SERVER_TIMEZONE) );
-				}
-				return $o->format('YmdHis');
-			}
+			return self::getDateTimeObj( $timestamp, $timezone )->format('YmdHis');
+			//if (self::is_os_64_more()){
+			//	if($timestamp){
+			//		return date('YmdHis', $timestamp);
+			//	}else{
+			//		return date('YmdHis');
+			//	}
+			//}else{
+			//	//32bit
+			//	if($s){
+			//		$o=date_create("@$timestamp");
+			//	}else{
+			//		$o=date_create("now",new \DateTimeZone('UTC'));
+			//	}
+			//	if(!$o) {throw new Exception(__CLASS__.".getYmdHis() failed for timestamp=$timestamp");};
+			//	if($timezone!=''){
+			//		date_timezone_set( $o, new \DateTimeZone($timezone) );
+			//	}else{
+			//		//if not specifitied, using SERVER_TIMEZONE from getConf
+			//		$SERVER_TIMEZONE=getConf("SERVER_TIMEZONE");
+			//		if(!$SERVER_TIMEZONE) throw new Exception(__CLASS__.".getYmdHis() find no SERVER_TIMEZONE in config");
+			//		date_timezone_set( $o, new \DateTimeZone($SERVER_TIMEZONE) );
+			//	}
+			//	return $o->format('YmdHis');
+			//}
 		}
 		//新便捷函数，代替 checkMandatory，轮数组然后告诉哪个是需要的。
 		//Example:

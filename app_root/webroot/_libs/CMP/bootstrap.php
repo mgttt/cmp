@@ -85,79 +85,73 @@ namespace CMP
 			}
 			return $result;
 		}
-		private static $_cached_isos64more;
-		public static function is_os_64_more(){
-			if(LibExt::$_cached_isos64more !== null){
-				return LibExt::$_cached_isos64more;
+		//private static $_cached_isos64more;
+		//public static function is_os_64_more(){
+		//	if(LibExt::$_cached_isos64more !== null){
+		//		return LibExt::$_cached_isos64more;
+		//	}
+		//	$isos64bit = (strstr(php_uname("m"), '64'))?true:false;
+		//	//$isos128bit = (strstr(php_uname("m"), '128'))?true:false;//future
+		//	LibExt::$_cached_isos64more = $isos64bit;
+		//	//LibExt::$_cached_isos64more = $isos64bit or $isos128bit;
+		//	return $isos64bit;
+		//}
+		//$ini_get_date_timezone=ini_get("date.timezone");
+		//if($SERVER_TIMEZONE!=ini_get("date.timezone")){
+		//	ini_set("date.timezone",$SERVER_TIMEZONE);
+		//}
+		public static function getDateTimeObj( $timestamp, $timezone )
+		{
+			if($timestamp!=''){
+				//$o=date_create("@$timestamp");
+				$o=date_create_from_format('U',$timestamp);
+				if(!$o){
+					//try U.u
+					$o=date_create_from_format('U.u',$timestamp);
+				}
+			}else{
+				$o=date_create("now",new \DateTimeZone('UTC'));
 			}
-			$isos64bit = (strstr(php_uname("m"), '64'))?true:false;
-			//$isos128bit = (strstr(php_uname("m"), '128'))?true:false;//future
-			LibExt::$_cached_isos64more = $isos64bit;
-			//LibExt::$_cached_isos64more = $isos64bit or $isos128bit;
-			return $isos64bit;
+			if($o){
+				if($timezone!=''){
+					date_timezone_set( $o, new \DateTimeZone($timezone) );
+				}
+				return $o;
+			}else{
+				throw new Exception(__CLASS__.".".__METHOD__."() ERROR: "
+					."timestamp=".self::o2s($timestamp));
+			}
+		}
+		public static function isoDate( $timestamp, $timezone )
+		{
+			return self::getDateTimeObj( $timestamp, $timezone )->format('Y-m-d');
 		}
 		//take system time if no param. diff from rb one.
-		public static function isoDate( $timestamp )
+		public static function isoDateTime( $timestamp, $timezone )
 		{
-			#if(!$timestamp) throw new Exception(__CLASS__.".isoDate() need param timestamp"); //$time=$this->db_time();
+			return self::getDateTimeObj( $timestamp, $timezone )->format('Y-m-d H:i:s');
+		}
 
-			if($timestamp){
-				$o=date_create_from_format('U',$timestamp);
-				if(!$o){
-					//try U.u
-					$o=date_create_from_format('U.u',$timestamp);
-				}
-				if($o){
-					return $o->format('Y-m-d');
-				}else{
-					throw new Exception(__CLASS__.".isoDate() Unknown timestamp=$timestamp");
-				}
-			}else{
-				//return now of current system
-				return date_create()->format('Y-m-d');
-			}
-		}
-		//take system time if no param. diff from rb one.
-		public static function isoDateTime( $timestamp )
-		{
-			#if(!$timestamp) throw new Exception(__CLASS__.".isoDateTime() need param timestamp"); //$time=$this->db_time();
-			if($timestamp){
-				$o=date_create_from_format('U',$timestamp);
-				if(!$o){
-					//try U.u
-					$o=date_create_from_format('U.u',$timestamp);
-				}
-				if($o){
-					return $o->format('Y-m-d H:i:s');
-				}else{
-					throw new Exception(__CLASS__.".isoDateTime() Unknown timestamp=$timestamp");
-				}
-			}else{
-				//return now of current system
-				return date_create()->format('Y-m-d H:i:s');
-			}
-		}
-		//if $s, translate to timestamp
+		//if $s, translate from datetime string to unix-timestamp
 		//if !$s, using now.
-		public static function getTimeStamp( $s ){
-
+		public static function getTimeStamp( $s,$timezone )
+		{
 			$strlen_s=strlen($s);
-
+			if($timezone!=''){
+				$tz=new \DateTimeZone($timezone);
+			}else{
+				$tz=new \DateTimeZone('UTC');
+			}
 			if($strlen_s>10){
 				//assume YYYY-MM-DD HH:ii:ss, @ref http://php.net/manual/en/datetime.createfromformat.php
-				$o=date_create_from_format('Y-m-d H:i:s',$s,new \DateTimeZone('UTC'));//\DateTimeZone::UTC
+				$o=date_create_from_format('Y-m-d H:i:s',$s,$tz);
 			}elseif($strlen_s>9){
 				//handle YYYY-MM-DD
-				$o=date_create_from_format('Y-m-d H:i:s',$s.' 00:00:00',new \DateTimeZone('UTC'));
+				$o=date_create_from_format('Y-m-d H:i:s',$s.' 00:00:00',$tz);
 			}elseif($strlen_s>0){
 				throw new Exception(__CLASS__.".getTimeStamp() Unsupport $s");
 			}else{
-				if (self::is_os_64_more()){
-					return time();
-				}else{
-					//32bit.
-					$o=date_create("now",new \DateTimeZone('UTC'));
-				}
+				$o=date_create("now",$tz);
 			}
 			if(!$o) return null;
 			return $o->format('U');
