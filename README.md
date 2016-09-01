@@ -8,9 +8,12 @@ Official website <a href="http://cmptech.info/" target=_blank>cmpTech.info</a>
 
 https://github.com/cmptech/cmp/tree/master/app_root/webroot/_libs/CMP
 
-## cmp-mini-framework-in-one-file: \CMP\LibCore (https://github.com/cmptech/cmp/tree/master/app_root/webroot/_libs/CMP/bootstrap.php)
+## cmp-mini-framework-in-one-file: \CMP\LibCore
 
-example:
+https://github.com/cmptech/cmp/tree/master/app_root/webroot/_libs/CMP/bootstrap.php
+
+Example:
+
 * https://github.com/cmptech/cmp/blob/master/app_root/webroot/cmp_demo/example_test_cmp_libcore.php
 
 ## [TEST SERVER WITH DOCKER]
