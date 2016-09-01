@@ -42,11 +42,6 @@ echo now use your browser to open http://localhost:9888/
 * <a href="http://github.com/faisalman/simple-excel-php" target=_blank>SimpleExcel</a> [0.3.15], for the xls(xml)-php-compilation-for-langpack   //@link QuickFunc getLang()
 * dzTemplate: a mini-php-template engine class file  //@link QuickFunc include(TPL());
 
-# External Dependency
-
-* <a href="http://pear.php.net/package/Cache_Lite/download/" target=_blank>Cache_Lite</a> [1.7.2] used for the IO-file-caching
-* <a href="http://purecss.io/" target=_blank>purecss.io</a> [0.6] introduced for the mini css (maybe remove in future)
-
 # Training (CHN)
 
 https://www.gitbook.com/book/cmptech/cmp-training-book/
