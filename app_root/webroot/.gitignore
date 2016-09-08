@@ -1,14 +1,16 @@
+.DS_Store
 .svn
 _tmp/
+_del/
+_del
 _logs/
 *.tmp
 *.log
 *.cache
 *.db
-_del
-_del/
 
 local_server_start.sh
 app_root/*.php
 php-fpm-local.conf
 php.ini
+
