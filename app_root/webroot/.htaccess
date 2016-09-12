@@ -38,17 +38,17 @@ ErrorDocument 404 /404b.php
 
 #奇怪，下面这句在htaccess不生效，要放到apache配置
 #关闭服务器错误时的信息.
-ServerSignature off
+#ServerSignature off
 #ServerTokens ProductOnly
 #ServerTokens Prod
 
 #open gzip for static files.
-<IfModule mod_deflate.c>
-#AddOutputFilter DEFLATE js html php shtml xml css
-AddOutputFilter DEFLATE js html php shtml xml css png static api shtml json web
-#DeflateAlterETag NoChange ###since apache 2.5
-</IfModule>
-#FileETag None
+##<IfModule mod_deflate.c>
+###AddOutputFilter DEFLATE js html php shtml xml css
+##AddOutputFilter DEFLATE js html php shtml xml css png static api shtml json web
+###DeflateAlterETag NoChange ###since apache 2.5
+##</IfModule>
+###FileETag None
 
 <IfModule mod_headers.c>
 #solution for <2.5

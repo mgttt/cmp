@@ -8,9 +8,9 @@ _logs/
 *.log
 *.cache
 *.db
+cache_*
 
 local_server_start.sh
 app_root/*.php
 php-fpm-local.conf
 php.ini
-
