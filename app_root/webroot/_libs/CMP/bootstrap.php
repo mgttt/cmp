@@ -1,5 +1,8 @@
 <?php
 /**20160906 http://cmptech.info/ */
+/**
+ * The bootstrap/core file of CMP.
+ */
 namespace CMP
 {
 	if( !function_exists('spl_autoload_register') ){

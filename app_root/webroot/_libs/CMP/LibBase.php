@@ -1,4 +1,9 @@
 <?php
+/**
+ * LibCore解决了一些核心的函数和基础的ClassLoader
+ *
+ * 而LibBase主要是提供一些 语言包、配置类、环境类、日志类的一些CMP经验使用方法
+ */
 namespace CMP
 {
 	//based global function library from previous CMP version
