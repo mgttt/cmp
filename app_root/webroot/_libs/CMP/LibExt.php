@@ -1,12 +1,22 @@
 <?php
 namespace CMP
 {
-	/**
-	 * Aleady copy func from class 'mg'
-	 */
 	class LibExt
-		extends LibCore
+		extends LibBase
 	{
+		public static function getServerTimeZone(){
+			//The plus and minus signs (+/-) are not intuitive. For example,
+			//"Etc/GMT-10" actually refers to the timezone "(GMT+10:00)
+			$server_timezone = self::getConf('SERVER_TIMEZONE');
+			//$server_timezone = str_ireplace("etc/", "", $server_timezone)
+		/*if (strpos($server_timezone, "-") !== false) {
+			$server_timezone = str_replace("-", "+", $server_timezone);
+		} else if (strpos($server_timezone, "+") !== false) {
+			$server_timezone = str_replace("+", "-", $server_timezone);
+		}*/
+			$GMT_TIMEZONE = self::getConf('GMT_TIMEZONE');
+			return $GMT_TIMEZONE[$server_timezone];
+		}
 		//unicode(UCS-2 to any)
 		public function unicode2any($str,$target_encoding="UTF-8"){
 			$str = rawurldecode($str);
@@ -27,19 +37,6 @@ namespace CMP
 			return join("",$ar);
 		}
 
-		public static function getServerTimeZone(){
-			//The plus and minus signs (+/-) are not intuitive. For example,
-			//"Etc/GMT-10" actually refers to the timezone "(GMT+10:00)
-			$server_timezone = LibBase::getConf('SERVER_TIMEZONE');
-			//$server_timezone = str_ireplace("etc/", "", $server_timezone)
-		/*if (strpos($server_timezone, "-") !== false) {
-			$server_timezone = str_replace("-", "+", $server_timezone);
-		} else if (strpos($server_timezone, "+") !== false) {
-			$server_timezone = str_replace("+", "-", $server_timezone);
-		}*/
-			$GMT_TIMEZONE = LibBase::getConf('GMT_TIMEZONE');
-			return $GMT_TIMEZONE[$server_timezone];
-		}
 		public static function adjust_timezone($SERVER_TIMEZONE){
 			if(!$SERVER_TIMEZONE)
 				$SERVER_TIMEZONE=getConf('SERVER_TIMEZONE');
@@ -54,105 +51,6 @@ namespace CMP
 			}
 		}
 
-		//@deprecated, using ::getTimeStamp($s);
-		//get timestamp of now or specified iso format
-		//replace time() for 32bit-2038 bug
-		//public static function my_strtotime($s){
-		//	if(strlen($s)>10){
-		//		//handle YYYY-MM-DD HH:ii:ss, @ref http://php.net/manual/en/datetime.createfromformat.php
-		//		$o=date_create_from_format('Y-m-d H:i:s',$s,new \DateTimeZone('UTC'));//\DateTimeZone::UTC
-		//	}elseif(strlen($s)>9){
-		//		//handle YYYY-MM-DD
-		//		$o=date_create_from_format('Y-m-d H:i:s',$s.' 00:00:00',new \DateTimeZone('UTC'));
-		//	}elseif(strlen($s)>0){
-		//		throw new Exception("Unsupport $s for my_strtotime()");
-		//	}else{
-		//		$o=date_create("now",new \DateTimeZone('UTC'));
-		//	}
-		//	if(!$o) return null;
-		//	return $o->format('U');
-		//}
-		//@deprecated, useing ::getYmdHis($s);
-		//convert unixtimestamp to format of YmdHis.
-		//function my_YmdHis($timestamp,$timezone){
-		//	if($s){
-		//		$o=date_create("@$timestamp");
-		//	}else{
-		//		$o=date_create("now",new \DateTimeZone('UTC'));
-		//	}
-		//	if(!$o) {throw new Exception("date_create() failed for $timestamp/$timezone");};
-		//	if($timezone!=''){
-		//		date_timezone_set( $o, new \DateTimeZone($timezone) );
-		//	}else{
-		//		//if not specifitied, using SERVER_TIMEZONE from getConf
-		//		date_timezone_set( $o, new \DateTimeZone(getConf("SERVER_TIMEZONE")) );
-		//	}
-		//	return $o->format('YmdHis');
-		//}
-		//@deprecated, useing ::isoDate($s);
-		//function my_isoDate($s){
-		//	if($s){
-		//		$o=date_create_from_format('U',$s);
-		//		if(!$o){
-		//			//try U.u
-		//			$o=date_create_from_format('U.u',$s);
-		//		}
-		//		if($o){
-		//			return $o->format('Y-m-d');
-		//		}else{
-		//			//return null;
-		//			throw new Exception("my_isoDate $s");
-		//		}
-		//	}else{
-		//		return date_create()->format('Y-m-d');
-		//	}
-		//}
-		//@deprecated, useing ::isoDateTime($s);
-		//function my_isoDateTime($s){
-		//	if($s){
-		//		$o=date_create_from_format('U',$s);
-		//		if(!$o){
-		//			//try U.u
-		//			$o=date_create_from_format('U.u',$s);
-		//		}
-		//		if($o){
-		//			return $o->format('Y-m-d H:i:s');
-		//		}else{
-		//			//return null;
-		//			throw new Exception("my_isoDate $s");
-		//		}
-		//	}else{
-		//		return date_create()->format('Y-m-d H:i:s');
-		//	}
-		//}
-
-		public static function getYmdHis( $timestamp, $timezone ){
-			return self::getDateTimeObj( $timestamp, $timezone )->format('YmdHis');
-			//if (self::is_os_64_more()){
-			//	if($timestamp){
-			//		return date('YmdHis', $timestamp);
-			//	}else{
-			//		return date('YmdHis');
-			//	}
-			//}else{
-			//	//32bit
-			//	if($s){
-			//		$o=date_create("@$timestamp");
-			//	}else{
-			//		$o=date_create("now",new \DateTimeZone('UTC'));
-			//	}
-			//	if(!$o) {throw new Exception(__CLASS__.".getYmdHis() failed for timestamp=$timestamp");};
-			//	if($timezone!=''){
-			//		date_timezone_set( $o, new \DateTimeZone($timezone) );
-			//	}else{
-			//		//if not specifitied, using SERVER_TIMEZONE from getConf
-			//		$SERVER_TIMEZONE=getConf("SERVER_TIMEZONE");
-			//		if(!$SERVER_TIMEZONE) throw new Exception(__CLASS__.".getYmdHis() find no SERVER_TIMEZONE in config");
-			//		date_timezone_set( $o, new \DateTimeZone($SERVER_TIMEZONE) );
-			//	}
-			//	return $o->format('YmdHis');
-			//}
-		}
 		//新便捷函数，代替 checkMandatory，轮数组然后告诉哪个是需要的。
 		//Example:
 		//mg::checkRequired($param,array("name"=>getLang("name"));

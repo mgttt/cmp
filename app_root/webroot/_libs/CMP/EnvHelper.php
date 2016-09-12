@@ -1,5 +1,4 @@
 <?php
-
 class EnvHelper
 {
 	public static function getMyIsoDateTime(){
@@ -45,6 +44,13 @@ class EnvHelper
 
 			$LOCAL127="127.0.0.1";
 
+			$HTTP_X_FORWARDED_FOR=self::getMyEnvVar("HTTP_X_FORWARDED_FOR");
+			if($HTTP_X_FORWARDED_FOR)
+				list($HTTP_X_FORWARDED_FOR)= explode(",",$HTTP_X_FORWARDED_FOR);
+			if($HTTP_X_FORWARDED_FOR && $HTTP_X_FORWARDED_FOR!=$LOCAL127){
+				$_ip=$HTTP_X_FORWARDED_FOR;break;
+			}
+
 			$HTTP_X_REAL_IP=self::getMyEnvVar("HTTP_X_REAL_IP");
 			if($HTTP_X_REAL_IP && $HTTP_X_REAL_IP!=$LOCAL127){
 				$_ip=$HTTP_X_REAL_IP;break;
@@ -53,13 +59,6 @@ class EnvHelper
 			$HTTP_CLIENT_IP=self::getMyEnvVar("HTTP_CLIENT_IP");
 			if($HTTP_CLIENT_IP && $HTTP_CLIENT_IP!=$LOCAL127){
 				$_ip=$HTTP_CLIENT_IP;break;
-			}
-
-			$HTTP_X_FORWARDED_FOR=self::getMyEnvVar("HTTP_X_FORWARDED_FOR");
-			if($HTTP_X_FORWARDED_FOR)
-				list($HTTP_X_FORWARDED_FOR)= explode(",",$HTTP_X_FORWARDED_FOR);
-			if($HTTP_X_FORWARDED_FOR && $HTTP_X_FORWARDED_FOR!=$LOCAL127){
-				$_ip=$HTTP_X_FORWARDED_FOR;break;
 			}
 
 			$REMOTE_ADDR=self::getMyEnvVar("REMOTE_ADDR");

@@ -44,6 +44,12 @@
 	*/
 	</script>
 	<h3>EASYUI EXAMPLE</h3>
+	<div>
+		YYYY-MM-DD:
+					<input id="ForDay" type="text" style="width:120px; height:25px;" class="easyui-datebox">
+		YYYY-MM:
+					<input id="ForMonth" type="text" style="width:120px; height:25px;" class="easyui-datebox">
+	</div>
 	<!--
 	<div style="width:100%;height:180px;border:1px solid;">
 	 <table class="easyui-datagrid" title="Basic DataGrid" style="width:100%;height:100%"
@@ -86,7 +92,7 @@
      		</table>
      	</form>
 	</div>
-</script>
+	</script>
 	<script id="tplMultiDelete" class="nodisplay" type="text/mgtpl">
 	<div class="easyui-dialog" style="width:400px;padding:10px 20px">
 		<form method="post">
@@ -100,7 +106,7 @@
 			</table>
 		</form>
 	</div>
-</script>
+	</script>
 <!--
 <h3>JQuery + EasyUI =&gt; ApiXXX =&gt; LgcXXX =&gt; OrmXXX</h3>
 <ul>
@@ -163,7 +169,7 @@ Debug<div id="divDebug"></div>
 			rt+=clsSimpleGrid.create_action(index,'Delete',"Delete");
 			return rt;
 		}
-		,ToolBar:_toolbar
+		,ToolBar:_toolbar    // grid列表按钮顶部按钮上面已经定义为添加一行记录
 		, options: {
 			//rownumbers: true//行号的高度有BUG，如果我们要用，还是从API那里下手脚吧！
 			//,
@@ -326,6 +332,37 @@ Debug<div id="divDebug"></div>
 		grid_user.reload();
 	});
 
+	function initYearMonth(obj){
+		var p = obj.datebox('panel'), //日期选择对象
+		tds = false, //日期选择对象中月份
+		span = p.find('.calendar-title').find("span"); //显示月份层的触发控件
+		obj.datebox({
+			onShowPanel: function () {//显示日趋选择对象后再触发弹出月份层的事件，初始化时没有生成月份层
+				span.trigger('click'); //触发click事件弹出月份层
+				if (!tds)
+					setTimeout(function () {//延时触发获取月份对象，因为上面的事件触发和对象生成有时间间隔
+						tds = p.find('div.calendar-menu-month-inner td');
+						tds.click(function (e) {
+							e.stopPropagation(); //禁止冒泡执行easyui给月份绑定的事件
+							var year = /\d{4}/.exec(span.html())[0]//得到年份
+								, month = parseInt($(this).attr('abbr'), 10); //月份，这里不需要+1
+							obj.datebox('hidePanel')//隐藏日期对象
+								.datebox('setValue', year + '-' + month); //设置日期的值
+						});
+					}, 0)
+			},
+			parser: function (s) {
+				if (!s) return new Date();
+				var arr = s.split('-');
+				return new Date(parseInt(arr[0], 10), parseInt(arr[1], 10) - 1, 1);
+			},
+			formatter: function (d) { return d.getFullYear() + '-' + (d.getMonth()+1); }
+		});
+	}
+	
+	$.parser.onComplete = function(){
+		initYearMonth($("#ForMonth"));
+	}
 	//ESC 键映射，处理强弹出来的全部小窗口.
 	$(window).off('keydown').on('keydown', function (e) {
 		if (e.keyCode == 27) {

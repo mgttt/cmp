@@ -6,9 +6,6 @@ namespace CMP
 	class LibBase
 		extends LibCore
 	{
-		public static function str_starts_with($haystack, $needle) {
-			return preg_match('/^'.preg_quote($needle,'/').'/', $haystack) > 0;
-		}
 		public static function gzip_output($buffer){
 			$len = strlen($buffer);
 			if(substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')){
@@ -26,16 +23,6 @@ namespace CMP
 			return;
 		}
 
-		public static function getbarcode($defaultLen=23,$seed='0123456789ABCDEF'){
-			$code="";
-			list($usec, $sec) = explode(" ", microtime());
-			srand($sec + $usec * 100000);
-			$len = strlen($seed) - 1;
-			for ($i = 0; $i < $defaultLen; $i++) {
-				$code .= substr($seed, rand(0, $len), 1);
-			}
-			return $code;
-		}
 		//for sae
 		protected static function logger_sae($log_filename,$log_content,$prefix="",$gzf){
 			$rt="";

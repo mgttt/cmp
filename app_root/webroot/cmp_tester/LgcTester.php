@@ -24,6 +24,7 @@ class LgcTester
 		//表馅:
 		//$rt['table_data']=$rs['rst'];
 		//补个行号
+		$c=0;
 		foreach( ($table_data=$rs['rst']) as $k=>$v){
 			$v['no']=++$c;
 			$table_data[$k]=$v;

@@ -1,14 +1,5 @@
 <?php
-/**20160831
-http://cmptech.info/
-Usage
-require_once 'CMP/bootstrap.php';
-use CMP\LibCore;
-LibCore::println( $_SERVER );
-#\CMP\CmpCore::DefaultInit();
-#var_dump(\CMP\Tester::getVersion());
- */
-#NOTES: namespace need >=php5.3
+/**20160906 http://cmptech.info/ */
 namespace CMP
 {
 	if( !function_exists('spl_autoload_register') ){
@@ -34,21 +25,15 @@ namespace CMP
 				if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
 					$s=json_encode($o,JSON_UNESCAPED_UNICODE);
 				}else{
-					$s=json_encode($o);//NOTES: official json_encode must result {"a":"b"} instead of {a:"b"}, but encode speed might slightly inproved
+					$s=json_encode($o);
 				}
 			}
 			return $s;
 		}
 		public static function s2o($s){
-			$o=json_decode($s,true);//true->array, false->obj, NOTES that the json_decode not support {a:"b"} but only support {"a":"b"}. it sucks!!
+			$o=json_decode($s,true);//true->array, false->obj
+			//NOTES that the json_decode not support {a:"b"} but only support {"a":"b"}. it sucks!!
 			return $o;
-		}
-		public static function println($s,$wellformat=false){
-			if(is_array($s) || is_object($s)){
-				//$s=json_encode($s,$wellformat);
-				$s=self::o2s($s,$wellformat);
-			}
-			print $s ."\n";//.PHP_EOL;
 		}
 		public function web($url,$postdata,$timeout=7){
 			if(is_array($postdata)){
@@ -85,25 +70,36 @@ namespace CMP
 			}
 			return $result;
 		}
-		//private static $_cached_isos64more;
-		//public static function is_os_64_more(){
-		//	if(LibExt::$_cached_isos64more !== null){
-		//		return LibExt::$_cached_isos64more;
-		//	}
-		//	$isos64bit = (strstr(php_uname("m"), '64'))?true:false;
-		//	//$isos128bit = (strstr(php_uname("m"), '128'))?true:false;//future
-		//	LibExt::$_cached_isos64more = $isos64bit;
-		//	//LibExt::$_cached_isos64more = $isos64bit or $isos128bit;
-		//	return $isos64bit;
-		//}
-		//$ini_get_date_timezone=ini_get("date.timezone");
-		//if($SERVER_TIMEZONE!=ini_get("date.timezone")){
-		//	ini_set("date.timezone",$SERVER_TIMEZONE);
-		//}
+		public static function println($s,$wellformat=false){
+			if(is_array($s) || is_object($s)){
+				//$s=json_encode($s,$wellformat);
+				$s=self::o2s($s,$wellformat);
+			}
+			print $s ."\n";//.PHP_EOL;
+		}
+		public static function getbarcode($defaultLen=23,$seed='0123456789ABCDEF'){
+			$code="";
+			list($usec, $sec) = explode(" ", microtime());
+			srand($sec + $usec * 100000);
+			$len = strlen($seed) - 1;
+			for ($i = 0; $i < $defaultLen; $i++) {
+				$code .= substr($seed, rand(0, $len), 1);
+			}
+			return $code;
+		}
+		public static function os_compare($bits){
+			$my_bits=32;
+			$isos64bit = (strstr(php_uname("m"), '64'))?true:false;
+			if($isos64bit)$my_bits=64;
+			$isos128bit = (strstr(php_uname("m"), '128'))?true:false;//future
+			if($isos128bit)$my_bits=128;
+			if($my_bits>$bits) return 1;
+			if($my_bits<$bits) return -1;
+			return 0;
+		}
 		public static function getDateTimeObj( $timestamp, $timezone )
 		{
 			if($timestamp!=''){
-				//$o=date_create("@$timestamp");
 				$o=date_create_from_format('U',$timestamp);
 				if(!$o){
 					//try U.u
@@ -126,10 +122,24 @@ namespace CMP
 		{
 			return self::getDateTimeObj( $timestamp, $timezone )->format('Y-m-d');
 		}
-		//take system time if no param. diff from rb one.
 		public static function isoDateTime( $timestamp, $timezone )
 		{
 			return self::getDateTimeObj( $timestamp, $timezone )->format('Y-m-d H:i:s');
+		}
+		public static function getYmdHis( $timestamp, $timezone ){
+			return self::getDateTimeObj( $timestamp, $timezone )->format('YmdHis');
+		}
+		//yyyymmdd
+		public static function getyyyymmdd( $timestamp, $timezone ){
+			return self::getDateTimeObj( $timestamp, $timezone )->format('Ymd');
+		}
+		//yymmdd
+		public static function getyymmdd( $timestamp, $timezone ){
+			return self::getDateTimeObj( $timestamp, $timezone )->format('ymd');
+		}
+		//mmdd
+		public static function getmmdd( $timestamp, $timezone ){
+			return self::getDateTimeObj( $timestamp, $timezone )->format('md');
 		}
 
 		//if $s, translate from datetime string to unix-timestamp
@@ -243,14 +253,13 @@ namespace CMP
 
 			return $result;
 		}
-		//return the md5 of the whole module CMP
-		public static function getModuleMD5(){
+		public static function getModuleMD5($dir){
 			static $md5;
 			if($md5) return $md5;
-			$md5=md5(serialize(CmpClassLoader::Map(__DIR__, true)));
+			if(!$dir) $dir=__DIR__;
+			$md5=md5(serialize(CmpClassLoader::Map($dir, true)));
 			return $md5;
 		}
-
 		public static function tryLoad($classname){
 			$ns="CMP\\";
 			if(self::str_starts_with($classname,$ns)){
