@@ -129,11 +129,9 @@ class ORM_Base
 		//if($flag_check_import && $flag_important){
 		//}
 
+		//自带状态的处理:
 		if($status==''){
 			$status=$param['status'];
-			if($status!=''){
-				$bean->status=$status;
-			}
 		}
 		if( $flagReallyNew ){
 			if($status!=''){
@@ -142,6 +140,10 @@ class ORM_Base
 				$bean->status=0;
 			}
 			$bean->create_time = $isoDateTime;//Time When Create
+		}else{
+			if($status!=''){
+				$bean->status=$status;
+			}
 		}
 
 		//其他字段:
