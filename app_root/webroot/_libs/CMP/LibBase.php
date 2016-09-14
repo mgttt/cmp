@@ -375,8 +375,9 @@ EOSQL;
 			if(!defined('_APP_DIR_')) throw new Exception('_APP_DIR_ not defined for getConf');
 			static $_conf_=null;
 			if(!$_conf_){
-				$_switch_conf="";
-				require(_APP_DIR_ ."/config.switch.php");
+				//$_switch_conf="";
+				//require(_APP_DIR_ ."/config.switch.php");
+				$_switch_conf=CmpCore::$switch_conf;//@see CmpCore::DefaultInit()
 				if($_switch_conf=="") throw new Exception("ConfigError: config.switch.php not found?? ($_switch_conf)");
 
 				//require "inc.commonconf.php";//_conf_all_common_

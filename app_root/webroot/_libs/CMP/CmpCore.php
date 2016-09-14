@@ -5,6 +5,7 @@ namespace CMP
 	if(!class_exists("\\CMP\\CmpCore")){
 		class CmpCore
 		{
+			public static $switch_conf="";
 			public static function tryLoadExt($class_name){
 
 				//class path to file path
@@ -48,17 +49,32 @@ namespace CMP
 				}
 				return false;
 			}
-			public static function DefaultOopInit(){
+			public static function DefaultOopInit($tmp_switch_file){
 				error_reporting(E_ERROR|E_COMPILE_ERROR|E_PARSE|E_CORE_ERROR|E_USER_ERROR);
 				#error_reporting(0);
 				#error_reporting(E_ALL);
 
-				if(!defined("_APP_DIR_")){
-					die('"404 _APP_DIR_"');
-				}
+				//历史原因，来不及改名了.以后新应用 可以复制新写DefaultOopInit2()
+				if(!defined("_APP_DIR_")){ die('"404 CONFIG ERROR: NEED _APP_DIR_"'); }
+
+				//历史原因，来不及改名了.以后新应用 可以复制新写DefaultOopInit2() 代码中尽量少用咯.
 				if(!defined("_LIB_CORE_")) define("_LIB_CORE_",realpath(dirname(__FILE__)));
 
-				require _APP_DIR_."/config.switch.php";//switch of runtime env conf
+				#require _APP_DIR_."/config.switch.php";//switch of runtime env conf
+				if(!$tmp_switch_file) $tmp_switch_file=_APP_DIR_.'/config.switch.php.tmp';
+				$SAE=defined('SAE_TMP_PATH') && !$argv[0];//dirty tricks
+				if($SAE){
+					$_switch_conf="dev_sae";//Using SAE config on SAE Env
+				}else{
+					if(file_exists($tmp_switch_file)) require($tmp_switch_file);
+					else{
+						print "404 CONFIG ERROR: NEED tmp_switch_file($tmp_switch_file)";die;
+					}
+				}
+				if(!$_switch_conf){
+					print "404 CONFIG ERROR: NEED _switch_conf in ($tmp_switch_file)";die;
+				}
+				self::$switch_conf=$_switch_conf;
 
 				ini_set("session.use_cookies",0);//Default not using Cookie
 				ini_set("session.name","_s");
@@ -122,8 +138,8 @@ namespace CMP
 			}
 
 			//if DefaultInit() not enough, just copy and make your own!!!!!
-			public static function DefaultInit(){
-				self::DefaultOopInit();
+			public static function DefaultInit($tmp_switch_file){
+				self::DefaultOopInit($tmp_switch_file);
 				self::InitGlobalFunc();
 
 				//Load Class like the old days:
