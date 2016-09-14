@@ -1,14 +1,8 @@
 <?php
+/**20160906 http://cmptech.info/ */
 /**
-http://cmptech.info/
-Usage
-require_once 'CMP/bootstrap.php';
-use CMP\LibCore;
-LibCore::println( $_SERVER );
-#\CMP\CmpCore::DefaultInit();
-#var_dump(\CMP\Tester::getVersion());
+ * The bootstrap/core file of CMP.
  */
-#NOTES: namespace need >=php5.3
 namespace CMP
 {
 	if( !function_exists('spl_autoload_register') ){
@@ -28,27 +22,21 @@ namespace CMP
 					$s=json_encode($o,JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 				}else{
 					$s=json_encode($o);//will have {"a":"b"} instead of {a:"b"}, but encode speed might slightly inproved
-					$s=preg_replace('/","/',"\",\n\"",$s);//dirty work for tmp...
+					#$s=preg_replace('/","/',"\",\n\"",$s);//dirty work for tmp...//so skip it ..
 				}
 			}else{
 				if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
 					$s=json_encode($o,JSON_UNESCAPED_UNICODE);
 				}else{
-					$s=json_encode($o);//NOTES: official json_encode must result {"a":"b"} instead of {a:"b"}, but encode speed might slightly inproved
+					$s=json_encode($o);
 				}
 			}
 			return $s;
 		}
 		public static function s2o($s){
-			$o=json_decode($s,true);//true->array, false->obj, NOTES that the json_decode not support {a:"b"} but only support {"a":"b"}. it sucks!!
+			$o=json_decode($s,true);//true->array, false->obj
+			//NOTES that the json_decode not support {a:"b"} but only support {"a":"b"}. it sucks!!
 			return $o;
-		}
-		public static function println($s,$wellformat=false){
-			if(is_array($s) || is_object($s)){
-				//$s=json_encode($s,$wellformat);
-				$s=self::o2s($s,$wellformat);
-			}
-			print $s ."\n";//.PHP_EOL;
 		}
 		public function web($url,$postdata,$timeout=7){
 			if(is_array($postdata)){
@@ -84,6 +72,102 @@ namespace CMP
 				throw new Exception(curl_error($curl),$errno);
 			}
 			return $result;
+		}
+		public static function println($s,$wellformat=false){
+			if(is_array($s) || is_object($s)){
+				//$s=json_encode($s,$wellformat);
+				$s=self::o2s($s,$wellformat);
+			}
+			print $s ."\n";//.PHP_EOL;
+		}
+		public static function getbarcode($defaultLen=23,$seed='0123456789ABCDEF'){
+			$code="";
+			list($usec, $sec) = explode(" ", microtime());
+			srand($sec + $usec * 100000);
+			$len = strlen($seed) - 1;
+			for ($i = 0; $i < $defaultLen; $i++) {
+				$code .= substr($seed, rand(0, $len), 1);
+			}
+			return $code;
+		}
+		public static function os_compare($bits){
+			$my_bits=32;
+			$isos64bit = (strstr(php_uname("m"), '64'))?true:false;
+			if($isos64bit)$my_bits=64;
+			$isos128bit = (strstr(php_uname("m"), '128'))?true:false;//future
+			if($isos128bit)$my_bits=128;
+			if($my_bits>$bits) return 1;
+			if($my_bits<$bits) return -1;
+			return 0;
+		}
+		public static function getDateTimeObj( $timestamp, $timezone )
+		{
+			if($timestamp!=''){
+				$o=date_create_from_format('U',$timestamp);
+				if(!$o){
+					//try U.u
+					$o=date_create_from_format('U.u',$timestamp);
+				}
+			}else{
+				$o=date_create("now",new \DateTimeZone('UTC'));
+			}
+			if($o){
+				if($timezone!=''){
+					date_timezone_set( $o, new \DateTimeZone($timezone) );
+				}
+				return $o;
+			}else{
+				throw new Exception(__CLASS__.".".__METHOD__."() ERROR: "
+					."timestamp=".self::o2s($timestamp));
+			}
+		}
+		public static function isoDate( $timestamp, $timezone )
+		{
+			return self::getDateTimeObj( $timestamp, $timezone )->format('Y-m-d');
+		}
+		public static function isoDateTime( $timestamp, $timezone )
+		{
+			return self::getDateTimeObj( $timestamp, $timezone )->format('Y-m-d H:i:s');
+		}
+		public static function getYmdHis( $timestamp, $timezone ){
+			return self::getDateTimeObj( $timestamp, $timezone )->format('YmdHis');
+		}
+		//yyyymmdd
+		public static function getyyyymmdd( $timestamp, $timezone ){
+			return self::getDateTimeObj( $timestamp, $timezone )->format('Ymd');
+		}
+		//yymmdd
+		public static function getyymmdd( $timestamp, $timezone ){
+			return self::getDateTimeObj( $timestamp, $timezone )->format('ymd');
+		}
+		//mmdd
+		public static function getmmdd( $timestamp, $timezone ){
+			return self::getDateTimeObj( $timestamp, $timezone )->format('md');
+		}
+
+		//if $s, translate from datetime string to unix-timestamp
+		//if !$s, using now.
+		public static function getTimeStamp( $s,$timezone )
+		{
+			$strlen_s=strlen($s);
+			if($timezone!=''){
+				$tz=new \DateTimeZone($timezone);
+			}else{
+				$tz=new \DateTimeZone('UTC');
+			}
+			if($strlen_s>10){
+				//assume YYYY-MM-DD HH:ii:ss, @ref http://php.net/manual/en/datetime.createfromformat.php
+				$o=date_create_from_format('Y-m-d H:i:s',$s,$tz);
+			}elseif($strlen_s>9){
+				//handle YYYY-MM-DD
+				$o=date_create_from_format('Y-m-d H:i:s',$s.' 00:00:00',$tz);
+			}elseif($strlen_s>0){
+				throw new Exception(__CLASS__.".getTimeStamp() Unsupport $s");
+			}else{
+				$o=date_create("now",$tz);
+			}
+			if(!$o) return null;
+			return $o->format('U');
 		}
 	}//LibCore
 	class CmpClassLoader
@@ -126,7 +210,7 @@ namespace CMP
 			return $result;
 		}
 
-		protected static function Path($path)
+		public static function Path($path)
 		{
 			if (file_exists($path) === true)
 			{
@@ -142,7 +226,7 @@ namespace CMP
 
 			return false;
 		}
-		protected static function Map($path, $recursive = false)
+		public static function Map($path, $recursive = false)
 		{
 			$result = array();
 
@@ -172,57 +256,13 @@ namespace CMP
 
 			return $result;
 		}
-		//return the md5 of the whole module CMP
-		public static function getModuleMD5(){
+		public static function getModuleMD5($dir){
 			static $md5;
 			if($md5) return $md5;
-			$md5=md5(serialize(CmpClassLoader::Map(__DIR__, true)));
+			if(!$dir) $dir=__DIR__;
+			$md5=md5(serialize(CmpClassLoader::Map($dir, true)));
 			return $md5;
 		}
-		public static function tryLoadExt($class_name){
-
-			//class path to file path
-			$class_name=str_replace('\\', '/', $class_name);
-			$class_name=preg_replace("/^\//","",$class_name);//remove the leading /
-
-			if( file_exists( "$class_name.php" ) ){
-				require_once "$class_name.php";
-				return true;
-			}
-			$ppp=(_APP_DIR_ ."/$class_name.php");
-			if( file_exists( $ppp ) ){
-				require_once $ppp;
-				return true;
-			}
-
-			//try class_path_a
-			$class_path_a=getConf("class_path_a");
-			foreach(array_reverse($class_path_a) as $class_path){
-				$ccc="$class_path/$class_name.php";
-				if(file_exists($ccc)){
-					#self::stderrln("### $ccc ###");
-					require $ccc;
-					return true;
-				}else{
-					#print("!!! $ccc !!!\n");
-					#self::stderrln("!!! $ccc !!!");
-				}
-			}
-
-			//try _LIB_CORE_
-			if(file_exists( _LIB_CORE_ ."/$class_name.php")){
-				require_once(_LIB_CORE_ ."/$class_name.php");
-				if(class_exists($class_name)){
-					return true;
-				}
-			}
-
-			if(class_exists($class_name)){
-				return true;
-			}
-			return false;
-		}
-
 		public static function tryLoad($classname){
 			$ns="CMP\\";
 			if(self::str_starts_with($classname,$ns)){
@@ -238,14 +278,13 @@ namespace CMP
 			}
 		}
 	}
-	//default behavior about to load class file under __DIR__.
+	//default behavior about to load class
 	spl_autoload_register(function($class_name){
-		#require_once __DIR__ .'/CmpClassLoader.php';
-		CmpClassLoader::tryload($class_name);
+		CmpClassLoader::tryLoad($class_name);
 	});
 }
 
-//几个很好用的快速函数.能大量减少代码量!! 没必要搬到LibBase...
+//some wonderfull short global, not suitable to move to LibBase/LibCore...
 namespace
 {
 	//Usage: eval(arr2var_all("param"));

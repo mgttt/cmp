@@ -9,6 +9,7 @@ class WebCmpDemo
 
 	//////////////////////////////////////////////////////
 	//默认处理魔法函数.
+	//如果 _m未在本_c定义，本魔法函数_call()去渲染模板 demo.$_m.htm
 	public function __call($__function__, $param_a){
 		$sid=session_id();
 		//$lang=$this->checkLang();
