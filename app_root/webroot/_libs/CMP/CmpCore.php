@@ -1,4 +1,5 @@
 <?php
+//@see http://cmpTech.info/
 namespace CMP
 {
 	if(!class_exists("\\CMP\\CmpCore")){
