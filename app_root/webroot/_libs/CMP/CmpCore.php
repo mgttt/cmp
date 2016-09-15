@@ -61,7 +61,7 @@ namespace CMP
 				if(!defined("_LIB_CORE_")) define("_LIB_CORE_",realpath(dirname(__FILE__)));
 
 				#require _APP_DIR_."/config.switch.php";//switch of runtime env conf
-				if(!$tmp_switch_file) $tmp_switch_file=_APP_DIR_.'/config.switch.php.tmp';
+				if(!$tmp_switch_file) $tmp_switch_file=_APP_DIR_.'/config.switch.override.tmp';
 				$SAE=defined('SAE_TMP_PATH') && !$argv[0];//dirty tricks
 				if($SAE){
 					$_switch_conf="dev_sae";//Using SAE config on SAE Env

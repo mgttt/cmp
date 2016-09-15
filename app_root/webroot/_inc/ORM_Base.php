@@ -27,6 +27,7 @@
 //	public function realDelete($param);//not suggest to use unless you are sure
 //	public function realDeleteAll($param);//please dont use unless you are very very sure.
 //}
+use \CMP\LibCore;
 class ORM_Base
 	extends rbWrapper //@ref CMP
 {
@@ -68,7 +69,7 @@ class ORM_Base
 						if($new_id){
 							$sql='UPDATE '.$this->NAME_R.' SET id='.qstr($id).' WHERE id='.$new_id
 								.' LIMIT 1'//免得有重大意外...虽然从来没遇到过有意外...
-							;
+								;
 							print $sql;
 							$this->exec($sql);
 						}else{
@@ -141,6 +142,9 @@ class ORM_Base
 			}
 			$bean->create_time = $isoDateTime;//Time When Create
 		}else{
+			if(!$bean->create_time){
+				$bean->create_time=$isoDateTime;
+			}
 			if($status!=''){
 				$bean->status=$status;
 			}
@@ -258,9 +262,8 @@ class ORM_Base
 		return $rs;
 	}
 
-	//WARNING: duplicate item created if design not good.
-	//高并发下这样做是不行的。所以应用场合有限，特别注意！
-	//try to find first, if found then return, if not found then do insert()
+	//TODO @deprecated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//@see findOrUpsert()
 	public function findOrInsert($param,$flag_just_id=true){
 		$one=$this->searchOne($param);
 		if($one){
@@ -274,5 +277,62 @@ class ORM_Base
 		$rt = $this->loadBean($id);
 		return $rt;
 	}
-	
+	// NOTES: using trick sql to fulfil the upsert($toUpdate) by filter($toFind)
+	// INSERT INTO $table (k1,k2)
+	// SELECT * FROM (SELECT 1,2) AS $tmp_table
+	// WHERE NOT EXISTS (SELECT 'Y' FROM $table WHERE k1='$k1' AND k2=$k2 LIMIT 1)
+	// $toFind=array('k1'=>$k1,'k2'=>$k2);$toUpdate=array('k1'=>$k1,'k2'=>$k2,'k3'=>$k3);
+	public function findAndUpsert($toUpdate, $toFind){
+		$table = $this->NAME_R;
+		if(!$table) throw new Exception("SYSTEM ERROR: findAndUpsert() failed for empty NAME_R");
+		if(is_array($toUpdate) && count($toUpdate)>0){
+			//Y
+		}else{
+			throw new Exception("SYSTEM ERROR: findAndUpsert() not accept empty \$toUpdate");
+		}
+		if(is_array($toFind) && count($toFind)>0){
+			//Y
+		}else{
+			throw new Exception("SYSTEM ERROR: findAndUpsert() not accept empty \$toFind");
+		}
+		$tmp_table='TMP_'.LibCore::getYmdHis();
+		$where='WHERE 1=1';
+		$c=0;
+		$s_k="";
+		$s_v="";
+		foreach($toFind as $k=>$v){
+			$where.=" AND $k=".qstr($v);
+			$s_k.=($c>0?',':'').$k;
+			$s_v.=($c>0?',':'').qstr($v);
+			$c++;
+		}
+		if(!$s_k){
+			throw new Exception("SYSTEM ERROR: findAndUpsert() meet a empty \$toFind");
+		}
+		$id=$this->getCell("SELECT id FROM $table $where LIMIT 1");
+		if($id){
+			//OK
+			$toUpdate['id']=$id;
+			$rb=$this->update($toUpdate);
+		}else{
+			//try insert (with atomic operation)
+			$sql="INSERT INTO $table ($s_k) SELECT * FROM (SELECT $s_v) AS $tmp_table WHERE NOT EXISTS (SELECT 'Y' FROM $table $where LIMIT 1)";
+			$af_insert=$this->execute($sql);
+			$id=$this->getCell("SELECT id FROM $table $where LIMIT 1");
+			if($id){
+				//OK
+				$toUpdate['id']=$id;
+				$rb=$this->update($toUpdate);
+			}else{
+				//INSERT FAILED??
+				throw new Exception("SYSTEM ERROR: findAndUpsert() failed to INSERT when not found for the \$toFind");
+			}
+		}
+		return array(
+			'sql'=>$sql,
+			'insert'=>$af_insert,
+			'id'=>$id,
+			'rb'=>$rb,
+		);
+	}
 }
