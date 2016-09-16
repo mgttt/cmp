@@ -310,23 +310,20 @@ class ORM_Base
 			throw new Exception("SYSTEM ERROR: findAndUpsert() meet a empty \$toFind");
 		}
 		$id=$this->getCell("SELECT id FROM $table $where LIMIT 1");
-		if($id){
-			//OK
-			$toUpdate['id']=$id;
-			$rb=$this->update($toUpdate);
-		}else{
+		if(!$id){
 			//try insert (with atomic operation)
 			$sql="INSERT INTO $table ($s_k) SELECT * FROM (SELECT $s_v) AS $tmp_table WHERE NOT EXISTS (SELECT 'Y' FROM $table $where LIMIT 1)";
 			$af_insert=$this->execute($sql);
 			$id=$this->getCell("SELECT id FROM $table $where LIMIT 1");
-			if($id){
-				//OK
-				$toUpdate['id']=$id;
-				$rb=$this->update($toUpdate);
-			}else{
-				//INSERT FAILED??
-				throw new Exception("SYSTEM ERROR: findAndUpsert() failed to INSERT when not found for the \$toFind");
-			}
+		}
+		if($id){
+			//OK
+			$toUpdate['id']=$id;
+			arr2arr($toUpdate,$toFind);
+			$rb=$this->update($toUpdate);
+		}else{
+			//如果走到这里应该是有些未想到的CASE，先抛出异常，再人工介入看怎么处理:
+			throw new Exception("SYSTEM ERROR: findAndUpsert() failed to INSERT when not found for the \$toFind");
 		}
 		return array(
 			'sql'=>$sql,

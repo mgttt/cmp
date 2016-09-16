@@ -47,6 +47,7 @@ namespace CMP
 				$ini_get_date_timezone=ini_get("date.timezone");
 				if($SERVER_TIMEZONE!=ini_get("date.timezone")){
 					ini_set("date.timezone",$SERVER_TIMEZONE);
+					//date_timezone_set( $o, new \DateTimeZone($SERVER_TIMEZONE) );
 				}
 			}
 		}

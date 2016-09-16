@@ -118,6 +118,9 @@ namespace CMP
 				$o=date_create("now",new \DateTimeZone('UTC'));
 			}
 			if($o){
+				if(!$timezone){
+					$timezone=ini_get("date.timezone");
+				}
 				if($timezone!=''){
 					date_timezone_set( $o, new \DateTimeZone($timezone) );
 				}
