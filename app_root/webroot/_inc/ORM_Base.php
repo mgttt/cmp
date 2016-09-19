@@ -70,7 +70,6 @@ class ORM_Base
 							$sql='UPDATE '.$this->NAME_R.' SET id='.qstr($id).' WHERE id='.$new_id
 								.' LIMIT 1'//免得有重大意外...虽然从来没遇到过有意外...
 								;
-							print $sql;
 							$this->exec($sql);
 						}else{
 							throw new Exception('FAIL CREATE id '.$id);
@@ -187,6 +186,7 @@ class ORM_Base
 	//由子类覆盖的查找 => Array 函数.
 	public function searchList($param){
 		throw new Exception("searchList() Need Override");
+
 		//下面的是代码参考 ;)
 		//字段集
 		$field_name_a=$this->bean_name_a;
@@ -264,7 +264,9 @@ class ORM_Base
 
 	//TODO @deprecated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	//@see findOrUpsert()
-	public function findOrInsert($param,$flag_just_id=true){
+	public function
+		findOrInsert($param,$flag_just_id=true){
+		throw new Exception("findOrInsert is deprecated!");
 		$one=$this->searchOne($param);
 		if($one){
 			if(!$flag_just_id) return $one;

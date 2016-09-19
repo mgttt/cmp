@@ -115,7 +115,9 @@ class rbWrapper
 		return $bean->export();
 	}
 
-	//返回的是 beans array （注意不是数字索引的，索引的key是 id！！！)...
+	//返回的是 beans数组（即数组中的成员是bean，不是array）
+	//注意参考对比 getArr()
+	//（注意不是数字索引型数组，而是对象型数组，索引的key是 id)
 	public function findBeanArr($q1,$q2=array()){
 		$rt=$this->_inner_rbfacade->find($this->NAME_R,$q1,$q2);
 		if(is_array($rt) && count($rt)>0){
@@ -136,6 +138,7 @@ class rbWrapper
 			return null;
 		}
 	}
+	//NOTES:
 	//不严谨。如果需要ACID，需要另外写..
 	public function findOneBeanOrDispense($q1,$q2,$q3){
 		if($q3===null)
@@ -172,7 +175,7 @@ class rbWrapper
 		}
 		if(is_array($rsa) && count($rsa)>0){
 		}else{
-			//php的空数组==null，但不===null
+			//注：php的空数组==null，但不===null
 			return array();
 		}
 		return $rsa;

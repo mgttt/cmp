@@ -713,6 +713,7 @@ class Cache_Lite
             clearstatcache();
             $length = @filesize($this->_file);
 
+#cmp.patch
 						$mqr=null;
 						if(version_compare(PHP_VERSION, '5.5.0')<0){
 							$mqr = get_magic_quotes_runtime();
@@ -727,6 +728,7 @@ class Cache_Lite
             } else {
                 $data = '';
             }
+			#cmp.patch
 						if(version_compare(PHP_VERSION, '5.5.0')<0 && $mqr!=null){
 							set_magic_quotes_runtime($mqr);
 						}
