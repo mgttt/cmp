@@ -3,7 +3,7 @@ class WebCmpDemo
 	extends ApiDemo
 {
 	public function DefaultIndex(){
-		$test_tpl_1=(rand(1000)>500)?true:false;
+		$test_tpl_1=rand(0,1000);
 		include($this->TPL("DefaultIndex","demo"));
 	}
 

@@ -1,3 +1,4 @@
+.DS_Store
 .svn
 _tmp/
 _del/
@@ -7,3 +8,6 @@ _logs/
 *.log
 *.cache
 *.db
+cache_*
+*.swp
+*.un~

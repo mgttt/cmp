@@ -5,7 +5,7 @@ class AppAuthBase
 	public static function checkApiAccess($request_class,$request_method,$request_method_param){
 
 		$request_class=strtolower(trim($request_class));
-		if(preg_match('/^(api|web|wap|ussd|sms|3g|mobile|json)/',$request_class)){
+		if(preg_match('/^(api|web|wap|ussd|sms|3g|mobile|json|pub)/',$request_class)){
 			return true;
 		}
 		if(preg_match('/^(a)$/',$request_class)){

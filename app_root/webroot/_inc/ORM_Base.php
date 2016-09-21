@@ -49,7 +49,7 @@ class ORM_Base
 	//1,将参数中的属性抄过去，跟 REPLACE 有不同，REPLACE 是把前者没有的参数都给删除掉....REPLACE不好用...
 	//2,如果id的存在就做UPDATE，如果ID不存在就INSERT ID VALUES($id)
 	//3,如果没有参数ID就当成INSERT
-	//4，其它类型的 INSERT_UPDATE 另外实现参考上面Merge/Replace
+	//4,其它类型的 INSERT_UPDATE 另外实现参考上面Merge/Replace
 	//@ref https://en.wikipedia.org/wiki/Merge_(SQL)
 	public function upsert($param,$flagNew=true){
 		$id=$param['id'];
@@ -280,17 +280,26 @@ class ORM_Base
 		return $rt;
 	}
 	// NOTES: using trick sql to fulfil the upsert($toUpdate) by filter($toFind)
+	// $toUpdateEmpty means update the field if it's empty.
 	// INSERT INTO $table (k1,k2)
 	// SELECT * FROM (SELECT 1,2) AS $tmp_table
 	// WHERE NOT EXISTS (SELECT 'Y' FROM $table WHERE k1='$k1' AND k2=$k2 LIMIT 1)
 	// $toFind=array('k1'=>$k1,'k2'=>$k2);$toUpdate=array('k1'=>$k1,'k2'=>$k2,'k3'=>$k3);
-	public function findAndUpsert($toUpdate, $toFind){
+	public function findAndUpsert($toUpdate, $toFind, $toUpdateEmpty){
 		$table = $this->NAME_R;
 		if(!$table) throw new Exception("SYSTEM ERROR: findAndUpsert() failed for empty NAME_R");
+		$f_need_override=false;
+		$f_need_update_empty=false;
+		if(is_array($toUpdateEmpty) && count($toUpdateEmpty)>0){
+			$f_need_update_empty=true;
+		}
 		if(is_array($toUpdate) && count($toUpdate)>0){
-			//Y
+			$f_need_override=true;
 		}else{
-			throw new Exception("SYSTEM ERROR: findAndUpsert() not accept empty \$toUpdate");
+			if($f_need_update_empty){
+			}else{
+				throw new Exception("SYSTEM ERROR: findAndUpsert() not accept empty \$toUpdate and \$toUpdateEmpty");
+			}
 		}
 		if(is_array($toFind) && count($toFind)>0){
 			//Y
@@ -305,7 +314,7 @@ class ORM_Base
 		foreach($toFind as $k=>$v){
 			$where.=" AND $k=".qstr($v);
 			$s_k.=($c>0?',':'').$k;
-			$s_v.=($c>0?',':'').qstr($v);
+			$s_v.=($c>0?',':'').qstr($v).' AS '.$k;
 			$c++;
 		}
 		if(!$s_k){
@@ -318,20 +327,53 @@ class ORM_Base
 			$af_insert=$this->execute($sql);
 			$id=$this->getCell("SELECT id FROM $table $where LIMIT 1");
 		}
-		if($id){
-			//OK
-			$toUpdate['id']=$id;
+		if(!$id){
+			//如果走到这里应该是有些未想到的CASE，先抛出异常，再人工介入看怎么处理:
+			throw new Exception("SYSTEM ERROR: findAndUpsert() failed to INSERT to $table"
+				//."af_insert=".LibCore::o2s($af_insert)." ".$sql//TMP DEBUG
+			);
+		}
+		$toUpdate['id']=$id;
+
+		//如果有要求覆盖更新 或者 是新增的，就update
+		if($f_need_override || $af_insert>0){
+			//if($af_insert>0)
 			arr2arr($toUpdate,$toFind);
 			$rb=$this->update($toUpdate);
 		}else{
-			//如果走到这里应该是有些未想到的CASE，先抛出异常，再人工介入看怎么处理:
-			throw new Exception("SYSTEM ERROR: findAndUpsert() failed to INSERT when not found for the \$toFind");
+			//if($f_need_update_empty){
+			$rb=$this->loadBean($id);
+			//}
+		}
+		//处理第三参数 toUpdateEmpty，有点特殊的处理，就是只当原值为空时才write.
+		//本来有想过给upsert()增加第三参数来解决，但有些耗费时间，所以先这里处理。
+		//暂时的问题只是有可能更新多一次数据库操作，不是很完美.
+		if($f_need_update_empty){
+			$f_update=false;
+			$field_name_a=$this->bean_name_a;
+			foreach($toUpdateEmpty as $kk=>$vv){
+				if( in_array($kk,$field_name_a) ||
+					array_key_exists($kk,$field_name_a))
+				{
+					if($rb[$kk]){
+						//已经有值，忽略
+					}else{
+						$rb[$kk]=$vv;
+						$f_update=true;
+					}
+				}
+			}
+			if($f_update){
+				$this->store($rb);
+			}
 		}
 		return array(
 			'sql'=>$sql,
 			'insert'=>$af_insert,
 			'id'=>$id,
 			'rb'=>$rb,
+			'f_update'=>$f_update,
+			'f_need_update_empty'=>$f_need_update_empty,
 		);
 	}
 }

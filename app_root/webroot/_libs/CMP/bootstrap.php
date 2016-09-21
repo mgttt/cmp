@@ -1,28 +1,22 @@
 <?php
-/**20160906 http://cmptech.info/ */
-/**
- * The bootstrap/core level of CMP.
- */
+//20160921
+//The bootstrap-core-level which CMP begins with
+//http://cmptech.info/
 namespace CMP
 {
 	if( !function_exists('spl_autoload_register') ){
 		throw new Exception("\\CMP\\ needs spl_autoload_register()");
 	}
+	if (version_compare(PHP_VERSION, '5.4.0') < 0) {
+		throw new Exception("\\CMP\\ now only support php5.4+");
+	}
 	class LibCore
 	{
 		public static function o2s($o,$wellformat=false){
 			if($wellformat){
-				if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-					$s=json_encode($o,JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-				}else{
-					$s=json_encode($o);
-				}
+				$s=json_encode($o,JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 			}else{
-				if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-					$s=json_encode($o,JSON_UNESCAPED_UNICODE);
-				}else{
-					$s=json_encode($o);
-				}
+				$s=json_encode($o,JSON_UNESCAPED_UNICODE);
 			}
 			return $s;
 		}

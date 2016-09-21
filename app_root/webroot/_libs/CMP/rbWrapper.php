@@ -205,7 +205,11 @@ class rbWrapper
 		 */
 		$rt=$this->_inner_rbfacade->exec($sql,$binding);
 		if($rt===NULL){
-			throw new Exception("exec return null");
+			//throw new Exception("exec return null");
+			throw new Exception("sql return null, check sql"
+				//.$sql//TMP.DEBUG...
+			);
+			//TODO 日志啊日志.
 		}elseif(is_numeric($rt)){
 			//OK
 		}else{

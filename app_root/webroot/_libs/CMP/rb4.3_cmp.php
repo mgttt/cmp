@@ -690,6 +690,8 @@ class RPDO implements Driver
 			$err = $e->getMessage();
 			if ( $this->loggingEnabled && $this->logger ) $this->logger->log( 'An error occurred: ' . $err );
 			$exception = new SQL( $err, 0 );
+			//TMD.DEBUG....
+			//$exception = new SQL( $err ." ".$sql, 0 );
 			$exception->setSQLState( $e->getCode() );
 			throw $exception;
 		}

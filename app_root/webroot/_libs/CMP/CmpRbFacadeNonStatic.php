@@ -104,6 +104,8 @@ namespace RedBeanPHP {
 							QueryWriter::C_SQLSTATE_NO_SUCH_TABLE )
 						)
 					) {
+						//cmp.hack:
+						if ($method=='exec') return NULL;
 						return ( $method === 'getCell' ) ? NULL : array();
 					} else {
 						throw $exception;
