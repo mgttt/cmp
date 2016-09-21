@@ -8,7 +8,7 @@ Official website <a href="http://cmptech.info/" target=_blank>cmpTech.info</a>
 
 https://github.com/cmptech/cmp/tree/master/app_root/webroot/_libs/CMP
 
-## cmp-mini-framework-in-one-file: \CMP\LibCore
+## Quick Mode for small tool: (cmp-mini-framework-in-one-file \CMP\LibCore)
 
 https://github.com/cmptech/cmp/tree/master/app_root/webroot/_libs/CMP/bootstrap.php
 
@@ -58,7 +58,7 @@ echo now use your browser to open http://localhost:9888/
 
 # Core Dependency
 
-* <a href="http://github.com/faisalman/simple-excel-php" target=_blank>SimpleExcel</a> [0.3.15], for the xls(xml)-php-compilation-for-langpack   //@link QuickFunc getLang()
+* <a href="http://github.com/faisalman/simple-excel-php" target=_blank>SimpleExcel</a> [0.3.15], for the xls(xml)-php-compilation-for-langpack (NOTES: may be replaced in future)   //@link QuickFunc getLang()
 * dzTemplate: a modified mini-php-page-template engine class file  //@link QuickFunc include(TPL());
 
 # Training (CHN)
