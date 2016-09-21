@@ -7,9 +7,9 @@ namespace CMP
 	if( !function_exists('spl_autoload_register') ){
 		throw new Exception("\\CMP\\ needs spl_autoload_register()");
 	}
-	if (version_compare(PHP_VERSION, '5.4.0') < 0) {
-		throw new Exception("\\CMP\\ now only support php5.4+");
-	}
+	//if (version_compare(PHP_VERSION, '5.4.0') < 0) {
+	//	throw new Exception("\\CMP\\ now only support php5.4+");
+	//}
 	class LibCore
 	{
 		public static function o2s($o,$wellformat=false){

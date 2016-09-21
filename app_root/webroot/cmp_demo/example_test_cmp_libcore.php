@@ -1,29 +1,9 @@
 <?php
 //this header file is example about the //CMP/LibCore Only.
 
-error_reporting(E_ERROR|E_COMPILE_ERROR|E_PARSE|E_CORE_ERROR|E_USER_ERROR);
+//error_reporting(E_ERROR|E_COMPILE_ERROR|E_PARSE|E_CORE_ERROR|E_USER_ERROR);
 
-begin:
-	$CMP_bootstrap_file='CMP_bootstrap.php';
-if(!class_exists('\CMP\LibCore')){
-	if(file_exists($CMP_bootstrap_file)){
-		require_once $CMP_bootstrap_file;
-	}else{
-		$rf='https://github.com/cmptech/cmp/raw/master/app_root/webroot/_libs/CMP/bootstrap.php';
-		echo 'Downloading ...'.$rf."\n";
-		$s=file_get_contents($rf);
-		if($s){
-			echo 'Save to '.$CMP_bootstrap_file."\n";
-			file_put_contents($CMP_bootstrap_file,$s);
-			sleep(1);
-			goto begin;
-		}
-	}
-}
-
-if(!class_exists('\CMP\LibCore')){
-	throw new Exception('\CMP\LibCore class not found');
-}
+($f='CMP_bootstrap.php')&&(class_exists('\CMP\LibCore')||((file_exists($f)||file_put_contents($f,file_get_contents('https://github.com/cmptech/cmp/raw/master/app_root/webroot/_libs/CMP/bootstrap.php'))) and require_once($f)));
 
 //to load the class in the folder of current
 spl_autoload_register(function($class_name){

@@ -16,7 +16,27 @@ Example:
 
 * https://github.com/cmptech/cmp/blob/master/app_root/webroot/cmp_demo/example_test_cmp_libcore.php
 
-## [TEST SERVER WITH DOCKER]
+or
+```php
+($f='CMP_bootstrap.php')&&(class_exists('\CMP\LibCore')||((file_exists($f)||file_put_contents($f,file_get_contents('https://github.com/cmptech/cmp/raw/master/app_root/webroot/_libs/CMP/bootstrap.php'))) and require_once($f)));
+
+//to load the class in the folder of current
+spl_autoload_register(function($class_name){
+	if( defined("_APP_DIR_") && file_exists(_APP_DIR_."$class_name.php") ){
+		require_once _APP_DIR_."$class_name.php";
+	}elseif(file_exists("$class_name.php")){
+		require_once "$class_name.php";
+	}elseif(file_exists(basename($class_name).".php")){
+		require_once basename($class_name).".php";
+	}
+});
+
+use \CMP\LibCore;
+
+LibCore::println( $_SERVER );
+```
+
+## [WEB SERVER WITH DOCKER]
 
 ```shell
 git clone https://github.com/cmptech/cmp.git
@@ -26,23 +46,25 @@ echo
 echo now use your browser to open http://localhost:9888/
 ```
 
-## [TEST IN OTHER WEB SERVER]
+## [IN OTHER WEB SERVER]
 
-* Install into any web server supports PHP >=5.3.X
+* Install into any web server supports PHP >=5.4
 * Copy "config.switch.override.tmp.example.php" as "config.switch.override.tmp" for switching config-folder.
 
 # TODO
 
 * BPME integration ( github/cmptech/bpme-php )
 * composer package (cmptech/cmp)
-* Improve the Init() strategy
 
 # Core Dependency
 
 * <a href="http://github.com/faisalman/simple-excel-php" target=_blank>SimpleExcel</a> [0.3.15], for the xls(xml)-php-compilation-for-langpack   //@link QuickFunc getLang()
-* dzTemplate: a mini-php-template engine class file  //@link QuickFunc include(TPL());
+* dzTemplate: a modified mini-php-page-template engine class file  //@link QuickFunc include(TPL());
 
 # Training (CHN)
 
 https://www.gitbook.com/book/cmptech/cmp-training-book/
+
+https://cmptech.gitbooks.io/cmp-training-book/content/
+
 
