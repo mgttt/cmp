@@ -2,13 +2,13 @@
 
 CMP = Class.Method (Param)
 
-Official website <a href="http://cmptech.info/" target=_blank>cmpTech.info</a>
+A tiny PHP "framework" that help to build from small console tools to big business website.  Official website <a href="http://cmptech.info/" target=_blank>cmpTech.info</a>
 
 ## Source Code
 
 https://github.com/cmptech/cmp/tree/master/app_root/webroot/_libs/CMP
 
-## Quick Mode for small tool: (cmp-mini-framework-in-one-file \CMP\LibCore)
+# Quick Mode for small tool: (cmp-mini-framework-in-one-file \CMP\LibCore)
 
 https://github.com/cmptech/cmp/tree/master/app_root/webroot/_libs/CMP/bootstrap.php
 
@@ -18,12 +18,14 @@ Example:
 
 or
 ```php
-($f='CMP_bootstrap.php')&&(class_exists('\CMP\LibCore')||((file_exists($f)||file_put_contents($f,file_get_contents('https://github.com/cmptech/cmp/raw/master/app_root/webroot/_libs/CMP/bootstrap.php'))) and require_once($f)));
+($f='CMP_bootstrap.php')&&class_exists('\CMP\LibCore')||(file_exists($f)||
+file_put_contents($f,file_get_contents('https://github.com/cmptech/cmp/raw/master/app_root/webroot/_libs/CMP/bootstrap.php'))
+)&&require_once($f);
 
 //to load the class in the folder of current
 spl_autoload_register(function($class_name){
-	if( defined("_APP_DIR_") && file_exists(_APP_DIR_."$class_name.php") ){
-		require_once _APP_DIR_."$class_name.php";
+	if( defined("_APP_DIR_") && file_exists(_APP_DIR_."/$class_name.php") ){
+		require_once _APP_DIR_."/$class_name.php";
 	}elseif(file_exists("$class_name.php")){
 		require_once "$class_name.php";
 	}elseif(file_exists(basename($class_name).".php")){
@@ -36,7 +38,9 @@ use \CMP\LibCore;
 LibCore::println( $_SERVER );
 ```
 
-## [WEB SERVER WITH DOCKER]
+# TO build website:
+
+## [TINY-WEB-SERVER WITH DOCKER WITH SWOOLE]
 
 ```shell
 git clone https://github.com/cmptech/cmp.git
@@ -48,8 +52,13 @@ echo now use your browser to open http://localhost:9888/
 
 ## [IN OTHER WEB SERVER]
 
-* Install into any web server supports PHP >=5.4
+* Copy to any web server supports PHP >=5.4
 * Copy "config.switch.override.tmp.example.php" as "config.switch.override.tmp" for switching config-folder.
+
+# Examples
+
+* https://github.com/cmptech/cmp/tree/master/app_root/webroot/cmp_demo
+* https://github.com/cmptech/cmp/tree/master/app_root/webroot/cmp_tester
 
 # TODO
 

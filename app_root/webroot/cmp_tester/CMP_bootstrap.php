@@ -1,50 +1,38 @@
 <?php
-/**20160906 http://cmptech.info/ */
-/**
- * The bootstrap/core file of CMP.
- */
+//20160921
+//The bootstrap-core-level which CMP begins with
+//http://cmptech.info/
 namespace CMP
 {
 	if( !function_exists('spl_autoload_register') ){
-		throw new Exception("\\CMP needs spl_autoload_register()");
+		throw new Exception("\\CMP\\ needs spl_autoload_register()");
 	}
+	//if (version_compare(PHP_VERSION, '5.4.0') < 0) {
+	//	throw new Exception("\\CMP\\ now only support php5.4+");
+	//}
 	class LibCore
 	{
-		public static function stderrln($s){
-			file_put_contents('php://stderr',$s."\n",FILE_APPEND);
-		}
-		public static function stderr($s){
-			file_put_contents('php://stderr',$s,FILE_APPEND);
-		}
 		public static function o2s($o,$wellformat=false){
 			if($wellformat){
-				if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-					$s=json_encode($o,JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-				}else{
-					$s=json_encode($o);//will have {"a":"b"} instead of {a:"b"}, but encode speed might slightly inproved
-					#$s=preg_replace('/","/',"\",\n\"",$s);//dirty work for tmp...//so skip it ..
-				}
+				$s=json_encode($o,JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 			}else{
-				if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-					$s=json_encode($o,JSON_UNESCAPED_UNICODE);
-				}else{
-					$s=json_encode($o);
-				}
+				$s=json_encode($o,JSON_UNESCAPED_UNICODE);
 			}
 			return $s;
 		}
 		public static function s2o($s){
 			$o=json_decode($s,true);//true->array, false->obj
-			//NOTES that the json_decode not support {a:"b"} but only support {"a":"b"}. it sucks!!
+			//NOTES: json_decode not support {a:"b"} but only support {"a":"b"}.
 			return $o;
 		}
-		public function web($url,$postdata,$timeout=7){
+		//the mini curl wrapper function.  for complex usage, another bigger class is needed.
+		public function web($url,$postdata,$timeout=14){
 			if(is_array($postdata)){
 				$postdata_s=http_build_query($postdata);
 			}elseif(is_string($postdata)){
 				$postdata_s=$postdata;
-			}else{
-				//throw new Exception("unknown param");
+			}elseif($postdata){
+				throw new Exception("web() unknown postdata=".self::o2s($postdata));
 			}
 			$url_a=parse_url($url);
 			$curl = curl_init();
@@ -55,7 +43,6 @@ namespace CMP
 			}
 			if($postdata_s){
 				curl_setopt($ch, CURLOPT_POST, true);
-				//curl_setopt($curl, CURLOPT_POST, 1);
 				curl_setopt($curl, CURLOPT_POSTFIELDS, $postdata_s);
 			}
 			curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -73,12 +60,24 @@ namespace CMP
 			}
 			return $result;
 		}
-		public static function println($s,$wellformat=false){
+		public static function stderrln($s){
 			if(is_array($s) || is_object($s)){
-				//$s=json_encode($s,$wellformat);
 				$s=self::o2s($s,$wellformat);
 			}
-			print $s ."\n";//.PHP_EOL;
+			file_put_contents('php://stderr',$s."\n",FILE_APPEND);
+		}
+		public static function stderr($s){
+			if(is_array($s) || is_object($s)){
+				$s=self::o2s($s,$wellformat);
+			}
+			file_put_contents('php://stderr',$s,FILE_APPEND);
+		}
+		public static function println($s,$wellformat=false){
+			if(is_array($s) || is_object($s)){
+				$s=self::o2s($s,$wellformat);
+			}
+			//file_put_contents('php://stdout',$s,FILE_APPEND);
+			print $s ."\n";//NOTES: don't use PHP_EOL;
 		}
 		public static function getbarcode($defaultLen=23,$seed='0123456789ABCDEF'){
 			$code="";
@@ -90,6 +89,7 @@ namespace CMP
 			}
 			return $code;
 		}
+		//NOTES: maybe update in future :)
 		public static function os_compare($bits){
 			$my_bits=32;
 			$isos64bit = (strstr(php_uname("m"), '64'))?true:false;
@@ -112,6 +112,9 @@ namespace CMP
 				$o=date_create("now",new \DateTimeZone('UTC'));
 			}
 			if($o){
+				if(!$timezone){
+					$timezone=ini_get("date.timezone");
+				}
 				if($timezone!=''){
 					date_timezone_set( $o, new \DateTimeZone($timezone) );
 				}
@@ -162,23 +165,27 @@ namespace CMP
 				//handle YYYY-MM-DD
 				$o=date_create_from_format('Y-m-d H:i:s',$s.' 00:00:00',$tz);
 			}elseif($strlen_s>0){
-				throw new Exception(__CLASS__.".getTimeStamp() Unsupport $s");
+				throw new Exception(__CLASS__.".".__METHOD__."() Unsupport $s");
 			}else{
 				$o=date_create("now",$tz);
 			}
-			if(!$o) return null;
+			//if(!$o) return null;
+			if(!$o){
+				throw new Exception(__CLASS__.".".__METHOD__."() Unsupport $s");
+			}
 			return $o->format('U');
 		}
-	}//LibCore
-	class CmpClassLoader
-		extends LibCore
-	{
 		public static function str_starts_with($haystack, $needle) {
 			return preg_match('/^'.preg_quote($needle,'/').'/', $haystack) > 0;
 		}
 		public static function str_ends_with($haystack, $needle) {
 			return preg_match('/'.preg_quote($needle,'/').'$/', $haystack) > 0;
 		}
+	}//LibCore
+
+	class CmpClassLoader
+		extends LibCore
+	{
 		public static function Size($path, $recursive = true)
 		{
 			$result = 0;
@@ -260,7 +267,7 @@ namespace CMP
 			static $md5;
 			if($md5) return $md5;
 			if(!$dir) $dir=__DIR__;
-			$md5=md5(serialize(CmpClassLoader::Map($dir, true)));
+			$md5=md5(serialize(self::Map($dir, true)));
 			return $md5;
 		}
 		public static function tryLoad($classname){
@@ -268,7 +275,6 @@ namespace CMP
 			if(self::str_starts_with($classname,$ns)){
 				$xxx=substr($classname, strlen($ns));
 				if($xxx && $classname!= 'CMP'){
-					#include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.str_replace('\\', DIRECTORY_SEPARATOR, $xxx).'.php');
 					include_once(__DIR__.DIRECTORY_SEPARATOR.str_replace('\\', DIRECTORY_SEPARATOR, $xxx).'.php');
 					if(class_exists($classname)){
 					}else{
@@ -282,9 +288,9 @@ namespace CMP
 	spl_autoload_register(function($class_name){
 		CmpClassLoader::tryLoad($class_name);
 	});
-}
+}//namespace CMP
 
-//some wonderfull short global, not suitable to move to LibBase/LibCore...
+//some wonderfull short global func, not suitable to move to LibBase/LibCore...
 namespace
 {
 	//Usage: eval(arr2var_all("param"));
