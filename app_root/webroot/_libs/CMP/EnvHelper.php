@@ -1,4 +1,5 @@
 <?php
+//@deprecated !! moved to LibBase mostly.
 class EnvHelper
 {
 	public static function getMyIsoDateTime(){
