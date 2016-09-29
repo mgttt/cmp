@@ -29,21 +29,21 @@ or
 file_put_contents($f,file_get_contents('https://github.com/cmptech/cmp/raw/master/app_root/webroot/_libs/CMP/bootstrap.php'))
 )&&require_once($f);
 
-//ClassLoader config:
-spl_autoload_register(function($class_name){
-	if( defined("_APP_DIR_") && file_exists(_APP_DIR_."/$class_name.php") ){
-		require_once _APP_DIR_."/$class_name.php";
-	}elseif(file_exists("$class_name.php")){
-		require_once "$class_name.php";
-	}elseif(file_exists(basename($class_name).".php")){
-		require_once basename($class_name).".php";
-	}
-});
-
 use \CMP\LibCore;
 
 LibCore::println( $_SERVER );
 ```
+
+# Quick Mode for small tool with CMP feature (such as Logging/I18N/Config):
+
+Need to look at source code of
+
+* webroot/cmp_demp/inc.app.php
+* webroot/cmp_tester/test_cmp_basic.php
+
+# API Documents
+
+https://www.gitbook.com/book/cmptech/cmp-api-doc/details
 
 # TO build website:
 
