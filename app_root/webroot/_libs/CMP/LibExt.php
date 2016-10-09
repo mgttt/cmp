@@ -4,18 +4,29 @@ namespace CMP
 	class LibExt
 		extends LibBase
 	{
+		//http://php.net/manual/en/timezones.php
+		//http://php.net/manual/en/function.date-default-timezone-set.php
 		public static function getServerTimeZone(){
+			$server_timezone = self::getConf('SERVER_TIMEZONE');
+			if(!$server_timezone) $server_timezone=date_default_timezone_get();
+			$date_timezone=ini_get('date.timezone');
+			if (strcmp($server_timezone, $date_timezone)){
+				self::stderrln("$server_timezone!=$date_timezone");//TODO...
+			}else{
+				//self::stderrln("$server_timezone==$date_timezone");
+			}
+			return $server_timezone;
+
 			//The plus and minus signs (+/-) are not intuitive. For example,
 			//"Etc/GMT-10" actually refers to the timezone "(GMT+10:00)
-			$server_timezone = self::getConf('SERVER_TIMEZONE');
 			//$server_timezone = str_ireplace("etc/", "", $server_timezone)
 		/*if (strpos($server_timezone, "-") !== false) {
 			$server_timezone = str_replace("-", "+", $server_timezone);
 		} else if (strpos($server_timezone, "+") !== false) {
 			$server_timezone = str_replace("+", "-", $server_timezone);
 		}*/
-			$GMT_TIMEZONE = self::getConf('GMT_TIMEZONE');
-			return $GMT_TIMEZONE[$server_timezone];
+			//$GMT_TIMEZONE = self::getConf('GMT_TIMEZONE');
+			//return $GMT_TIMEZONE[$server_timezone];
 		}
 		//unicode(UCS-2 to any)
 		public function unicode2any($str,$target_encoding="UTF-8"){
@@ -43,11 +54,15 @@ namespace CMP
 			if($SERVER_TIMEZONE==''){
 				throw new Exception("SERVER_TIMEZONE_must_be_config");
 			}else{
-				//override the one in init.  NOTES.  u might need to make a tester for this.
+				$date_default_timezone_get=date_default_timezone_get();
+				if($SERVER_TIMEZONE!=$date_default_timezone_get){
+					date_default_timezone_set($SERVER_TIMEZONE);
+					self::stderrln("date_default_timezone_set($date_default_timezone_get=>$SERVER_TIMEZONE)");
+				}
 				$ini_get_date_timezone=ini_get("date.timezone");
-				if($SERVER_TIMEZONE!=ini_get("date.timezone")){
+				if($SERVER_TIMEZONE!=$ini_get_date_timezone){
 					ini_set("date.timezone",$SERVER_TIMEZONE);
-					//date_timezone_set( $o, new \DateTimeZone($SERVER_TIMEZONE) );
+					self::stderrln("ini_get(data.timezone,$ini_get_date_timezone=>$SERVER_TIMEZONE)");
 				}
 			}
 		}

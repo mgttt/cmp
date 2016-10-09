@@ -102,22 +102,35 @@ namespace CMP
 		}
 		public static function getDateTimeObj( $timestamp, $timezone )
 		{
+			if(!$timezone){
+				$timezone=ini_get("date.timezone");
+			}
+			if(!$timezone) $timezone='UTC';
 			if($timestamp!=''){
 				$o=date_create_from_format('U',$timestamp);
 				if(!$o){
 					//try U.u
 					$o=date_create_from_format('U.u',$timestamp);
 				}
+				if($timezone){
+					date_timezone_set( $o, new \DateTimeZone($timezone) );
+					//println( "TMP2----$timezone ---".$o->format('Y-m-d H:i:s') );
+				}else{
+					date_timezone_set( $o, new \DateTimeZone('UTC') );
+					//println( "TMP3----UTC ---".$o->format('Y-m-d H:i:s') );
+				}
 			}else{
-				$o=date_create("now",new \DateTimeZone('UTC'));
+				if($timezone){
+					$o=date_create("now",new \DateTimeZone($timezone));
+					//println( "TMP4----$timezone ---".$o->format('Y-m-d H:i:s') );
+				}else{
+					$o=date_create("now",new \DateTimeZone('UTC'));
+					//$o=date_create("now");//not using UTC but default...
+					//println( "TMP5----".$o->format('Y-m-d H:i:s') );
+				}
 			}
 			if($o){
-				if(!$timezone){
-					$timezone=ini_get("date.timezone");
-				}
-				if($timezone!=''){
-					date_timezone_set( $o, new \DateTimeZone($timezone) );
-				}
+				//println( "TMP6----".$o->format('Y-m-d H:i:s') );
 				return $o;
 			}else{
 				throw new Exception(__CLASS__.".".__METHOD__."() ERROR: "
@@ -130,6 +143,7 @@ namespace CMP
 		}
 		public static function isoDateTime( $timestamp, $timezone )
 		{
+			//println( "TMP0---- timezone=$timezone,timestamp=$timestamp");
 			return self::getDateTimeObj( $timestamp, $timezone )->format('Y-m-d H:i:s');
 		}
 		public static function getYmdHis( $timestamp, $timezone ){

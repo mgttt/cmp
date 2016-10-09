@@ -354,31 +354,68 @@ class rbWrapper
 				//$sql_now="SELECT strftime('%s','now')";
 				$sql_now="SELECT datetime('now')";//Y-m-d H:i:s
 				//$sql_now="SELECT datetime()";//?
+				//把 Y-m-d H:i:s => UNIX TIMESTAMP
+				$db_time=my_strtotime($this->getCell($sql_now));//32bit-2038
 				break;
 			case "mysql":
 			case "mysqli":
-				$sql_now="SELECT NOW()";//Y-m-d H:i:s
+				//NOTES:https://en.wikipedia.org/wiki/Year_2038_problem
+				//dont use UNIX_TIMESTAMP() which has 2038 problem in 32bit system (in case we still have some old program run on 32bit)
+				//$sql_now="SELECT NOW()";//Y-m-d H:i:s
+				//$db_time=my_strtotime($this->getCell($sql_now));//32bit-2038
+
+				$sql_now="SELECT UNIX_TIMESTAMP()";
+				$db_time=$this->getCell($sql_now);
 				break;
 			default:
 				throw new Exception("db_time not supported db_type=$db_type");
 			}
-			//把 Y-m-d H:i:s => UNIX TIMESTAMP
-			$db_time=my_strtotime($this->getCell($sql_now));//32bit-2038
 			if(!$db_time) throw new Exception("db_time failed $db_type($sql_now)");
 			$this->_cache_db_time=$db_time;
 			$this->_cache_php_time=$php_now;
 		}
 		return $db_time;
 	}
+	public function getDbYmdHis(){
+		$db_type=$this->getDatabaseAdapter()->getDatabase()->getDatabaseType();
+
+		switch($db_type){
+		case "sqlite":
+			//建立sql for unix timestamp （注Unix Timestamp有32bit-2038年的BUG，所以直接取出 Y-m-d H:i:s）..
+			//$sql_now="SELECT strftime('%s','now')";//have bug in 32bit system
+			$sql_now="SELECT datetime('now')";//Y-m-d H:i:s
+			//把 Y-m-d H:i:s => UNIX TIMESTAMP
+			$getDbYmdHis=my_strtotime($this->getCell($sql_now));//32bit-2038
+			break;
+		case "mysql":
+		case "mysqli":
+			//NOTES:https://en.wikipedia.org/wiki/Year_2038_problem
+			//dont use UNIX_TIMESTAMP() which has 2038 problem in 32bit system (in case we still have some old program run on 32bit)
+			$sql_now="SELECT NOW()";//Y-m-d H:i:s
+			$getDbYmdHis=($this->getCell($sql_now));
+
+			break;
+		default:
+			throw new Exception(__FUNCTION__." not supported db_type=$db_type");
+		}
+		if(!$getDbYmdHis) throw new Exception(__FUNCTION__." failed $db_type($sql_now)");
+		return $getDbYmdHis;
+	}
 	public function isoDate( $time = NULL )
 	{
-		if(!$time) $time=$this->db_time();
-		return my_isoDate($time);
+		if(!$time){
+			//$time=$this->db_time();
+			return substr($this->getDbYmdHis(),0,10);//ugly-hack
+		}
+		return my_isoDate($time);//remember to call adjust_timezone() at headers...
 	}
 	public function isoDateTime( $time = NULL )
 	{
-		if(!$time) $time=$this->db_time();
-		return my_isoDateTime($time);
+		if(!$time){
+			//$time=$this->db_time();
+			return $this->getDbYmdHis();
+		}
+		return my_isoDateTime($time);//remember to call adjust_timezone() at headers...
 	}
 	public function getDbTimeZone(){
 		//@ref http://stackoverflow.com/questions/2934258/how-do-i-get-the-current-time-zone-of-mysql
