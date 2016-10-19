@@ -32,7 +32,7 @@ class rbWrapper
 	private $_inner_rbfacade=null;
 
 	//NOTES 如果第二参数不显式，就会用getConf('flag_rb_freeze');
-	public function __construct($dsn,$freeze){
+	public function __construct($dsn,$freeze=null){
 		#$this->_inner_rbfacade=new \RedBeanPHP\FacadeNonStaticCmp43;//!!!!
 		$this->_inner_rbfacade=new \RedBeanPHP\CmpRbFacadeNonStatic;//201608
 		
@@ -56,7 +56,7 @@ class rbWrapper
 		return $this->dispense($t);
 	}
 
-	protected function R_setup($dsn_req,$freeze){
+	protected function R_setup($dsn_req,$freeze=null){
 
 		if(!$dsn_req) throw new Exception("404 DSN");//新版起需要显式dsn
 
@@ -138,8 +138,8 @@ class rbWrapper
 			return null;
 		}
 	}
-	//NOTES:
-	//不严谨。如果需要ACID，需要另外写..
+	//NOTES & WARNING:
+	//不严谨。如果需要ACID，需要用findOrUpsert()
 	public function findOneBeanOrDispense($q1,$q2,$q3){
 		if($q3===null)
 		{
@@ -205,11 +205,14 @@ class rbWrapper
 		 */
 		$rt=$this->_inner_rbfacade->exec($sql,$binding);
 		if($rt===NULL){
-			//throw new Exception("exec return null");
-			throw new Exception("sql return null, check sql"
-				//.$sql//TMP.DEBUG...
-			);
+			$flag_rb_freeze=getConf("flag_rb_freeze");
 			//TODO 日志啊日志.
+			//TODO 正面的处理先临时这样，后面再来优化！
+			if($flag_rb_freeze){
+				throw new Exception("sql return null, check log");
+			}else{
+				throw new Exception("sql return null, check sql ".$sql);
+			}
 		}elseif(is_numeric($rt)){
 			//OK
 		}else{

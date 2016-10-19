@@ -69,28 +69,33 @@ namespace CMP
 
 		//新便捷函数，代替 checkMandatory，轮数组然后告诉哪个是需要的。
 		//Example:
-		//mg::checkRequired($param,array("name"=>getLang("name"));
+		//::checkRequired($param,array("name"=>getLang("name"));
 		//or
-		//mg::checkRequired($param,array("name");
+		//::checkRequired($param,array("name");
 		public static function checkRequired($arr,$key_a, $msg_tpl="MSG_ParamIsRequired"){
-			$flag_is_assoc=LibExt::is_assoc($key_a);
+			$flag_is_assoc=self::is_assoc($key_a);
 			foreach($key_a as $k=>$v){
 				$kk=($flag_is_assoc)?$k:$v;
 				//$vv=($flag_is_assoc)?$v:$k;
 				$vv=$v;
 				$f=$arr[$kk];
-				if(!$f && $f!==0 && $f!=='0'){
-					//参数1 $arr里面的 指定字段的值 如果不为真而且又不是 数字0或者字符串'0'，就理解为缺失，应抛出异常.
+					//参数1 $arr里面的 指定字段的值 如果不为真且不是 数字0或者字符串'0'，就理解为缺失，应抛出异常:
+				if(!$f && $f!==0 && $f!=='0')
+					//if ($f==null || $f=='')
+					//其实这个判断应该是等价。但是使用地方好像很多，所以不再改..
+				{
+					//false/null/''
 					throw new Exception( vsprintf(getLang($msg_tpl),array($vv)) );
 				}
 			}
 		}
 
 		//便捷函数: 如果 第一参数为真时，用第二、第三参数构造异常抛出.
-		//第二参数是 第三参数模板的参数
-		public static function checkCond($flag,$msg_param, $msg_tpl="MSG_ParamIsRequired"){
+		//第二参数是 第三参数模板（vsprintf方式）的参数
+		//@deprecated, use LibCore::throwIf()
+		public static function checkCond($flag,$msg_param,$msg_tpl="MSG_ParamIsRequired"){
 			if($flag){
-				throw new Exception( vsprintf(getLang($msg_tpl),$msg_param));
+				throw new Exception(vsprintf(getLang($msg_tpl),$msg_param));
 			}
 		}
 		//@deprecated, 建议用上面checkRequired
@@ -145,11 +150,6 @@ namespace CMP
 				$_ip=$REMOTE_ADDR;
 			}while(false);
 			return($_ip);
-		}
-		//judge array whether a associate array
-		//https://gist.github.com/1965669
-		public static function is_assoc($array){
-			return (array_values($array) !== $array);
 		}
 		//get the sequence of a single second (in single thread...)
 		//Usage list($sec,$seq)=mg::getTimeSequence();echo "$sec.$seq";

@@ -387,8 +387,15 @@ EOSQL;
 				//$dir_switch_conf=$_conf_all_common_['dir_switch_conf'];
 				//if(!$dir_switch_conf) throw new Exception("ConfigError: not found $_switch_conf.dir_switch_conf");
 
+				$conf_file_ext=(realpath(_APP_DIR_."/_conf.$_switch_conf/$_switch_conf.conf.php"));
 				$conf_file=(realpath(_APP_DIR_."/_conf.$_switch_conf/$_switch_conf.php"));
-				if(!$conf_file) throw new Exception("ConfigError: $_switch_conf not found");
+				if(!$conf_file){
+					if (file_exists($conf_file_ext)){
+						$_conf_all_[$_switch_conf]=$_conf_all_common_;
+					}else{
+						throw new Exception("ConfigError: $_switch_conf not found");
+					}
+				}
 				require $conf_file;
 
 				//if($mandate_flag && $_conf_all_[$_switch_conf]){} else {
@@ -399,6 +406,9 @@ EOSQL;
 					throw new Exception("ConfigError: getConf failed \$_conf_all_[$_switch_conf]");
 
 				$_conf_=($_conf_all_[$_switch_conf]);
+
+				//extended conf
+				if (file_exists($conf_file_ext)) require $conf_file_ext;
 			}
 			#LibBase::stderr(var_export($_conf_,true));
 

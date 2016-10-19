@@ -2,6 +2,9 @@
 //usage:
 //GET
 // echo http_req(array('url'=>'http://baidu.com/'));
+//the upgrade version of http_post()
+//1, special use for some "customized" cases only...
+//2, template for some copy-and-change-then-use cases...
 function http_req($param){
 	if(!$param) throw new Exception("http_req EMPTY PARAM");
 	$url=$param['url'];
