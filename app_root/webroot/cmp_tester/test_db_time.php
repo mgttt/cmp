@@ -19,7 +19,7 @@ println(microtime(true)."<hr/>");
 
 $dsn="db_app";//配置在../cmp_demo/_conf.{$_switch_conf}/
 
-$orm=new OrmTest($dsn);
+$orm=new OrmTester($dsn);
 
 println(microtime(true)."<hr/>");
 

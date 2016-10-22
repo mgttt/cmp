@@ -7,9 +7,11 @@
 
 //下面用到php（近乎炫技式的）一个短路用法(术语叫shorthand):
 //判断类在不在，如果不在就判断文件在不在，如果文件不在就去抓回来，文件在或者抓回来的话就引入它
-($f='CMP_bootstrap.php')&&class_exists('\CMP\LibCore')||(file_exists($f)||
-file_put_contents($f,file_get_contents('https://github.com/cmptech/cmp/raw/master/app_root/webroot/_libs/CMP/bootstrap.php'))
-)&&require_once($f);
+($f='CMP_bootstrap.php')&&class_exists('\CMP\LibCore')||
+(file_exists($f)||copy('https://github.com/cmptech/cmp/raw/master/app_root/webroot/_libs/CMP/CMP_bootstrap.php',$f))
+&&require_once($f);
+
+#file_put_contents($f,file_get_contents('https://github.com/cmptech/cmp/raw/master/app_root/webroot/_libs/CMP/bootstrap.php'))
 
 /*
  * 对，上面的写法是过于炫技了，非常不建议大家这样使用。正常的代码方式应该是这样的：
@@ -44,4 +46,3 @@ if(preg_match('/class="op_exrate_result">[\n\s]*(.*)[\n\s]*<\/div>[\n\s]*<\/div>
 	LibCore::println("$s\n\nNot found op_exrate_result?");
 }
 
-//TODO 这里要写一个分析$s并取出汇率的例子，用最简单的正则式就算了，先不要用到高级的库.

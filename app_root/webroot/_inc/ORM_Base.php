@@ -34,6 +34,7 @@ class ORM_Base
 	public static $DSN='db_app';
 	//public $bean_name_a;//please override by the children
 
+	//NOTES: seldom use, mostly use findBeanOne
 	//return Array of one, not bean
 	//can use $one['id'] to get a bean with .loadBean($id);
 	public function searchOne($param){

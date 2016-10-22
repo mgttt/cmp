@@ -3,8 +3,22 @@
 <!--[if IE 8 ]><html class="ie8"><![endif]-->
 <!--[if IE 9 ]><html class="ie9"><![endif]-->
 <!--[if (gt IE 9)|!(IE)]><!--><html class=""><!--<![endif]-->
-<!--[if lt IE 9 ]><script src='ie678.js'></script><![endif]-->
 <body>
+<!--[if lt IE 9 ]><script src='ie678.js'></script><script src='bigcbx.ie.patch.js'></script><![endif]-->
+	<div>
+		<div id='div1'>
+			<input id='ipt1' value='ipt1ipt1'/>
+			<input id='ipt2' value='ipt2ipt2' class='clsipt'/>
+			<input type=button id='btn1' value='btn1btn1' onclick='btn1_onClick();'/>
+		</div>
+	</div>
+	<script src='src.NaCl.min.js'></script>
+	<script>
+		function btn1_onClick(){
+			alert($('.clsipt').value);
+			alert($('&clsipt'));
+		}
+	</script>
 	<script>
 		if (typeof Object.prototype.enum != 'function') {
 			Object.prototype.each = function(cb){

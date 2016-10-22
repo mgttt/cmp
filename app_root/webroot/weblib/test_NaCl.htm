@@ -1,0 +1,22 @@
+<html class="">
+<body>
+	<div>
+		<div id='div1'>
+			<input id='ipt1' value='ipt1ipt1'/>
+			<input id='ipt2' value='ipt2ipt2' class='clsipt'/>
+			<input type=button id='btn1' value='btn1btn1' onclick='btn1_onClick();'/>
+		</div>
+	</div>
+	<!--
+	<script src='src.NaCl.js'></script>
+	-->
+	<script src='src.NaCl.min.js'></script>
+	<script>
+		function btn1_onClick(){
+			alert($('.clsipt').value);
+			alert($('&clsipt'));
+		}
+	</script>
+</body>
+
+

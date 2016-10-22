@@ -13,6 +13,6 @@ class ServiceDateTime
 			self::$rbWrapper=new rbWrapper($db_dsn);
 		}
 		$o=self::$rbWrapper;
-		return $o->getDbTimeStamp($cache_time,$flag_cache);
+		return $o->getDbTimeStamp($cache_time,$flag_cache,$cache_time);
 	}
 }
