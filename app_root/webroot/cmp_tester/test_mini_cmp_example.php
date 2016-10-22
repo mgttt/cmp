@@ -11,7 +11,6 @@
 (file_exists($f)||copy('https://github.com/cmptech/cmp/raw/master/app_root/webroot/_libs/CMP/CMP_bootstrap.php',$f))
 &&require_once($f);
 
-#file_put_contents($f,file_get_contents('https://github.com/cmptech/cmp/raw/master/app_root/webroot/_libs/CMP/bootstrap.php'))
 
 /*
  * 对，上面的写法是过于炫技了，非常不建议大家这样使用。正常的代码方式应该是这样的：

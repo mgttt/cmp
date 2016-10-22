@@ -22,16 +22,10 @@ Example:
 
 * https://github.com/cmptech/cmp/blob/master/app_root/webroot/cmp_demo/example_test_cmp_libcore.php
 
-or
+or do sth in one line:
 
 ```php
-($f='CMP_bootstrap.php')&&class_exists('\CMP\LibCore')||(file_exists($f)||
-file_put_contents($f,file_get_contents('https://github.com/cmptech/cmp/raw/master/app_root/webroot/_libs/CMP/bootstrap.php'))
-)&&require_once($f);
-
-use \CMP\LibCore;
-
-LibCore::println( $_SERVER );
+php -r "($f='CMP_bootstrap.php')&&(class_exists('\CMP\LibCore')||(file_exists($f)||copy('https://github.com/cmptech/cmp/raw/master/app_root/webroot/_libs/CMP/CMP_bootstrap.php',$f))&&require_once($f));\CMP\LibCore::println( $_SERVER );"
 ```
 
 # Quick Mode for small tool with CMP feature (such as Logging/I18N/Config):
