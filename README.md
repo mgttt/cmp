@@ -2,7 +2,7 @@
 
 CMP = Class.Method (Param)
 
-A tiny PHP "framework" that help to build programs, from small console tools to business website. 
+A tiny PHP "not-even-a-framework" helps building php programs, from small console tools to business website. 
 
 ## Official website
 
@@ -12,7 +12,7 @@ A tiny PHP "framework" that help to build programs, from small console tools to 
 
 https://github.com/cmptech/cmp/tree/master/app_root/webroot/_libs/CMP
 
-# Quick Mode for small tool: (cmp-mini-framework-in-one-file \CMP\LibCore)
+# Quick Mode for small console tool: (cmp-mini-framework-in-one-file \CMP\LibCore)
 
 Lib:
 
@@ -29,8 +29,6 @@ php -r "($f='CMP_bootstrap.php')&&(class_exists('\CMP\LibCore')||(file_exists($f
 ```
 
 # Quick Mode for small tool with CMP feature (such as Logging/I18N/Config):
-
-Need to look at source code of
 
 * webroot/cmp_demp/inc.app.php
 * webroot/cmp_tester/test_cmp_basic.php
@@ -57,6 +55,7 @@ echo now use your browser to open http://localhost:9888/
 
 * Copy to any web server supports PHP5.4+
 * Copy "config.switch.override.tmp.example.php" as "config.switch.override.tmp" for switching config-folder.
+* play the cmp_demo/  and cmp_tester/
 
 # Examples
 
