@@ -47,15 +47,15 @@ namespace CMP
 				curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
 			}
 			if ($postdata_s) {
-				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($curl, CURLOPT_POST, true);
 				curl_setopt($curl, CURLOPT_POSTFIELDS, $postdata_s);
 			}
 			curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 			if ($timeout > 0 && $timeout < 1) {
-				curl_setopt($ch, CURLOPT_NOSIGNAL, 1);//ms
-				curl_setopt($ch, CURLOPT_TIMEOUT_MS, 200);//since cURL 7.16.2/PHP 5.2.3
+				curl_setopt($curl, CURLOPT_NOSIGNAL, 1);//ms
+				curl_setopt($curl, CURLOPT_TIMEOUT_MS, 200);//since cURL 7.16.2/PHP 5.2.3
 			} elseif ($timeout >= 1) {
-				curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+				curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
 			}
 			$result = curl_exec($curl);
 			curl_close($curl);
