@@ -24,7 +24,8 @@ class cmp2016
 		global $argv;
 		$json_string="";
 
-		$php_input = file_get_contents('php://input');
+		//一下代码是根据不同的输入（cmp支持脚本跟web）来获取客户端传递给服务端的相关数据
+		$php_input = file_get_contents('php://input');//php的标准输入
 		if($php_input){
 			if(!$GLOBALS['HTTP_RAW_POST_DATA'])
 				$GLOBALS['HTTP_RAW_POST_DATA']=$php_input;//store for later usage if needed
@@ -91,16 +92,17 @@ class cmp2016
 		//$_s=$_REQUEST['_s'];//don't, bad idea
 		$_s=$_GET['_s'];
 		if(!$_s) $_s=$_POST['_s'];
-
+		//经过上面代码处理后,如果服务端有获得客户端的输入,并且是字符串类型的。就尝试json解析成数组对象
 		if( (!$json_obj) && $json_string ){
 			$json_obj=my_json_decode($json_string);
 		}
-
+		//合并客户端的输入跟服务端前面定义的默认参数
 		$json_obj=array_merge((array)self::$_preSetData,(array)$json_obj);
 		//$_preSetData=self::$_preSetData;
 
 		self::$_last_json_obj=$json_obj;//FOR NEXT DEBUG IF CALL TWICE...
 
+		//一下是对_s的处理，cmp框架是用_s作为session_id来传递的,目前是用显示的url方式
 		if(! $_s) $_s=$json_obj['_s'];
 
 		$_s_cookie=$_COOKIE['_s'];
@@ -125,7 +127,7 @@ class cmp2016
 				//都没有，skip...
 			}
 		}
-
+		//根据上文的json_obj来处理得到C、M、P三个核心参数的值
 		$request_class=$json_obj['class'];
 		if(!$request_class){
 			$request_class=$json_obj['_c'];
@@ -168,6 +170,7 @@ class cmp2016
 		}
 
 		//------------------------------------------------- session id handling
+		//根据$_s设置session_id
 		if($_s){
 			session_id($_s);
 			session_start();
@@ -181,8 +184,9 @@ class cmp2016
 
 		session_write_close();//NOTES!! close first, if u need to write, need to manually do ur session_start...
 
+		//检测要访问的类是否满足框架设定的规则.毕竟不可能所有的类就开放给客户访问
 		AppAuth::checkApiAccess($request_class,$request_method,$request_method_param);
-
+		//实例化要访问的类
 		$obj=new $request_class;
 		/** NOTES:
 		 * 历史原因，有几种方式呼叫，包括
@@ -191,6 +195,7 @@ class cmp2016
 		 * 总之 $request_method_param 的目标是 _p，而 json_obj 目前基本没有地方用到，所以是用来DEBUG的
 		 * 为了向REQUEST做兼容，所以要把REQUEST的合并，但是以 _p的值有限.
 		 */
+		//执行对应的方法
 		$rt=$obj->$request_method($request_method_param, $json_obj);
 		$response_obj=($rt);
 
@@ -269,14 +274,15 @@ class cmp2016
 	}
 
 	//return JSON/PLAIN depends the running result === null
+	//处理web请求
 	public static function handleWeb($_p){
-		global $APP_NAME;
+		global $APP_NAME;//定义全局变量
 		$_php_start_time=microtime(true);
 		//---------------------------------------------------------------------------------------
 
 		$rt=array();
 		try{
-
+			//cmp的核心概念中的class method的处理 
 			$defaultClass=$_p['defaultClass'];
 			$defaultMethod=$_p['defaultMethod'];
 			if($_p['APP_NAME']){
@@ -304,12 +310,14 @@ class cmp2016
 			}else{
 				$_PreSetData['defaultMethod']=$defaultMethod;
 			}
-
+			//把上文处理后的class跟method存放到类的成员变量内.为后续run做准备
 			self::PreSetData($_PreSetData);
 
-			@ob_start();
+			@ob_start();//开启php的缓存区.具体用法自行百度
+			//开始运行web请求,即cmp的核心处理函数，通过web请求传递过来的class，method，param去执行对应的方法
 			$rt=self::Run(true);
 		}catch(Exception $ex){
+			//错误处理
 			$rt_err=global_error_handler($ex->getFile(),$ex->getLine(),$ex->getMessage(),""/*$ex->getTraceAsString()*/,$ex->getCode()
 			);
 			$rt=array_merge($rt,$rt_err);
@@ -319,6 +327,7 @@ class cmp2016
 				$rt['trace_s']=$rt['trace_s'].$trace_s;
 		}
 
+		//单处理结果带上errmsg的时候,要写日志追踪一下是哪里出错.便于开发人员debug
 		if(is_array($rt) && isset($rt['errmsg'])){
 			$errmsg=$rt['errmsg'];
 
@@ -368,7 +377,7 @@ class cmp2016
 			//$rt['nav_helper']="<a href='javascript:top.location.reload();'>Refresh";//有时方便客户刷新。兼容旧的代码而已，已经没有太大作用了.
 		}
 
-		//如果结果是 === null，就是没有返回object，就是用PLAIN模式返回，否则就是用JSON_S返回:
+		//如果结果是 === null，就是没有返回object，就是用PLAIN模式返回（一般就是web/wap等页面输出），否则就是用JSON_S返回:
 		if(!($rt===null))
 		{
 			//JSON 式返回

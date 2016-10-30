@@ -6,6 +6,8 @@ namespace CMP
 		class CmpCore
 		{
 			public static $switch_conf="";
+			
+			//搜索未定义类的文件并require_once
 			public static function tryLoadExt($class_name){
 
 				//class path to file path
@@ -49,6 +51,7 @@ namespace CMP
 				}
 				return false;
 			}
+			//初始化系统相关定义
 			public static function DefaultOopInit($tmp_switch_file){
 				error_reporting(E_ERROR|E_COMPILE_ERROR|E_PARSE|E_CORE_ERROR|E_USER_ERROR);
 				#error_reporting(0);
@@ -62,6 +65,7 @@ namespace CMP
 
 				#require _APP_DIR_."/config.switch.php";//switch of runtime env conf
 				if(!$tmp_switch_file) $tmp_switch_file=_APP_DIR_.'/config.switch.override.tmp';
+				//判断是否SAE环境
 				$SAE=defined('SAE_TMP_PATH') && !$argv[0];//dirty tricks
 				if($SAE){
 					$_switch_conf="dev_sae";//Using SAE config on SAE Env
@@ -71,13 +75,17 @@ namespace CMP
 						print "404 CONFIG ERROR: NEED tmp_switch_file($tmp_switch_file)";die;
 					}
 				}
+				//判断选择的是哪个配置文件,SAE是固定的,其他的定义在config.switch.override.tmp或者自己另外传递过来的$tmp_switch_file
 				if(!$_switch_conf){
 					print "404 CONFIG ERROR: NEED _switch_conf in ($tmp_switch_file)";die;
 				}
 				self::$switch_conf=$_switch_conf;
 
+				//不使用cookies保存session
 				ini_set("session.use_cookies",0);//Default not using Cookie
 				ini_set("session.name","_s");
+				
+				//定义_LOG_（用logger等写日志的时候的路径）、_TMP_(保存session,模板引擎编译后的文件等缓存文件的路径)全局变量
 				if($SAE){
 					//SAE mode
 					if(!defined("_LOG_"))
@@ -123,27 +131,37 @@ namespace CMP
 				//	throw new Exception("_LOG_ is not config");
 				//if(!defined("_TMP_"))
 				//	throw new Exception("_TMP_ is not config");
-				//LIB
+				
+				//LIB,其实已经在inc.app.php定义了.这里只是再次确认一下
 				if(!defined("_LIB_")){
 					define("_LIB_", realpath(_APP_DIR_ .'/_libs/'));
 				}
 				if(!is_dir(_LIB_)){
 					throw new Exception("404 _LIB_");
 				}
-
+				
+				//注册系统抛出错误后执行CMP的处理函数,具体用法自行百度
 				register_shutdown_function(array('\CMP\DefaultErrorHandler', 'handleShutdown'));
 				set_exception_handler(array('\CMP\DefaultErrorHandler', 'handleException'));
+				
+				//初始化cmp一些常用的全局函数,目前大部分全局函数都放到了类里面了,以后可以通过类去调用.不过为了兼容以前的版本所以写了这个函数注册一下。
+				//ps:好像在DefaultInit()有调用，这里是否不需要再调用一次？？by zhb
 				self::InitGlobalFunc();
 
 			}
 
 			//if DefaultInit() not enough, just copy and make your own!!!!!
 			public static function DefaultInit($tmp_switch_file){
+				//根据传递过来的配置文件来初始化系统
 				self::DefaultOopInit($tmp_switch_file);
+				//初始化cmp一些常用的全局函数,目前大部分全局函数都放到了类里面了,以后可以通过类去调用.不过为了兼容以前的版本所以写了这个函数注册一下。
+				//ps:好像在DefaultOopInit()有调用，这里是否不需要再调用一次？？by zhb
 				self::InitGlobalFunc();
 
 				//Load Class like the old days:
+				//类库自动加载,当代码初始化一个类的时候,如果之前没有include/require（即没定义）的话,就会执行这个方法,详细用法自己百度.
 				spl_autoload_register(function($class_name){
+					//搜索未定义类的文件并require_once
 					self::tryLoadExt($class_name);
 				});
 			}

@@ -10,34 +10,37 @@ namespace CMP
 	//if (version_compare(PHP_VERSION, '5.4.0') < 0) {
 	//	throw new \Exception("\\CMP\\ now only support php5.4+");
 	//}
+	//这里主要提供一些框架里用到的常用快捷函数
 	class LibCore
 	{
+		//object类型转换成json格式的字符串
 		public static function o2s($o, $wellformat = false)
 		{
-			if ($wellformat) {
-				$s = json_encode($o, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-			} else {
-				$s = json_encode($o, JSON_UNESCAPED_UNICODE);
+			if($wellformat){
+				$s=json_encode($o,JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+			}else{
+				$s=json_encode($o,JSON_UNESCAPED_UNICODE);
 			}
 			return $s;
 		}
-
+		//把json格式的字符串转换成object类型
 		public static function s2o($s)
 		{
-			$o = json_decode($s, true);//true->array, false->obj
+			$o=json_decode($s,true);//true->array, false->obj
 			//NOTES: json_decode not support {a:"b"} but only support {"a":"b"}.
 			return $o;
 		}
 
 		//the mini curl wrapper function.  for complex usage, another bigger class is needed.
+		//迷你的模拟web访问动作.默认post方式发送
 		public function web($url, $postdata, $timeout = 14)
 		{
-			if (is_array($postdata)) {
-				$postdata_s = http_build_query($postdata);
-			} elseif (is_string($postdata)) {
-				$postdata_s = $postdata;
-			} elseif ($postdata) {
-				throw new \Exception("web() unknown postdata=" . self::o2s($postdata));
+			if(is_array($postdata)){
+				$postdata_s=http_build_query($postdata);
+			}elseif(is_string($postdata)){
+				$postdata_s=$postdata;
+			}elseif($postdata){
+				throw new \Exception("web() unknown postdata=".self::o2s($postdata));
 			}
 			$url_a = parse_url($url);
 			$curl = curl_init();
@@ -65,11 +68,11 @@ namespace CMP
 			}
 			return $result;
 		}
-
+		//php的标准错误输出
 		public static function stderrln($s)
 		{
-			if (is_array($s) || is_object($s)) {
-				$s = self::o2s($s, $wellformat);
+			if(is_array($s) || is_object($s)){
+				$s=self::o2s($s,$wellformat);
 			}
 			file_put_contents('php://stderr', $s . "\n", FILE_APPEND);
 		}
@@ -81,12 +84,12 @@ namespace CMP
 			}
 			file_put_contents('php://stderr', $s, FILE_APPEND);
 		}
-
+		//带\n的print
 		public static function println($s, $wellformat = false)
 		{
-			if (is_string($s)) {
-			} else {
-				$s = self::o2s($s, $wellformat);
+			if(is_string($s)){
+			}else{
+				$s=self::o2s($s,$wellformat);
 			}
 			print $s . "\n";
 			//if(is_array($s) || is_object($s)){
@@ -95,7 +98,7 @@ namespace CMP
 			////file_put_contents('php://stdout',$s,FILE_APPEND);
 			//print $s ."\n";//NOTES: don't use PHP_EOL;
 		}
-
+		//获取随机字符串,目前用于生产session_id
 		public static function getbarcode($defaultLen = 23, $seed = '0123456789ABCDEF')
 		{
 			$code = "";
@@ -158,8 +161,8 @@ namespace CMP
 					. "timestamp=" . self::o2s($timestamp));
 			}
 		}
-
-		public static function isoDate($timestamp, $timezone)
+		//获取指定市区的时间
+		public static function isoDate( $timestamp, $timezone )
 		{
 			return self::getDateTimeObj($timestamp, $timezone)->format('Y-m-d');
 		}
@@ -248,6 +251,7 @@ namespace CMP
 		}
 	}//LibCore
 
+	//cmp的自动加载类
 	class CmpClassLoader
 		extends LibCore
 	{
@@ -338,7 +342,9 @@ namespace CMP
 	}
 
 	//default behavior about to load class
-	spl_autoload_register(function ($class_name) {
+	//类库自动加载,当代码初始化一个类的时候,如果之前没有include/require（即没定义）的话,就会执行这个方法,详细用法自己百度.
+	spl_autoload_register(function($class_name){
+		//搜索未定义类的文件并require_once
 		CmpClassLoader::tryLoad($class_name);
 	});
 }//namespace CMP

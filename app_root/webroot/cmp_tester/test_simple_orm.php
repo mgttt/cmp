@@ -18,7 +18,7 @@ $dsn = "db_app";
 #$dsn = "db_local";
 
 //$rb=new rbWrapper4($dsn);//这个是更底层的用法，即连 Orm层都不需要。。。一般不这样用 :)
-$rb=new OrmTest($dsn);
+$rb=new OrmTester($dsn);
 
 //生成 book 对象。注意这时还没保存的
 $book = $rb->dispense( 'book' );//先测试一下 RedBean级别的语法
@@ -38,7 +38,7 @@ println("book2=".var_export($book2->export(),true));
 
 ##example 3
 class OrmBook
-	extends OrmTest
+	extends OrmTester
 {
 	var $NAME_R="book";
 }
