@@ -67,10 +67,7 @@ add some plugin
 ```
 cordova plugin add cordova-plugin-barcodescanner
 cordova plugin add cordova-plugin-camera
-cordova plugin add cordova-plugin-barcodescanner
-cordova plugin add cordova-plugin-camera
 cordova plugin add cordova-plugin-compat
-cordova plugin add cordova-plugin-console
 cordova plugin add cordova-plugin-device
 cordova plugin add cordova-plugin-device-motion
 cordova plugin add cordova-plugin-device-orientation
@@ -87,8 +84,27 @@ cordova plugin add cordova-plugin-statusbar
 cordova plugin add cordova-plugin-vibration
 cordova plugin add cordova-plugin-whitelist
 
-```
+cordova plugin list
 
+cordova plugin add cordova-plugin-console
+
+```
+auto update cordova plugins
+```
+#http://stackoverflow.com/questions/28783968/update-cordova-plugins-in-one-command
+npm install -g cordova-check-plugins
+cordova-check-plugins --update=auto
+
+or ugly..
+
+#!/bin/bash
+
+PLUGINS=$(cordova plugin list | awk '{print $1}')
+
+for PLUGIN in $PLUGINS; do
+    cordova plugin rm $PLUGIN --save && cordova plugin add $PLUGIN --save
+done
+```
 run it ... (make sure XCODE/ANDROID-STUIDO is already installed !)
 ```
 cordova run android
