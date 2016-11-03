@@ -67,6 +67,26 @@ add some plugin
 ```
 cordova plugin add cordova-plugin-barcodescanner
 cordova plugin add cordova-plugin-camera
+cordova plugin add cordova-plugin-barcodescanner
+cordova plugin add cordova-plugin-camera
+cordova plugin add cordova-plugin-compat
+cordova plugin add cordova-plugin-console
+cordova plugin add cordova-plugin-device
+cordova plugin add cordova-plugin-device-motion
+cordova plugin add cordova-plugin-device-orientation
+cordova plugin add cordova-plugin-dialogs
+cordova plugin add cordova-plugin-file
+cordova plugin add cordova-plugin-file-transfer
+cordova plugin add cordova-plugin-geolocation
+cordova plugin add cordova-plugin-inappbrowser
+cordova plugin add cordova-plugin-media-capture
+cordova plugin add cordova-plugin-nativestorage
+cordova plugin add cordova-plugin-network-information
+cordova plugin add cordova-plugin-splashscreen
+cordova plugin add cordova-plugin-statusbar
+cordova plugin add cordova-plugin-vibration
+cordova plugin add cordova-plugin-whitelist
+
 ```
 
 run it ... (make sure XCODE/ANDROID-STUIDO is already installed !)
