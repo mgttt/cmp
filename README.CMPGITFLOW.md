@@ -30,10 +30,21 @@
 （配置文件不发布。。。）
 
 ## 小脚本
+#### git pull <远程主机名> <远程分支名>:<本地分支名>
+比如
+```
 
+git pull $REMOTE $REMOTE_BRANCH:$LOCL_BRANCH
+
+#eg.
+git pull origin dev:local-dev-latest-ro
+
+```
 #### 
 轮询 远程 dev 自动pull到 local-dev-latest-ro
 ```
+#while true; do (git pull origin dev:local-dev-latest-ro); sleep 4; done;
+
 while(true) {
 if branch(local,local-dev-latestro).version < branch(remote,dev).version) 
   git pull branch(remote,dev) to branch(local,local-dev-latestro) && sleep random(3 to 5) seconds
