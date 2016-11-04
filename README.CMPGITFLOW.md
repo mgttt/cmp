@@ -16,7 +16,7 @@
   >
   > 3, 然后在【$who-local-latest】做 commit。特别注意：要很小心每个文件都预览清楚！！ 然后commit成功后可以 push 远程目标分支了
   >
-  > 4,  上述成功后，可以随手把本地分支pull到最新、或者随手删除也行（比如说刚才的【$who-local-latest已经可以删除】）。删除是最爽的，有要开发时开新分支开发就好。  ** 也可以本地留一条 【$who-local-latest-ro】只用来不停的 pull到最新
+  > 4,  上述成功后，可以随手把本地分支pull到最新、或者随手删除也行（比如说刚才的【$who-local-latest已经可以删除】）。删除是最爽的，有要开发时开新分支开发就好。  ** 也可以本地留一条 【local-dev-latest-ro】只用来不停的 pull到最新
   
 # Branches
 
@@ -32,3 +32,10 @@
 ## 小脚本
 
 #### 
+轮询 远程 dev 自动pull到 local-dev-latest-ro
+```
+while(true) {
+if branch(local,local-dev-latestro).version < branch(remote,dev).version) 
+  git pull branch(remote,dev) to branch(local,local-dev-latestro) && sleep random(3 to 5) seconds
+}
+```
