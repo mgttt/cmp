@@ -1,19 +1,22 @@
 <?php
-//20161001
-//The core layer where CMP starts with, for detail please see http://cmptech.info/
+//20170101
+//Core layer where CMP starts with, please see http://cmptech.info/
 namespace CMP
 {
 	error_reporting(E_ERROR | E_COMPILE_ERROR | E_PARSE | E_CORE_ERROR | E_USER_ERROR);
+
 	if (!function_exists('spl_autoload_register')) {
 		throw new \Exception("\\CMP\\ needs spl_autoload_register()");
 	}
+
 	//if (version_compare(PHP_VERSION, '5.4.0') < 0) {
 	//	throw new \Exception("\\CMP\\ now only support php5.4+");
 	//}
-	//这里主要提供一些框架里用到的常用快捷函数
+
+	//Core Lib Of CMP
 	class LibCore
 	{
-		//object类型转换成json格式的字符串
+		// JSON => Jsonized-String
 		public static function o2s($o, $wellformat = false)
 		{
 			if($wellformat){
@@ -23,16 +26,16 @@ namespace CMP
 			}
 			return $s;
 		}
-		//把json格式的字符串转换成object类型
+
+		// Jsonized-String => JSON
 		public static function s2o($s)
 		{
-			$o=json_decode($s,true);//true->array, false->obj
 			//NOTES: json_decode not support {a:"b"} but only support {"a":"b"}.
+			$o=json_decode($s,true);//true->array, false->obj
 			return $o;
 		}
 
-		//the mini curl wrapper function.  for complex usage, another bigger class is needed.
-		//迷你的模拟web访问动作.默认post方式发送
+		//the mini curl wrapper function.  for complex usage, please use other class.
 		public function web($url, $postdata, $timeout = 14)
 		{
 			if(is_array($postdata)){
@@ -68,7 +71,7 @@ namespace CMP
 			}
 			return $result;
 		}
-		//php的标准错误输出
+
 		public static function stderrln($s)
 		{
 			if(is_array($s) || is_object($s)){
@@ -91,14 +94,11 @@ namespace CMP
 			}else{
 				$s=self::o2s($s,$wellformat);
 			}
-			print $s . "\n";
-			//if(is_array($s) || is_object($s)){
-			//	$s=self::o2s($s,$wellformat);
-			//}
-			////file_put_contents('php://stdout',$s,FILE_APPEND);
-			//print $s ."\n";//NOTES: don't use PHP_EOL;
+			print $s . "\n";//NOTES: don't use PHP_EOL;
+			//file_put_contents('php://stdout',$s,FILE_APPEND);
 		}
-		//获取随机字符串,目前用于生产session_id
+
+		//generate random string (used to named 'barcode'.
 		public static function getbarcode($defaultLen = 23, $seed = '0123456789ABCDEF')
 		{
 			$code = "";
@@ -111,7 +111,7 @@ namespace CMP
 			return $code;
 		}
 
-		//NOTES: maybe update in future :)
+		//quick compare the os bits
 		public static function os_compare($bits)
 		{
 			$my_bits = 32;
@@ -133,40 +133,35 @@ namespace CMP
 			if ($timestamp != '') {
 				$o = date_create_from_format('U', $timestamp);
 				if (!$o) {
-					//try U.u
 					$o = date_create_from_format('U.u', $timestamp);
 				}
 				if ($timezone) {
 					date_timezone_set($o, new \DateTimeZone($timezone));
-					//println( "TMP2----$timezone ---".$o->format('Y-m-d H:i:s') );
 				} else {
 					date_timezone_set($o, new \DateTimeZone('UTC'));
-					//println( "TMP3----UTC ---".$o->format('Y-m-d H:i:s') );
 				}
 			} else {
 				if ($timezone) {
 					$o = date_create("now", new \DateTimeZone($timezone));
-					//println( "TMP4----$timezone ---".$o->format('Y-m-d H:i:s') );
 				} else {
 					$o = date_create("now", new \DateTimeZone('UTC'));
-					//$o=date_create("now");//not using UTC but default...
-					//println( "TMP5----".$o->format('Y-m-d H:i:s') );
 				}
 			}
 			if ($o) {
-				//println( "TMP6----".$o->format('Y-m-d H:i:s') );
 				return $o;
 			} else {
 				throw new \Exception(__CLASS__ . "." . __METHOD__ . "() ERROR: "
 					. "timestamp=" . self::o2s($timestamp));
 			}
 		}
-		//获取指定市区的时间
+
+		//YYYY-mm-dd
 		public static function isoDate( $timestamp, $timezone )
 		{
 			return self::getDateTimeObj($timestamp, $timezone)->format('Y-m-d');
 		}
 
+		//YYYY-mm-dd HH:MM:SS
 		public static function isoDateTime($timestamp = null, $timezone = null)
 		{
 			return self::getDateTimeObj($timestamp, $timezone)->format('Y-m-d H:i:s');
@@ -196,7 +191,7 @@ namespace CMP
 		}
 
 		//if $s, translate from datetime string to unix-timestamp
-		//if !$s, using now.
+		//else using now.
 		public static function getTimeStamp($s, $timezone = null)
 		{
 			$strlen_s = strlen($s);
@@ -216,7 +211,6 @@ namespace CMP
 			} else {
 				$o = date_create("now", $tz);
 			}
-			//if(!$o) return null;
 			if (!$o) {
 				throw new \Exception(__CLASS__ . "." . __METHOD__ . "() Unsupport $s");
 			}
@@ -232,8 +226,8 @@ namespace CMP
 		{
 			return preg_match('/' . preg_quote($needle, '/') . '$/', $haystack) > 0;
 		}
-		//judge array whether a associate array
-		//https://gist.github.com/1965669
+
+		//assert array if an associate array //@ref https://gist.github.com/1965669
 		public static function is_assoc($array)
 		{
 			return (array_values($array) !== $array);
@@ -273,7 +267,6 @@ namespace CMP
 			} else if (is_file($path) === true) {
 				$result += sprintf('%u', filesize($path));
 			}
-
 			return $result;
 		}
 
@@ -292,7 +285,6 @@ namespace CMP
 			return false;
 		}
 
-		//TODO  $filter defaults array('.php$');
 		public static function Map($path, $recursive = false, $filters)
 		{
 			$result = array();
@@ -305,7 +297,6 @@ namespace CMP
 					if (is_dir($path . $file) === true) {
 						$result[$file] = ($recursive === true) ? self::Map($path . $file, $recursive) : self::Size($path . $file, true);
 					} else if (is_file($path . $file) === true) {
-						//TODO if !$filters checkif $file matches $filter... skip if not matches
 						$result[$file] = self::Size($path . $file);
 					}
 				}
@@ -341,10 +332,8 @@ namespace CMP
 		}
 	}
 
-	//default behavior about to load class
-	//类库自动加载,当代码初始化一个类的时候,如果之前没有include/require（即没定义）的话,就会执行这个方法,详细用法自己百度.
+	//@ref spl_autoload_register //http://www.php.net/manual/en/function.spl-autoload-register.php
 	spl_autoload_register(function($class_name){
-		//搜索未定义类的文件并require_once
 		CmpClassLoader::tryLoad($class_name);
 	});
 }//namespace CMP
@@ -359,7 +348,7 @@ namespace
 			return <<<EOS
 eval(arr2var("$name_of_arr",array_keys(\$$name_of_arr)));
 EOS
-				;
+			;
 		}
 	}
 	//Usage: eval(arr2var("arr",$arr));
