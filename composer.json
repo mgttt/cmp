@@ -1,0 +1,7 @@
+{
+	"name": "cmptech/cmp",
+	"description": "cmptech/cmp",
+	"require": {
+		"php": "^5.4 || ^7.0"
+	}
+}
